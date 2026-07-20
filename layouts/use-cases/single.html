@@ -1,0 +1,62 @@
+{{ define "title" }}{{ .Params.problem | default .Title }} — {{ .Site.Title }}{{ end }}
+
+{{ define "main" }}
+<section class="use-case__hero section">
+  {{ partial "hero-motif.html" . }}
+  <div class="container">
+    <span class="use-case__eyebrow">{{ T "use_case_eyebrow" }} &middot; {{ .Title }}</span>
+    <h1 class="use-case__title">{{ .Params.problem }}</h1>
+    <p class="use-case__teaser">{{ .Params.teaser }}</p>
+    {{- with .Params.libraries }}
+    <ul class="use-case__libs" role="list">
+      {{- range . }}
+      <li class="use-case__lib">{{ . }}</li>
+      {{- end }}
+    </ul>
+    {{- end }}
+  </div>
+</section>
+
+<section class="use-case__proof section section--surface">
+  <div class="container">
+    {{- /* GIF wins where one exists; the contrast view is the universal fallback.
+           Pages must never render an empty proof slot.
+           Guarded with `with`: a page without a proof block must warn, not
+           crash the build on a nil lookup. */ -}}
+    {{- with .Params.proof }}
+      {{- $media := or .gif .contrast -}}
+      {{- $alt := .alt -}}
+      {{- with $media }}
+        {{- with $.Resources.GetMatch . }}
+        <figure class="use-case__proof-media">
+          <img src="{{ .RelPermalink }}" alt="{{ $alt }}" loading="lazy"
+               {{ with .Width }}width="{{ . }}"{{ end }}
+               {{ with .Height }}height="{{ . }}"{{ end }}>
+        </figure>
+        {{- else }}
+        {{- warnf "use-case %q: proof asset %q not found in bundle" $.File.Path $media }}
+        {{- end }}
+      {{- else }}
+      {{- warnf "use-case %q: proof block has neither gif nor contrast" $.File.Path }}
+      {{- end }}
+    {{- else }}
+    {{- warnf "use-case %q: no proof block in front matter" $.File.Path }}
+    {{- end }}
+  </div>
+</section>
+
+<section class="use-case__body section">
+  <div class="container">
+    <div class="use-case__prose">
+      {{ .Content }}
+    </div>
+  </div>
+</section>
+
+<section class="use-case__cta section section--surface">
+  <div class="container">
+    <p class="use-case__cta-text">{{ T "use_case_cta_text" }}</p>
+    <a class="btn btn--primary" href="{{ "/services/" | relLangURL }}">{{ T "use_case_cta_button" }}</a>
+  </div>
+</section>
+{{ end }}

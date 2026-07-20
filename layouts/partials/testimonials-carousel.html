@@ -1,0 +1,40 @@
+{{- $t := index .Site.Data .Site.Language.Lang "testimonials" -}}
+{{- $active := where $t.items "active" true -}}
+{{- if $active }}
+<section class="testimonials section section--surface" aria-label="{{ $t.heading }}">
+  <div class="testimonials__container">
+
+    <header class="testimonials__heading">
+      <h2>{{ $t.heading }}</h2>
+    </header>
+
+    <div class="testimonials__carousel" id="testimonials-carousel">
+      <div class="testimonials__track">
+        {{- range $i, $item := $active -}}
+          {{- if eq (mod $i 3) 0 }}
+        <div class="testimonials__slide">
+          {{- end }}
+          <div class="card testimonial">
+            <div class="testimonial__stars" aria-label="5 / 5">★★★★★</div>
+            <p class="testimonial__quote">"{{ $item.quote }}"</p>
+            <footer class="testimonial__footer">
+              <div class="testimonial__author">{{ $item.author }}</div>
+              <div class="testimonial__company">{{ $item.company }}</div>
+            </footer>
+          </div>
+          {{- if or (eq (mod (add $i 1) 3) 0) (eq (add $i 1) (len $active)) }}
+        </div>
+          {{- end -}}
+        {{- end }}
+      </div>
+    </div>
+
+    <nav class="testimonials__nav" aria-label="Testimonials navigation">
+      <button class="testimonials__btn testimonials__btn--prev" aria-label="Previous">&#8249;</button>
+      <div class="testimonials__dots"></div>
+      <button class="testimonials__btn testimonials__btn--next" aria-label="Next">&#8250;</button>
+    </nav>
+
+  </div>
+</section>
+{{- end }}

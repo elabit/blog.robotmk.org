@@ -1,0 +1,53 @@
+<div class="partnerships">
+  <h2 class="partnerships__title">{{ i18n "services_partnerships_title" | default "Partnership Models" }}</h2>
+  <p class="partnerships__intro">{{ i18n "services_partnerships_intro" | default "Choose the engagement that fits your team — from a one-time kickoff to an ongoing growth partnership." }}</p>
+
+  <div class="partnerships__grid">
+
+    {{/* PRO Partnership */}}
+    <div class="card partnership-card">
+      <div class="partnership-card__type">{{ i18n "partnership_pro_eyebrow" | default "One-time" }}</div>
+      <h3 class="partnership-card__name">PRO Partnership</h3>
+      <p class="partnership-card__price">{{ i18n "partnership_pro_price" | default "From €2,500" }}</p>
+      <ul class="partnership-card__features">
+        <li>{{ i18n "pro_feature_1" | default "Architecture review &amp; gap analysis" }}</li>
+        <li>{{ i18n "pro_feature_2" | default "1-day hands-on workshop (remote or on-site)" }}</li>
+        <li>{{ i18n "pro_feature_3" | default "Tailored Robotmk setup guide" }}</li>
+        <li>{{ i18n "pro_feature_4" | default "30 days async follow-up via email" }}</li>
+      </ul>
+      <a href="mailto:simon.meggle@elabit.de?subject=PRO+Partnership" class="btn btn--ghost">
+        {{ i18n "btn_partnership_contact" | default "Get in touch" }}
+      </a>
+    </div>
+
+    {{/* GROWTH Partnership */}}
+    <div class="card partnership-card partnership-card--recommended">
+      <div class="partnership-card__header">
+        <span class="badge">{{ i18n "badge_early_access" | default "Early Access" }}</span>
+      </div>
+      <div class="partnership-card__type">{{ i18n "partnership_growth_eyebrow" | default "Recurring" }}</div>
+      <h3 class="partnership-card__name">GROWTH Partnership</h3>
+      <p class="partnership-card__price">{{ i18n "partnership_growth_price" | default "€850 / month" }}</p>
+      <ul class="partnership-card__features">
+        <li>{{ i18n "growth_feature_1" | default "Everything in PRO" }}</li>
+        <li>{{ i18n "growth_feature_2" | default "Monthly strategy &amp; review call (60 min)" }}</li>
+        <li>{{ i18n "growth_feature_3" | default "Priority async support (2 business day SLA)" }}</li>
+        <li>{{ i18n "growth_feature_4" | default "Exclusive Early Access training modules:" }}</li>
+      </ul>
+      <ul class="partnership-card__training-list">
+        <li>{{ i18n "growth_training_1" | default "CI/CD pipeline integration" }}</li>
+        <li>{{ i18n "growth_training_2" | default "Custom result processing &amp; alerting" }}</li>
+        <li>{{ i18n "growth_training_3" | default "Multi-suite orchestration" }}</li>
+        <li class="partnership-card__training-more">{{ i18n "growth_training_more" | default "+ more added each quarter" }}</li>
+      </ul>
+      <div class="partnership-card__early-access-note">
+        <strong>{{ i18n "early_access_benefit_label" | default "Early Access Advantage:" }}</strong>
+        {{ i18n "early_access_benefit_text" | default "Lock in the founding rate before public launch." }}
+      </div>
+      <a href="mailto:simon.meggle@elabit.de?subject=GROWTH+Partnership" class="btn btn--primary">
+        {{ i18n "btn_partnership_contact" | default "Get in touch" }}
+      </a>
+    </div>
+
+  </div>
+</div>

@@ -1,0 +1,103 @@
+/* ============================================================
+   Buttons — All variants and states
+   border-radius: 0 everywhere (var(--radius))
+   No box-shadow on any button
+   ============================================================ */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-body);
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1;
+  text-decoration: none;
+  cursor: pointer;
+  border-radius: var(--radius);
+  padding: 12px 24px;
+  border: none;
+  transition: background-color var(--transition-fast), color var(--transition-fast),
+    border-color var(--transition-fast), transform var(--transition-fast),
+    opacity var(--transition-fast);
+}
+
+/* --- Primary Button --- */
+.btn--primary {
+  background-color: var(--color-primary);
+  color: var(--color-on-primary);
+  border: none;
+}
+
+.btn--primary:hover {
+  background-color: var(--color-primary-dim);
+  color: var(--color-on-primary);
+  text-decoration: none;
+}
+
+.btn--primary:active {
+  transform: scale(0.98);
+}
+
+.btn--primary:disabled,
+.btn--primary[aria-disabled="true"] {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* --- Ghost Button --- */
+.btn--ghost {
+  background-color: transparent;
+  color: var(--color-primary);
+  border: 1px solid var(--color-primary);
+  padding: 11px 23px;
+}
+
+.btn--ghost:hover {
+  background-color: rgba(21, 209, 160, 0.08);
+  color: var(--color-primary);
+  text-decoration: none;
+}
+
+.btn--ghost:active {
+  transform: scale(0.98);
+}
+
+.btn--ghost:disabled,
+.btn--ghost[aria-disabled="true"] {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* --- Dark Button --- */
+.btn--dark {
+  background-color: var(--color-on-surface);
+  color: var(--color-background);
+  border: none;
+}
+
+.btn--dark:hover {
+  background-color: #d0d8e0;
+  color: var(--color-background);
+  text-decoration: none;
+}
+
+.btn--dark:active {
+  transform: scale(0.98);
+}
+
+.btn--dark:disabled,
+.btn--dark[aria-disabled="true"] {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* --- Reduced motion --- */
+@media (prefers-reduced-motion: reduce) {
+  .btn {
+    transition: none;
+  }
+}

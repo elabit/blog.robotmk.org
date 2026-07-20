@@ -1,4 +1,4 @@
-{{ if isset .Site.Params "giscus" }}
+{{ if and (isset .Site.Params "giscus") (not (.Param "nocomments")) }}
 
 <script src="https://giscus.app/client.js"
         data-repo="{{.Site.Params.giscus.conf.repo}}"

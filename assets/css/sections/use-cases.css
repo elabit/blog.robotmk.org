@@ -1,0 +1,204 @@
+/* ============================================================
+   Use Cases — subpage and overview
+   ============================================================ */
+
+/* --- Hero --- */
+.use-case__hero {
+  position: relative;   /* anchors .hero-motif */
+  overflow: hidden;     /* the motif must never cause horizontal scroll */
+  text-align: center;
+}
+
+.use-case__hero .container {
+  position: relative;
+  z-index: 1;
+}
+
+.use-case__eyebrow {
+  display: block;
+  font-size: var(--text-label-size);
+  font-weight: var(--text-label-weight);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-primary);
+  margin-bottom: var(--space-sm);
+}
+
+.use-case__title {
+  font-family: var(--font-display);
+  font-size: var(--text-display-size);
+  line-height: 1.1;
+  color: var(--color-on-surface);
+  max-width: 18ch;
+  margin-inline: auto;
+}
+
+.use-case__teaser {
+  font-size: var(--text-body-lg-size);
+  color: var(--color-on-surface-variant);
+  max-width: 60ch;
+  margin: var(--space-md) auto 0;
+}
+
+/* --- Library badges --- */
+.use-case__libs {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-sm);
+  list-style: none;
+  margin: var(--space-lg) 0 0;
+  padding: 0;
+}
+
+.use-case__lib {
+  font-family: var(--font-code);
+  font-size: var(--text-label-size);
+  color: var(--color-on-surface-variant);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-surface-border);
+  border-radius: 999px;
+  padding: var(--space-xs) var(--space-sm);
+}
+
+/* --- Proof slot --- */
+.use-case__proof-media {
+  margin: 0;
+  border: 1px solid var(--color-surface-border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  background-color: var(--color-surface-low);
+}
+
+.use-case__proof-media img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* --- Prose body --- */
+.use-case__prose {
+  max-width: 68ch;
+  margin-inline: auto;
+  color: var(--color-on-surface-variant);
+}
+
+.use-case__prose h2 {
+  font-family: var(--font-display);
+  font-size: var(--text-headline-md-size);
+  color: var(--color-on-surface);
+  margin-top: var(--space-2xl);
+}
+
+.use-case__prose h2:first-child {
+  margin-top: 0;
+}
+
+/* Robot Framework code: deliberately not syntax-highlighted.
+   Chroma has no RobotFramework lexer, so these blocks are plain text —
+   they earn their keep through typography, not colour. */
+.use-case__prose pre {
+  background-color: var(--color-surface-low);
+  border: 1px solid var(--color-surface-border);
+  border-left: 3px solid var(--color-primary);
+  border-radius: var(--radius);
+  padding: var(--space-md);
+  overflow-x: auto;   /* long keyword lines must scroll, not break the page */
+}
+
+.use-case__prose pre code {
+  font-family: var(--font-code);
+  font-size: var(--text-code-size);
+  line-height: 1.7;
+  color: var(--color-on-surface);
+  white-space: pre;
+}
+
+/* --- CTA --- */
+.use-case__cta {
+  text-align: center;
+}
+
+.use-case__cta-text {
+  font-family: var(--font-display);
+  font-size: var(--text-headline-md-size);
+  color: var(--color-on-surface);
+  margin-bottom: var(--space-lg);
+}
+
+@media (max-width: 768px) {
+  .use-case__title {
+    max-width: none;
+  }
+}
+
+/* --- Overview --- */
+.use-cases__hero {
+  position: relative;
+  overflow: hidden;
+  text-align: center;
+}
+
+.use-cases__hero .container {
+  position: relative;
+  z-index: 1;
+}
+
+.use-cases__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--space-lg);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.use-cases__card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  height: 100%;
+  padding: var(--space-lg);
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-surface-border);
+  border-radius: var(--radius);
+  text-decoration: none;
+  transition: border-color var(--transition-fast), transform var(--transition-fast);
+}
+
+.use-cases__card:hover {
+  border-color: var(--color-primary);
+  transform: translateY(-2px);
+}
+
+.use-cases__card-title {
+  font-family: var(--font-display);
+  font-size: var(--text-label-size);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-primary);
+}
+
+.use-cases__card-problem {
+  font-family: var(--font-display);
+  font-size: var(--text-headline-md-size);
+  line-height: 1.3;
+  color: var(--color-on-surface);
+}
+
+.use-cases__card-libs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+  margin-top: auto;   /* badges sit at the card foot regardless of text length */
+  padding-top: var(--space-md);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .use-cases__card {
+    transition: none;
+  }
+  .use-cases__card:hover {
+    transform: none;
+  }
+}

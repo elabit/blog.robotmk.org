@@ -1,0 +1,80 @@
+<div class="learn-courses-content">
+  <h2 class="courses__title">{{ i18n "learn_courses_title" | default "Courses" }}</h2>
+
+  {{/* Course Cards */}}
+  <div class="courses__grid">
+    {{ range .Site.Data.courses }}
+    <div class="card course-card">
+      <div class="course-card__header">
+        <span class="badge badge--{{ lower .level }}">{{ .level }}</span>
+      </div>
+      <div class="course-card__icon" aria-hidden="true">
+        <img src="{{ .icon | default "/img/course-placeholder.svg" }}" alt="" width="48" height="48">
+      </div>
+      <h3 class="course-card__title">{{ .title }}</h3>
+      <p class="course-card__desc">{{ .description }}</p>
+      <div class="course-card__footer">
+        <span class="course-card__price {{ if eq .price "0" }}course-card__price--free{{ end }}">
+          {{ if eq .price "0" }}{{ i18n "badge_free" | default "Free" }}{{ else }}{{ .price }}{{ end }}
+        </span>
+        {{ if .buy_url }}
+        <a href="{{ .buy_url }}" class="btn btn--primary" target="_blank" rel="noopener noreferrer">
+          {{ i18n "btn_buy" | default "Get access" }}
+        </a>
+        {{ end }}
+      </div>
+    </div>
+    {{ else }}
+    {{/* Placeholder cards until data file is populated */}}
+    <div class="card course-card">
+      <div class="course-card__header"><span class="badge">Beginner</span></div>
+      <div class="course-card__icon" aria-hidden="true">🎬</div>
+      <h3 class="course-card__title">Robotmk Quickstart</h3>
+      <p class="course-card__desc">From zero to your first synthetic monitoring check — in one afternoon.</p>
+      <div class="course-card__footer">
+        <span class="course-card__price course-card__price--free">{{ i18n "badge_free" | default "Free" }}</span>
+      </div>
+    </div>
+    <div class="card course-card">
+      <div class="course-card__header"><span class="badge">Intermediate</span></div>
+      <div class="course-card__icon" aria-hidden="true">🛠️</div>
+      <h3 class="course-card__title">Robotmk Advanced Patterns</h3>
+      <p class="course-card__desc">Complex test suites, parallel execution, and custom result processing.</p>
+      <div class="course-card__footer">
+        <span class="course-card__price">€199</span>
+        <a href="#" class="btn btn--primary" target="_blank" rel="noopener noreferrer">{{ i18n "btn_buy" | default "Get access" }}</a>
+      </div>
+    </div>
+    {{ end }}
+  </div>
+
+  {{/* Masterclass Block */}}
+  <div class="masterclass-block card card--accent-top">
+    <div class="masterclass-block__content">
+      <p class="masterclass-block__eyebrow">{{ i18n "masterclass_eyebrow" | default "The complete program" }}</p>
+      <h3 class="masterclass-block__title">{{ i18n "masterclass_title" | default "Robotmk Masterclass" }}</h3>
+      <p class="masterclass-block__desc">{{ i18n "masterclass_desc" | default "The most comprehensive RF Synthetic Monitoring training available. From foundations to production-grade setups — live sessions, recordings, and direct access to Simon." }}</p>
+      <a href="https://lp.robotmk.org" class="btn btn--primary" target="_blank" rel="noopener noreferrer">
+        {{ i18n "btn_masterclass" | default "Learn more →" }}
+      </a>
+    </div>
+  </div>
+
+  {{/* Blueprint Catalog — Coming Soon */}}
+  <div class="blueprints-teaser card">
+    <div class="blueprints-teaser__header">
+      <span class="badge">{{ i18n "badge_coming_soon" | default "Coming Soon" }}</span>
+    </div>
+    <h3 class="blueprints-teaser__title">{{ i18n "blueprints_title" | default "Blueprint Catalog" }}</h3>
+    <p class="blueprints-teaser__desc">{{ i18n "blueprints_desc" | default "Production-ready Robot Framework test blueprints for the most common enterprise monitoring scenarios." }}</p>
+  </div>
+
+  {{/* GitHub Codespace CTA */}}
+  {{ with .Site.Params.codespace_url }}
+  <div class="codespace-cta">
+    <a href="{{ . }}" class="btn btn--ghost" target="_blank" rel="noopener noreferrer">
+      {{ i18n "btn_codespace" | default "Try it in your browser — no setup required" }}
+    </a>
+  </div>
+  {{ end }}
+</div>

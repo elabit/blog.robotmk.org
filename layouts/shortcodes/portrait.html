@@ -1,0 +1,12 @@
+{{- $filename := .Get "src" -}}
+{{- $alt := .Get "alt" | default "Speaker portrait" -}}
+{{- $imgPath := printf "/en/%s%s" .Page.File.Dir $filename -}}
+
+<div class="portrait-container" style="display: inline-block; text-align: center; margin: 1rem;">
+  <img src="{{ $imgPath }}" 
+       alt="{{ $alt }}" 
+       style="width: 90px; height: 90px; object-fit: cover; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+  {{- if $alt }}
+  <p style="margin-top: 0rem; font-style: italic;font-weight: 500; font-size: 0.7rem;">{{ $alt }}</p>
+  {{- end }}
+</div>

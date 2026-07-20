@@ -1,24 +1,11 @@
-baseURL: https://blog.robotmk.org/
+baseURL: https://www.robotmk.org/
 languageCode: en-us
-title: Robotmk | Blog
-theme: mainroad
 enableEmoji: true
+enableRobotsTXT: true
 
-menu:
-  main:
-    # - name: "Professional Support"
-    #   url: "https://www.robotmk.org/pages/professionalsupport"
-    #   weight: 40
-    - name: "Academy"
-      url: "https://www.robotmk.org/#academy"
-      weight: 30
-
-author: 
+author:
   name: "Simon Meggle"
-  bio: "https://www.robotmk.org/pages/professionalsupport"
-  avatar: "portrait_simon_meggle_rund_300x300.png"
-
-
+  avatar: "avatar.png"
 
 markup:
   goldmark:
@@ -30,34 +17,136 @@ defaultContentLanguageInSubdir: true
 languages:
   en:
     languageCode: en-US
+    title: Robotmk
     languageDirection: ltr
     languageName: English
     weight: 1
-    menu: 
-      main: 
+    params:
+      description: Robotmk Homepage
+    menu:
+      main:
         - name: "Home"
           url: "/en/"
           weight: 1
+        # - name: "Learn"
+        #   url: "/en/learn/"
+        #   weight: 2
+        - name: "Robotmk Bridge ✨"
+          url: "/en/bridge/"
+          weight: 2
+        - name: "Why Robotmk"
+          url: "/en/why-robotmk/"
+          weight: 3
+        - identifier: usecases
+          name: "Use Cases"
+          url: "/en/use-cases/"
+          weight: 4
+        - name: "Web"
+          parent: usecases
+          url: "/en/use-cases/web/"
+          weight: 10
+        - name: "Citrix"
+          parent: usecases
+          url: "/en/use-cases/citrix/"
+          weight: 20
+        - name: "SAP GUI"
+          parent: usecases
+          url: "/en/use-cases/sap-gui/"
+          weight: 30
+        - name: "Windows Desktop"
+          parent: usecases
+          url: "/en/use-cases/windows-desktop/"
+          weight: 40
+        - name: "REST API"
+          parent: usecases
+          url: "/en/use-cases/rest-api/"
+          weight: 50
+        - name: "SaaS"
+          parent: usecases
+          url: "/en/use-cases/saas/"
+          weight: 60
+        - name: "Services"
+          url: "/en/services/"
+          weight: 5
+        - name: "Blog"
+          url: "/en/blog/"
+          weight: 6
+        # - name: "About"
+        #   url: "/en/about/"
+        #   weight: 5
   de:
+    title: Robotmk
     languageCode: de-DE
     languageDirection: ltr
     languageName: Deutsch
     weight: 2
-    menu: 
-      main: 
+    params:
+      description: Welcome to RobotMK. The most downloaded MKP extension for Checkmk.
+    menu:
+      main:
         - name: "Home"
           url: "/de/"
           weight: 1
+        # - name: "Lernen"
+        #   url: "/de/learn/"
+        #   weight: 2
+        - name: "Robotmk Bridge ✨"
+          url: "/de/bridge/"
+          weight: 2
+        - name: "Warum Robotmk"
+          url: "/de/why-robotmk/"
+          weight: 3
+        - identifier: usecases
+          name: "Use Cases"
+          url: "/de/use-cases/"
+          weight: 4
+        - name: "Web"
+          parent: usecases
+          url: "/de/use-cases/web/"
+          weight: 10
+        - name: "Citrix"
+          parent: usecases
+          url: "/de/use-cases/citrix/"
+          weight: 20
+        - name: "SAP GUI"
+          parent: usecases
+          url: "/de/use-cases/sap-gui/"
+          weight: 30
+        - name: "Windows Desktop"
+          parent: usecases
+          url: "/de/use-cases/windows-desktop/"
+          weight: 40
+        - name: "REST API"
+          parent: usecases
+          url: "/de/use-cases/rest-api/"
+          weight: 50
+        - name: "SaaS"
+          parent: usecases
+          url: "/de/use-cases/saas/"
+          weight: 60
+        - name: "Services"
+          url: "/de/services/"
+          weight: 5
+        - name: "Blog"
+          url: "/de/blog/"
+          weight: 6
+        # - name: "Über mich"
+        #   url: "/de/about/"
+        #   weight: 5
 
 ### PARAMS
 
 params:
+  newsletter_webhook_url: "https://n8n.robotmk.org/webhook/newsletter-signup"
+  # list sub pages which should appear in the nav menu
+  menu_filter: ["/en/blog/robotmk-v2-quickstart/", "/de/blog/robotmk-v2-schnellstart/"]
+  home_copyright: '© Copyright Robotmk 2024'
   copyright: ELABIT GmbH
   logo:
     image: rmk_crop_transp_w150.png
   # Checkmk green
   highlightColor: "#37d8ae" 
-  mainSections: ["news", "blog"]
+  mainSections: ["blog"]
   sidebar:
     home: "right"  
     list: "right"  
@@ -75,7 +164,8 @@ params:
   url:
     privacy_policy: ""
   # Googlt Tag Manager 
-  gtm_id: GTM-P95BJXKK
+  # gtm_id: GTM-P95BJXKK
+  gtm_id: GTM-MZR6FLQ
   # COMMENTS
   giscus:
     commentable:
@@ -93,11 +183,11 @@ params:
       mapping: og:title
       # mapping: pathname
       strict: 1
-      reactions_enabled: 1
+      reactions_enabled: 0
       emit_metadata: 0
       input_position: top
       label: comment
-      theme: light
+      theme: dark
       lang: en
       data_loading: lazy
       crossorigin: anonymous

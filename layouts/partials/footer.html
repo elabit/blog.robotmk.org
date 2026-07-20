@@ -1,9 +1,40 @@
 <footer class="footer">
-	<div class="container footer__container flex">
-		{{ partial "footer_links.html" . }}
-		<div class="footer__copyright">
-			&copy; {{ now.Format "2006" }} {{ .Site.Params.copyright | default .Site.Title }}
-			{{/*  <span class="footer__copyright-credits">{{ T "footer_credits" | safeHTML }}</span>  */}}
-		</div>
-	</div>
+  <div class="footer__container">
+
+    <nav class="footer__nav" aria-label="Footer navigation">
+      <ul class="footer__nav-links" role="list">
+        <li><a class="footer__link" href="{{ "/" | relLangURL }}">Home</a></li>
+        {{/*  <li><a class="footer__link" href="{{ "/learn/" | relLangURL }}">Learn</a></li>  */}}
+        <li><a class="footer__link" href="{{ "/services/" | relLangURL }}">Services</a></li>
+        <li><a class="footer__link" href="{{ "/blog/" | relLangURL }}">Blog</a></li>
+        {{/*  <li><a class="footer__link" href="{{ "/about/" | relLangURL }}">About</a></li>  */}}
+      </ul>
+    </nav>
+
+    <div class="footer__social">
+      <a class="footer__social-link" href="https://github.com/elabit/robotmk" target="_blank" rel="noopener noreferrer" aria-label="GitHub">
+        GitHub
+      </a>
+      <a class="footer__social-link" href="mailto:mail@robotmk.org" aria-label="E-Mail">
+        E-Mail
+      </a>
+    </div>
+
+    <div class="footer__legal">
+      {{/*  <span class="footer__elabit">ELABIT GmbH</span>  */}}
+      <nav class="footer__legal-links" aria-label="Legal">
+        {{- with .Site.GetPage "/imprint" }}
+        <a href="{{ .RelPermalink }}" class="footer__legal-link">{{ .Title }}</a>
+        {{- end }}
+        {{- with .Site.GetPage "/privacy-policy" }}
+        <a href="{{ .RelPermalink }}" class="footer__legal-link">{{ .Title }}</a>
+        {{- end }}
+      </nav>
+      <span class="footer__copyright">
+        &copy; {{ now.Format "2006" }} {{ .Site.Params.copyright | default .Site.Title }}
+      </span>
+      
+    </div>
+
+  </div>
 </footer>

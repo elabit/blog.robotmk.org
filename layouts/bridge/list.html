@@ -1,0 +1,147 @@
+{{ define "title" }}{{ .Title }} — {{ .Site.Title }}{{ end }}
+
+{{ define "main" }}
+{{- $b := index .Site.Data .Site.Language.Lang "bridge" -}}
+
+{{/* ── Page Hero ─────────────────────────────────────────────────────────── */}}
+<section class="page-hero bridge-hero">
+  <div class="container">
+    <span class="bridge-eyebrow">{{ $b.hero.eyebrow }}</span>
+    {{/*  <h1 class="bridge-hero__title1">{{ $b.hero.title1 }} {{ $b.hero.title2 }}</h1>  */}}
+    <h1 class="bridge-hero__title1">{{ $b.hero.title2 }}</h1>
+    <h1 class="bridge-hero__title3">{{ $b.hero.title3 }}</h1>
+    <p class="page-hero__subtitle">{{ $b.hero.subtitle }}</p>
+  </div>
+</section>
+
+{{/* ── Problem ───────────────────────────────────────────────────────────── */}}
+<section class="bridge-problem section" aria-label="{{ $b.problem.eyebrow }}">
+  <div class="container">
+    <span class="bridge-eyebrow">{{ $b.problem.eyebrow }}</span>
+    <h2 class="bridge-problem__heading">{{ $b.problem.heading }}</h2>
+    <div class="bridge-problem__body">
+      {{ range $b.problem.paragraphs }}
+      <p>{{ . }}</p>
+      {{ end }}
+    </div>
+    <p class="bridge-problem__pivot">{{ $b.problem.pivot }}</p>
+  </div>
+</section>
+
+{{/* ── How it works ─────────────────────────────────────────────────────── */}}
+<section class="section section--surface" aria-label="{{ $b.how.eyebrow }}">
+  <div class="container">
+    <header class="bridge-section-header">
+      <span class="bridge-eyebrow">{{ $b.how.eyebrow }}</span>
+      <h2>{{ $b.how.heading }}</h2>
+    </header>
+    <div class="bridge-steps">
+      {{ range $i, $step := $b.how.steps }}
+      <div class="bridge-step">
+        <span class="bridge-step__number">{{ add $i 1 }}</span>
+        <h3 class="bridge-step__title">{{ $step.title }}</h3>
+        <p class="bridge-step__body">{{ $step.body }}</p>
+      </div>
+      {{ end }}
+    </div>
+  </div>
+</section>
+
+{{/* ── Why not DIY? ─────────────────────────────────────────────────────── */}}
+<section class="section" aria-label="{{ $b.diy.eyebrow }}">
+  <div class="container">
+    <span class="bridge-eyebrow">{{ $b.diy.eyebrow }}</span>
+    <h2 class="bridge-diy__heading">{{ $b.diy.heading }}</h2>
+    <div class="bridge-diy__callout">
+      <p class="bridge-diy__lead">{{ $b.diy.lead  | safeHTML }}</p>
+      <p class="bridge-diy__pivot">{{ $b.diy.pivot | safeHTML}}</p>
+      <ul class="bridge-diy__advantages">
+        {{ range $b.diy.advantages }}
+        <li class="bridge-diy__advantage">
+          <span class="bridge-diy__icon" aria-hidden="true">{{ .icon }}</span>
+          <div class="bridge-diy__advantage-text">
+            <strong class="bridge-diy__advantage-title">{{ .title }}</strong>
+            <span class="bridge-diy__advantage-body">{{ .body }}</span>
+          </div>
+        </li>
+        {{ end }}
+      </ul>
+      <p class="bridge-diy__closing">{{ $b.diy.closing }}</p>
+    </div>
+  </div>
+</section>
+
+{{/* ── Supported tools ──────────────────────────────────────────────────── */}}
+<section class="section section--surface" aria-label="{{ $b.tools.eyebrow }}">
+  <div class="container">
+    <header class="bridge-section-header">
+      <span class="bridge-eyebrow">{{ $b.tools.eyebrow }}</span>
+      <h2>{{ $b.tools.heading }}</h2>
+    </header>
+    {{ partial "bridge/tools-ticker.html" (dict "page" . "tooltip" false) }}
+    <br>
+    <ul class="bridge-tools-list">
+      {{ range $b.tools.items }}
+      <li class="bridge-tools-list__item">
+        <span class="bridge-tools-list__icon" aria-hidden="true">{{ .icon }}</span>
+        <div class="bridge-tools-list__body">
+          <span class="bridge-tools-list__tool">{{ .tool }}</span>
+          <code class="bridge-tools-list__format">{{ .format }}</code>
+          <span class="bridge-tools-list__desc">{{ .desc }}</span>
+        </div>
+      </li>
+      {{ end }}
+    </ul>
+  </div>
+</section>
+
+{{/* ── Missing handler callout ──────────────────────────────────────────── */}}
+<section class="section" aria-label="{{ $b.extend.heading }}">
+  <div class="container">
+    <div class="bridge-extend__callout">
+      <h2 class="bridge-extend__heading">{{ $b.extend.heading }}</h2>
+      <p class="bridge-extend__body">{{ $b.extend.body | safeHTML }}</p>
+      <a href="{{ "/services/" | relLangURL }}" class="btn btn--primary">{{ $b.extend.cta }}</a>
+    </div>
+  </div>
+</section>
+
+{{/* ── CTAs ─────────────────────────────────────────────────────────────── */}}
+<section class="section section--surface" aria-label="{{ $b.ctas.eyebrow }}">
+  <div class="container">
+    <header class="bridge-section-header">
+      <span class="bridge-eyebrow">{{ $b.ctas.eyebrow }}</span>
+      <h2>{{ $b.ctas.heading }}</h2>
+    </header>
+    <div class="bridge-cta-grid">
+
+      <div class="card offering-card">
+        <div class="offering-card__icon">{{ $b.ctas.lab.icon }}</div>
+        <h3 class="offering-card__title">{{ $b.ctas.lab.title }}</h3>
+        <p class="offering-card__tagline">{{ $b.ctas.lab.body }}</p>
+        <a href="{{ $b.ctas.lab.url }}" class="btn btn--primary" target="_blank" rel="noopener noreferrer">
+          {{ $b.ctas.lab.label }}
+        </a>
+      </div>
+
+      <div class="card offering-card">
+        <div class="offering-card__icon">{{ $b.ctas.use.icon }}</div>
+        <h3 class="offering-card__title">{{ $b.ctas.use.title }}</h3>
+        <p class="offering-card__tagline">{{ $b.ctas.use.body }}</p>
+        <a href="{{ $b.ctas.use.url }}" class="btn btn--primary" target="_blank" rel="noopener noreferrer">
+          {{ $b.ctas.use.label }}
+        </a>
+      </div>
+
+      <div class="card offering-card">
+        <div class="offering-card__icon">{{ $b.ctas.services.icon }}</div>
+        <h3 class="offering-card__title">{{ $b.ctas.services.title }}</h3>
+        <p class="offering-card__tagline">{{ $b.ctas.services.body }}</p>
+        <a href="{{ "/services/" | relLangURL }}" class="btn btn--ghost">{{ $b.ctas.services.label }}</a>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+{{ end }}

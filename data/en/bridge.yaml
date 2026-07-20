@@ -1,0 +1,115 @@
+# ── Page Hero ─────────────────────────────────────────────────────────────────
+hero:
+  eyebrow: "Robotmk Bridge"
+  title1: "One monitoring platform."
+  title2: "All your test tools"
+  title3: "under control."
+  subtitle: "The Robotmk Bridge brings the results from any test tool into Checkmk — without the need to migrate to Robot Framework."
+
+# ── Problem ───────────────────────────────────────────────────────────────────
+problem:
+  eyebrow: "The problem"
+  heading: "Can’t use Robot Framework?"
+  paragraphs:
+    - "Robotmk is the most powerful synthetic monitoring integration for Checkmk. It presents the results of automated tests as monitoring services. Runtime monitoring, sub-step discovery and HTML logs are all included."
+    - "The question has often arisen as to whether Robotmk could also support other test tools and frameworks."
+    - "After all, nobody likes to migrate their tests to a different technology when they’re actually working well. Even though Robot Framework is open source: that doesn’t make the switch cost-neutral."
+    - "So, until now, Robotmk has remained on the wish list — and the test results have remained invisible to Checkmk." 
+  pivot: "The Robotmk Bridge changes that. Your tools stay; the Robotmk Bridge integrates them."
+
+# ── How It Works ──────────────────────────────────────────────────────────────
+how:
+  eyebrow: "How it works"
+  heading: "Seamless integration in three steps."
+  steps:
+    - title: "Install the Bridge"
+      body: "Download the installation package from Checkmk Exchange and install it in Checkmk."
+    - title: "Configure the Bridge"
+      body: " In the web-based rule editor, you can configure where the Bridge should look for the results from your test tools."
+    - title: "Discover services"
+      body: "The Bridge handles the conversion of the results and integrates them into Checkmk as regular services, with all the benefits of Robotmk monitoring. This includes thresholds, alerts and a complete history."
+
+# ── DIY Comparison ────────────────────────────────────────────────────────────
+diy:
+  eyebrow: "The added value"
+  heading: "Why the Bridge is superior to a custom check plugin."
+  lead: "Technically speaking, there’s no reason why you shouldn’t write dedicated agent plugins to integrate your testing tools. <br>There’s just one catch: such integrations come with a maintenance burden that grows with every additional tool."
+  pivot: "An integration with the <b>Robotmk Bridge</b> solves the following for you:"
+  advantages:
+    - icon: "⏱️"
+      title: "Runtime monitoring"
+      body: "Robotmk monitors not only the final results, but also the test runtimes."
+    - icon: "🔬"
+      title: "KPI Step Discovery"
+      body: "Often, it’s not just the overall status of a test that matters. With Robotmk, you can also discover individual steps as separate services – for full transparency and faster root-cause analysis."
+    - icon: "📄"
+      title: "HTML Test Log"
+      body: "All test runs integrated via the Bridge can be traced in detail using an HTML log file – without the hassle of ‘grep’ searches across different log formats."
+    - icon: "🔔"
+      title: "Step-by-Step Alerting"
+      body: "Targeted notifications to responsible individuals/teams regarding the success of individual steps."
+    - icon: "🍞"
+      title: "Agent Bakery Deployment"
+      body: "As is standard with Checkmk, configuration is handled uniformly via the rule set. The agent is created in the background specifically for the Bridge hosts and deployed to the target machines via automatic agent updates."
+    - icon: "🏆"
+      title: "6 years of Robotmk R&D included"
+      body: "Robotmk is the most advanced integration of test results ever developed for Checkmk. The Bridge opens up this world to you for all frameworks other than Robot Framework."
+  closing: "A custom plugin for test tools reinvents a wheel that has already been perfected. The Bridge builds on what already works."
+
+# ── Supported Tools ───────────────────────────────────────────────────────────
+tools:
+  eyebrow: "Supported today"
+  heading: "Formats currently supported by Bridge:"
+  items:
+    - icon: "🧪"
+      tool: "pytest · JUnit · Maven · NUnit"
+      format: "JUnit XML"
+      desc: "The universal test result format — produced by most major test runners and CI systems out of the box."
+    - icon: "🧪"
+      tool: "Gatling"
+      format: "simulation.log"
+      desc: "Open-source load and performance testing tool. The Bridge reads native Gatling simulation logs directly."
+    - icon: "🧪"
+      tool: "OWASP ZAP"
+      format: "XML / JSON reports"
+      desc: "The world's most widely used web application security scanner."
+    - icon: 🧪
+      tool: Locust
+      format: CSV
+      desc: The Python-based open-source framework for load testing
+    - icon: 🧪
+      tool: Tricentis Tosca
+      format: ADO.Net DataSet
+      desc: Test Automation Suite
+    - icon: "✨"
+      tool: "...your tool?"
+      
+      desc: "A handler for your tool can be built in a few hours. Get in touch."
+
+# ── Extend ────────────────────────────────────────────────────────────────────
+extend:
+  heading: "Is your tool not on the list?"
+  body: "The Robotmk Bridge is open source and has been built from the ground up to allow the addition of handlers for further tools.<br>If your tool isn’t supported yet, I’d be happy to help you write the handler or show you the right way to get started."
+  cta: "Get in touch →"
+
+# ── CTAs ──────────────────────────────────────────────────────────────────────
+ctas:
+  eyebrow: "Your next steps"
+  heading: "Pick your starting point."
+  lab:
+    icon: 🧪
+    title: Give it a go
+    body: Full tutorial with a lab to get you started straight away
+    url: TODO
+    label: Start the lab environment →
+  use:
+    icon: 🚀
+    title: Apply
+    body: Download and install MKP from GitHub.
+    url: https://exchange.checkmk.com/p/robotmk-bridge-plugin
+    label: Download from Checkmk Exchange →
+  services:
+    icon: 🛠️
+    title: Need help?
+    body: Here you’ll find hands-on support for setting up the bridge in your environment.
+    label: Go to Services →

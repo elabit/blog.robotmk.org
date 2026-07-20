@@ -1,0 +1,113 @@
+/* ============================================================
+   Hero Section — Split layout, Gap Visualization
+   ============================================================ */
+
+.hero {
+  /* min-height: calc(100vh - var(--nav-height)); */
+  min-height: 30px;
+  display: flex;
+  align-items: center;
+  border-top: none;
+  padding-block: var(--space-3xl);
+}
+
+.hero__container {
+  width: 100%;
+  max-width: var(--max-width);
+  margin-inline: auto;
+  padding-inline: var(--space-lg);
+}
+
+.hero__split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-lg);
+  align-items: center;
+}
+
+/* --- Left Column: Text --- */
+.hero__text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+.hero__eyebrow {
+  align-self: flex-start;
+  font-family: var(--font-body);
+  font-size: var(--text-label-size);
+  font-weight: var(--text-label-weight);
+  letter-spacing: var(--text-label-letter-spacing);
+  text-transform: uppercase;
+  color: var(--color-primary);
+  border: 1px solid var(--color-primary);
+  padding: 4px 12px;
+}
+
+.hero__headline {
+  font-family: var(--font-display);
+  font-size: var(--text-display-size);
+  font-weight: var(--text-display-weight);
+  line-height: var(--text-display-line-height);
+  letter-spacing: var(--text-display-letter-spacing);
+  color: var(--color-on-surface);
+}
+
+.hero__headline .hero__green {
+  color: var(--color-primary);
+}
+
+.hero__headline .hero__red {
+  color: var(--color-error);
+}
+
+.hero__tagline {
+  font-family: var(--font-body);
+  font-size: var(--text-body-lg-size);
+  font-style: italic;
+  color: var(--color-on-surface-muted);
+  line-height: var(--text-body-lg-line-height);
+}
+
+.hero__cta-row {
+  display: flex;
+  gap: var(--space-md);
+  flex-wrap: wrap;
+  align-items: center;
+  margin-top: var(--space-sm);
+}
+
+/* --- Right Column: Gap Visualization --- */
+.hero__viz {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.hero__viz svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* --- Mobile --- */
+@media (max-width: 768px) {
+  .hero {
+    padding-block: var(--space-2xl);
+    min-height: auto;
+  }
+
+  .hero__split {
+    grid-template-columns: 1fr;
+    gap: var(--space-2xl);
+  }
+
+  .hero__headline {
+    font-size: 40px;
+  }
+
+  .hero__viz {
+    order: 2;
+  }
+}

@@ -1,0 +1,40 @@
+{{ define "title" }}{{ .Title }} — {{ .Site.Title }}{{ end }}
+
+{{ define "main" }}
+<section class="page-hero">
+  <div class="container">
+    <p class="page-hero__eyebrow">{{ .Type | humanize }}</p>
+    <h1 class="page-hero__title">{{ .Title }}</h1>
+    <p class="page-hero__subtitle">{{ len .Pages }} {{ i18n "posts_count" | default "posts" }}</p>
+  </div>
+</section>
+
+<section class="blog-list">
+  <div class="container">
+    <div class="blog-list__grid">
+      {{ range .Pages }}
+      <article class="card blog-card">
+        <div class="blog-card__body">
+          <div class="blog-card__meta">
+            <time datetime="{{ .Date.Format "2006-01-02" }}" class="blog-card__date">
+              {{- .Date.Format "January 2, 2006" -}}
+            </time>
+          </div>
+          <h2 class="blog-card__title">
+            <a href="{{ .RelPermalink }}">{{ .Title }}</a>
+          </h2>
+          {{ with .Params.lead }}
+          <p class="blog-card__lead">{{ . }}</p>
+          {{ else }}
+          <p class="blog-card__lead">{{ .Summary | plainify | truncate 140 }}</p>
+          {{ end }}
+        </div>
+        <div class="blog-card__footer">
+          <a href="{{ .RelPermalink }}" class="btn btn--ghost btn--sm">{{ i18n "btn_read_more" | default "Read more" }} →</a>
+        </div>
+      </article>
+      {{ end }}
+    </div>
+  </div>
+</section>
+{{ end }}

@@ -1,0 +1,198 @@
+{{ define "title" }}{{ .Title }} — {{ .Site.Title }}{{ end }}
+
+{{ define "main" }}
+{{- $why := index .Site.Data .Site.Language.Lang "why-robotmk" -}}
+
+<section class="why-hero section">
+  {{ partial "hero-motif.html" . }}
+  <div class="container">
+    <span class="why-hero__eyebrow">{{ $why.hero.eyebrow }}</span>
+    <h1 class="why-hero__title">{{ $why.hero.title }}</h1>
+    <p class="why-hero__subtitle">{{ $why.hero.subtitle  | safeHTML }}</p>
+  </div>
+</section>
+
+<section class="why-pricing section section--surface">
+  <div class="container">
+    <h2 class="why-pricing__heading">{{ $why.pricing.heading }}</h2>
+    <p class="why-pricing__intro">{{ $why.pricing.intro  | safeHTML }}</p>
+
+    <div class="formula-callout">
+      <div class="formula-callout__item formula-callout__item--bad">
+        <span class="formula-callout__label">{{ $why.pricing.formula_competitor_label }}</span>
+        <code class="formula-callout__formula">{{ $why.pricing.formula_competitor | safeHTML }}</code>
+      </div>
+      <span class="formula-callout__vs" aria-hidden="true">vs</span>
+      <div class="formula-callout__item formula-callout__item--good">
+        <span class="formula-callout__label">{{ $why.pricing.formula_checkmk_label }}</span>
+        <code class="formula-callout__formula">{{ $why.pricing.formula_checkmk | safeHTML }}</code>
+      </div>
+    </div>
+
+    {{/* Interactive explorer — the single pricing graph (formerly its own section). */}}
+    <div class="explorer"
+         data-requests-per-test="{{ $why.explorer.requests_per_test }}"
+         data-usd-to-eur="{{ $why.explorer.usd_to_eur }}"
+         data-dynatrace-rate="{{ $why.explorer.dynatrace_rate_usd_per_1k_actions }}"
+         data-datadog-rate="{{ $why.explorer.datadog_rate_usd_per_1k_runs }}"
+         data-grafana-rate="{{ $why.explorer.grafana_rate_usd_per_1k_runs }}"
+         data-checkmk-min-price="{{ $why.explorer.checkmk_min_price_eur }}"
+         data-checkmk-max-price="{{ $why.explorer.checkmk_max_price_eur }}"
+         data-test-case-min="{{ $why.explorer.test_case_min }}"
+         data-test-case-max="{{ $why.explorer.test_case_max }}"
+         data-y-axis-max="{{ $why.explorer.y_axis_max }}">
+
+      <div class="explorer__body">
+        <div class="explorer__controls">
+          <div class="explorer__control">
+            <div class="explorer__control-header">
+              <span class="explorer__slider-label-wrap">
+                <label class="explorer__slider-label" for="testcase-slider">{{ $why.explorer.test_case_slider_label }}</label>
+                <span class="explorer__label-info">
+                  <button type="button" class="explorer__info-btn" aria-label="{{ printf "More about %s" $why.explorer.test_case_slider_label }}">i</button>
+                  <span class="explorer__info-tooltip" role="tooltip">{{ $why.explorer.test_case_tooltip }}</span>
+                </span>
+              </span>
+              <span id="testcase-slider-value" class="explorer__slider-current"></span>
+            </div>
+            <div class="explorer__slider">
+              <input type="range" id="testcase-slider" class="explorer__range"
+                     min="{{ $why.explorer.test_case_min }}" max="{{ $why.explorer.test_case_max }}" step="1"
+                     value="{{ $why.explorer.test_case_min }}"
+                     aria-describedby="testcase-slider-value">
+            </div>
+            <div class="explorer__slider-ticks">
+              <span>{{ $why.explorer.test_case_min }}</span>
+              <span>{{ $why.explorer.test_case_max }}</span>
+            </div>
+          </div>
+
+          <div class="explorer__control">
+            <div class="explorer__control-header">
+              <span class="explorer__slider-label-wrap">
+                <label class="explorer__slider-label" for="interval-slider">{{ $why.explorer.interval_label }}</label>
+                <span class="explorer__label-info">
+                  <button type="button" class="explorer__info-btn" aria-label="{{ printf "More about %s" $why.explorer.interval_label }}">i</button>
+                  <span class="explorer__info-tooltip" role="tooltip">{{ $why.explorer.interval_tooltip }}</span>
+                </span>
+              </span>
+              <span id="interval-slider-value" class="explorer__slider-current"></span>
+            </div>
+            <div class="explorer__slider">
+              <input type="range" id="interval-slider" class="explorer__range"
+                     min="0" max="3" step="1" value="1"
+                     aria-describedby="interval-slider-value">
+            </div>
+            <div class="explorer__slider-ticks">
+              {{- range $why.explorer.interval_steps }}
+              <span>{{ . }}</span>
+              {{- end }}
+            </div>
+          </div>
+        </div>
+
+        <div class="explorer__chart-col">
+          <span class="explorer__y-label">{{ $why.explorer.y_axis_label }}</span>
+          <div class="explorer__chart-wrap">
+            <svg class="explorer__svg" viewBox="0 0 480 360" preserveAspectRatio="xMidYMid meet"
+                 role="img" aria-label="{{ $why.pricing.heading }}">
+              <g class="explorer__gridlines"></g>
+              <g class="explorer__axis-y"></g>
+              <g class="explorer__bars"></g>
+            </svg>
+          </div>
+          <div class="explorer__bar-labels">
+            {{- range $i, $vendor := $why.explorer.vendors }}
+            {{- $isLast := eq (add $i 1) (len $why.explorer.vendors) }}
+            <span class="explorer__bar-label-item{{ if $isLast }} explorer__bar-label-item--last{{ end }}" data-key="{{ $vendor.key }}">
+              <span class="explorer__bar-label-text">{{ $vendor.name  | safeHTML}} </span>
+              <span class="explorer__label-info">
+                <button type="button" class="explorer__info-btn" aria-label="{{ printf "More about %s" ($vendor.name | plainify) }}">i</button>
+                <span class="explorer__info-tooltip" role="tooltip">{{ $vendor.tooltip }}</span>
+              </span>
+            </span>
+            {{- end }}
+          </div>
+        </div>
+      </div>
+
+      <p class="explorer__hint">{{ $why.explorer.readout_hint }}</p>
+
+      <noscript>
+        <p class="explorer__noscript">{{ $why.explorer.readout_hint }} (requires JavaScript)</p>
+      </noscript>
+    </div>
+
+    <div class="why-pricing__table-wrapper">
+      <table class="why-pricing__table">
+        <caption>{{ $why.pricing.table.caption }}</caption>
+        <thead>
+          <tr>
+            <th scope="col"></th>
+            <th scope="col">Dynatrace</th>
+            <th scope="col">Datadog</th>
+            <th scope="col">Grafana</th>
+            <th scope="col" class="why-pricing__table-checkmk">Robotmk</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{- range $why.pricing.table.rows }}
+          <tr>
+            <th scope="row">{{ .label }}</th>
+            <td>{{ .dynatrace }}</td>
+            <td>{{ .datadog }}</td>
+            <td>{{ .grafana }}</td>
+            <td class="why-pricing__table-checkmk">{{ .checkmk }}</td>
+          </tr>
+          {{- end }}
+        </tbody>
+      </table>
+    </div>
+    <p class="why-pricing__source why-pricing__source--note">{{ $why.pricing.source_note }}</p>
+    <p class="why-pricing__source why-pricing__source--note">{{ $why.explorer.disclaimer }}</p>
+  </div>
+</section>
+
+<section class="why-pillars section">
+  <div class="container">
+    <h2 class="why-pillars__heading">{{ $why.pillars.heading }}</h2>
+    <div class="why-pillars__grid">
+      {{- range $i, $item := $why.pillars.items }}
+      {{- $isLast := eq (add $i 1) (len $why.pillars.items) }}
+      <div class="card why-pillar-card{{ if $isLast }} why-pillar-card--closing{{ end }}">
+        <span class="why-pillar-card__rivets" aria-hidden="true">
+          <span class="why-pillar-card__rivet"></span>
+          <span class="why-pillar-card__rivet"></span>
+          <span class="why-pillar-card__rivet"></span>
+          <span class="why-pillar-card__rivet"></span>
+        </span>
+        <div class="why-pillar-card__icon">{{ partial "why-icon.html" $item.icon }}</div>
+        <div class="why-pillar-card__body">
+          <h3 class="why-pillar-card__title">{{ $item.title }}</h3>
+          <p class="why-pillar-card__text">{{ $item.text }}</p>
+          {{- with $item.more }}
+          <details class="why-more">
+            <summary class="why-more__toggle">
+              <span class="why-more__toggle-text">{{ $why.pillars.more_label }}</span>
+              <svg class="why-more__chevron" viewBox="0 0 16 16" width="14" height="14" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l4 4 4-4"/></svg>
+            </summary>
+            <div class="why-more__panel">
+              <p>{{ . }}</p>
+            </div>
+          </details>
+          {{- end }}
+        </div>
+      </div>
+      {{- end }}
+    </div>
+  </div>
+</section>
+
+<section class="why-cta section section--surface">
+  <div class="container why-cta__container">
+    <h2 class="why-cta__text">{{ $why.cta.text }}</h2>
+    <a href="{{ "/services/" | relLangURL }}" class="btn btn--primary">{{ $why.cta.button }}</a>
+  </div>
+</section>
+
+{{ end }}

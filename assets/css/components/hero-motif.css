@@ -1,0 +1,19 @@
+/* ============================================================
+   Hero Motif — shared isometric lattice backdrop
+   Used by the Why Robotmk and Use Cases heroes.
+   Parent must be position:relative + overflow:hidden.
+   ============================================================ */
+
+.hero-motif {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+  color: var(--color-on-surface-variant);
+}
+
+.hero-motif__grid {
+  stroke-opacity: 0.08;
+}

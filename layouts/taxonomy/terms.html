@@ -1,0 +1,22 @@
+{{ define "title" }}{{ .Title }} — {{ .Site.Title }}{{ end }}
+
+{{ define "main" }}
+<section class="page-hero">
+  <div class="container">
+    <h1 class="page-hero__title">{{ .Title | humanize }}</h1>
+  </div>
+</section>
+
+<section class="taxonomy-list">
+  <div class="container">
+    <div class="taxonomy-list__grid">
+      {{ range .Data.Terms.Alphabetical }}
+      <a href="{{ .Page.RelPermalink }}" class="taxonomy-term">
+        <span class="taxonomy-term__name">{{ .Page.Title }}</span>
+        <span class="taxonomy-term__count">{{ .Count }}</span>
+      </a>
+      {{ end }}
+    </div>
+  </div>
+</section>
+{{ end }}

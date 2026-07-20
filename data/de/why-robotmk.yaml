@@ -1,0 +1,110 @@
+hero:
+  eyebrow: "Der Vergleich"
+  title: "Robotmk im Vergleich"
+  subtitle: "Eine einzige Stellschraube - für ein faires und transparentes Preismodell."
+
+pricing:
+  heading: "Die Kostenfalle"
+  intro: "Datadog, Grafana oder Dynatrace berechnen Synthetic Monitoring als <b>Produkt mehrerer sich gegenseitig verstärkender Variablen</b>. Der Einstieg ist leicht und günstig – doch bezahlt wird er mit einer Rechnung, die nicht linear, sondern exponentiell wächst. Viele bezahlen also mehr, als sie ursprünglich geplant hatten. <br>Checkmk Synthetic Monitoring mit Robotmk dagegen kennt nur eine einzige Variable – den Testfall."
+  formula_competitor: "Intervall × Tests × Requests/Test <br>× Rate"
+  formula_checkmk: "Tests <br>× Rate"
+  formula_competitor_label: "Mitbewerber"
+  formula_checkmk_label: "Checkmk Synthetic Monitoring"
+  table:
+    caption: "Beispielrechnung — 15-Minuten-Intervall, 5 Testfälle, 8 Requests/Test. Illustratives Beispiel, kein aktuelles Angebot der Hersteller."
+    rows:
+      - label: "Abgerechnet nach"
+        dynatrace: "Aktionen (Requests)"
+        datadog: "Testläufen"
+        grafana: "Testläufen"
+        checkmk: "nur Testfällen"
+      - label: "Rate"
+        dynatrace: "$4,50 / 1k Aktionen"
+        datadog: "$12 / 1k Läufe"
+        grafana: "$44 / 1k Läufe"
+        checkmk: "pauschal"
+      - label: "Kosten / Monat, 15-Min"
+        dynatrace: "463 €"
+        datadog: "154 €"
+        grafana: "565 €"
+        checkmk: "135 €"
+      - label: "Kosten / Monat, 5-Min"
+        dynatrace: "1.388 €"
+        datadog: "463 €"
+        grafana: "1.696 €"
+        checkmk: "135 €"
+  source_note: "Öffentlich gelistete Preise von Dynatrace, Datadog und Grafana für Synthetic Monitoring, berechnet für das obige Szenario. Checkmk-Wert: 15 Testfälle, unbegrenzte Request-Anzahl/Testlänge, beliebiges Intervall."
+
+pillars:
+  heading: "Sieben Gründe, die über den Preis hinausgehen"
+  more_label: "Mehr erfahren"
+  items:
+    - icon: "open-source"
+      title: "Open Source"
+      text: "Robot Framework und Robotmk sind beide Open Source. Keine Blackbox, der du blind vertrauen musst — du kannst sie lesen, prüfen, erweitern."
+      more: "Weil der komplette Quellcode offen liegt, kann dein Security-Team genau prüfen, was in deiner Umgebung läuft — und du wartest nie darauf, dass ein Hersteller etwas patcht oder erweitert: Du machst es selbst oder stützt dich auf die Community. Kein Per-Seat-Lizenzgatter auf dem Tooling selbst."
+    - icon: "no-lockin"
+      title: "Kein Vendor Lock-in"
+      text: "Deine Tests sind Standard-Robot-Framework — portabel, nicht gefangen im proprietären Format eines Herstellers."
+      more: "Jeder Test ist reines Robot Framework — dieselbe Syntax, die weit über Robotmk hinaus genutzt wird. Wechselst du die Plattform, wandern deine Tests unverändert mit: kein proprietäres Recorder-Format zum Neuschreiben, kein verlustbehafteter Export. Deine Investition in Tests bleibt deine."
+    - icon: "integration"
+      title: "Tiefste Integration in Checkmk"
+      text: "Robotmk ist ein natives Checkmk-Plugin, keine angeflanschte Integration, die nur von einer API zusammengehalten wird."
+      more: "Discovery, Scheduling, Zustände, Benachrichtigungen und Historie verhalten sich genau wie im übrigen Checkmk — kein separates Portal, kein fragiler API-Klebstoff, der synchron gehalten werden muss. Ein System zu lernen, ein Ort zum Nachschauen, wenn etwas ausfällt."
+    - icon: "one-framework"
+      title: "Ein Framework für jede Technologie"
+      text: "Web, Desktop, API, SAP, Citrix, Mobile — Robot Framework testet alles, damit dein Team nicht fünf Tools für fünf Technologien jonglieren muss."
+      more: "Robot Framework steuert Browser, Desktop-Anwendungen, REST- und SOAP-APIs, Datenbanken, SAP, Citrix und Mobile über eine einheitliche Keyword-Syntax. Dein Team schreibt Tests für jede Technologie gleich — statt pro Stack ein anderes Tool und ein anderes Skillset zu pflegen."
+    - icon: "bridge"
+      title: "Die Robotmk Bridge"
+      text: "Schon in JUnit, pytest, Gatling oder ZAP investiert? Die Bridge bringt auch diese Ergebnisse nach Checkmk — ganz ohne Neuschreiben."
+      more: "Die Bridge übernimmt Ergebnisse aus Tools, die du bereits einsetzt — JUnit, pytest, Gatling, OWASP ZAP und mehr — und zeigt sie als Checkmk-Services neben deinen synthetischen Tests. Du behältst deine bestehenden Suiten und bekommst trotzdem einen einheitlichen Gesundheitsblick."
+    - icon: "community"
+      title: "Die Lingua Franca der Testautomatisierung"
+      text: "Robot Framework hat über 40.000 Nutzer weltweit. Keine Nischenwette — die gemeinsame Sprache, die Testautomatisierungs-Engineers bereits sprechen."
+      more: "Mit über 40.000 Nutzern weltweit ist Robot Framework ein De-facto-Standard der Testautomatisierung. Dokumentation, Bibliotheken, Kurse und Antworten gibt es reichlich — du baust auf einem lebendigen Ökosystem auf, nicht auf der Roadmap eines einzelnen Herstellers."
+    - icon: "no-risk"
+      title: "Kein Personalrisiko"
+      text: "Robot Framework ist lesbar, wartbar und weit verbreitet gelehrt. Du wirst weder Schwierigkeiten haben, dafür einzustellen, noch es zu übergeben."
+      more: "Die klar lesbare, keyword-getriebene Syntax liest sich fast wie Englisch, sodass Tests verständlich bleiben, lange nachdem ihr Autor weitergezogen ist. Einstellen fällt leichter, Onboarding geht schneller, und Übergaben werden nicht zum Neuschreiben."
+
+explorer:
+  interval_label: "Ausführungsintervall"
+  interval_tooltip: "Je kürzer das Intervall, desto besser die Erkennungsrate: Störungen auf User-Seite können dann umso schneller behoben werden."
+  interval_steps:
+    - "30 Min"
+    - "15 Min"
+    - "5 Min"
+    - "1 Min"
+  test_case_slider_label: "Anzahl Testfälle"
+  test_case_tooltip: "Test = einzelne, isolierte und automatisierbare User Journey — je gezielter das Monitoring, desto präziser der Alarm im Fehlerfall."
+  y_axis_label: "Kosten pro Monat"
+  readout_hint: ""
+  disclaimer: "Illustratives Modell, kein aktuelles Angebot der Hersteller — nutzt dieselbe Beispielrate wie oben (8 Requests/Test, fest, nur Dynatrace). Grafana und Datadog berechnen nach vollständigen Testläufen, nicht nach Requests. Checkmks Kurve ist zwischen zwei realen Referenzpunkten der eigenen Preisliste interpoliert (15 Testfälle = 135 €/Monat; 1.000 Testfälle = 2.333 €/Monat) — die genaue Rabattformel dazwischen ist nicht veröffentlicht, daher ist dies eine plausible Schätzung, kein offizielles Angebot. Die Skala ist bewusst fest: Balken, die sie überschreiten, werden als „außerhalb der Skala“ markiert, statt die Achse still neu zu skalieren."
+  requests_per_test: 8
+  usd_to_eur: 0.88
+  dynatrace_rate_usd_per_1k_actions: 4.50
+  datadog_rate_usd_per_1k_runs: 12
+  grafana_rate_usd_per_1k_runs: 44
+  checkmk_min_price_eur: 135
+  checkmk_max_price_eur: 2333
+  test_case_min: 15
+  test_case_max: 1000
+  y_axis_max: 4000
+  vendors:
+    - key: "dynatrace"
+      name: "Dynatrace"
+      tooltip: "Abgerechnet pro Netzwerk-Request: Intervall × Testfälle × Schritte pro Test — alles multipliziert."
+    - key: "datadog"
+      name: "Datadog"
+      tooltip: "Abgerechnet pro vollständigem Testlauf: Intervall × Testfälle. Schritte innerhalb eines Tests sind kostenlos."
+    - key: "grafana"
+      name: "Grafana"
+      tooltip: "Gleiches Modell wie Datadog — abgerechnet pro vollständigem Testlauf, zu einem höheren Satz."
+    - key: "checkmk"
+      name: "<b>Robotmk</b>"
+      tooltip: "Abgerechnet nur nach Anzahl der Testfälle. Intervall und Schritte sind immer kostenlos."
+
+cta:
+  text: "Bereit, es in deiner Umgebung laufen zu sehen?"
+  button: "Clarity Call buchen →"

@@ -23,6 +23,8 @@ pager: false
 #weight: 10
 # --- must be in the leaf bundle folder or static
 thumbnail: img/rcc-environments.png
+vgwort: https://vg04.met.vgwort.de/na/2f494d1588e14947a7e1f587f3647246
+translationKey: "rcc-ultimate-tool"
 ---
 
 In this blog article, we shed light on the background to the development of RCC, the problems it solves and the immense advantage it brings to the Robotmk project.
@@ -38,7 +40,6 @@ Not so long ago, the company relied on Robot Framework and even maintained its o
 Since the beginning of 2024, however, Robocorp has been heavily targeting Python developers; while this departure is a shame for the Robot Framework community, RCC is still *the* underpinning for Robocorp automations.
 
 Let's take a closer look.
-
 
 ### The Robocorp use case
 
@@ -62,8 +63,6 @@ This is how the command line tool RCC (Robocorp Command Line Control) was create
 > RCC uses abstract definitions to create isolated Python environments.  
 > These environments encapsulate all the necessary libraries and dependencies and thus ensure that the applications run independently of each other and without conflicts.  
 
-
-
 ### Advantages for Robotmk
 
 A word of warning at this point: if you dig into the Robocorp documentation now, you may end up on the wrong track, because the documentation is very RPA-heavy in all possible places and focussed on Robocorp's use case. Unfortunately, this cannot be changed.  
@@ -77,7 +76,6 @@ However, it helps to know that in Robotmk only a small part of all the RCC funct
 ## Understanding RCC
 
 To explain RCC, I like to use a <green>analogy to Docker</green>.
-
 
 ### Analogy to Docker
 
@@ -114,7 +112,6 @@ So all you need to recreate my example on *your* host is this `dockerfile`. It s
 
 Now we are not far away from RCC.
 
-
 ### How RCC works
 
 One difference that immediately catches the eye with RCC: instead of a single file, RCC involves two files, which I will explain below.  
@@ -150,7 +147,6 @@ PYTHONPATH:
 ignoreFiles:
   - .gitignore
 ```
-
 
 #### conda.yaml
 
@@ -199,32 +195,36 @@ It is important to know where RCC is used in the Robotmk workflow - and if so, h
   - This computer is (usually) not in monitoring, ergo RCC is not present there at all.
   - The user must create the environment manually and ensure that it is active in the development environment.
 
-As you can see, RCC is so well integrated into Robotmk that apart from installing the Checkmk agent on the target host, nothing else is necessary. 
-We will take a closer look at the use of RCC as a user below. 
+As you can see, RCC is so well integrated into Robotmk that apart from installing the Checkmk agent on the target host, nothing else is necessary.
+We will take a closer look at the use of RCC as a user below.
 
 ### Download RCC
 
-Here you can follow the instructions as I have written them in the quick start article under [Download RCC]({{< ref "getting-started/index.de.md#download-von-rcc" >}}). RCC should be accessible via the user variable `%PATH%`. 
+Here you can follow the instructions as I have written them in the quick start article under [Download RCC]({{< ref "getting-started/index.de.md#download-von-rcc" >}}). RCC should be accessible via the user variable `%PATH%`.
 
-### Develop in an RCC environment 
+### Develop in an RCC environment
 
 This is the only point where you - at least for now, but we already have ideas - cannot completely avoid the command line: before you can start writing your Robot Framework tests with VS Code (recommended, but other editors are also possible), you must create and activate the corresponding RCC environment.
 
-Make sure that you have installed Visual Studio Code and the extension [RobotCode](https://marketplace.visualstudio.com/items?itemName=d-biehl.robotcode&ssr=false#review-details). 
+Make sure that you have installed Visual Studio Code and the extension [RobotCode](https://marketplace.visualstudio.com/items?itemName=d-biehl.robotcode&ssr=false#review-details).
 
 We will use the Robot-[Suite](https://github.com/elabit/robotmk-examples/tree/main/web/cmk_synthetic_web) from the quick start tutorial as an example.
 
-The following video shows in detail: 
+The following video shows:
 
-- Opening the `.robot` file directly in VS Code. Although the RobotCode extension is installed, no controls are displayed to start the test. This is because the extension cannot find a Python interpreter, let alone a RobotFramework installation. 
+- Opening the `.robot` file directly in VS Code. Although the RobotCode extension is installed, no controls are displayed to start the test. This is because the extension cannot find a Python interpreter, let alone a RobotFramework installation.
+
+{{< figure src="img/windows-rcc-nopython.gif" loading="lazy" >}}
+
+In the second video you can see how the RCC environment is created and the VS Code started in it has access to Python - the robot can be started:
+
 - Open a `cmd` in the suite directory (=where the two RCC files `robot.yaml` and `conda.yaml` are located).
-- `rcc task shell` to activate the Python environment. If it does not exist, it will be recreated. 
-- `code .` to open the current folder in VS Code. As the paths in the CMD have already been "bent" to the RCC environment at this point, this CMD now behaves as if Python and all packages were in the operating system. Also VS Code uses these paths. 
+- `rcc task shell` to activate the Python environment. If it does not exist, it will be recreated.
+- `code .` to open the current folder in VS Code. As the paths in the CMD have already been "bent" to the RCC environment at this point, this CMD now behaves as if Python and all packages were in the operating system. Also VS Code uses these paths.
 
-{{< figure src="img/windows-rcc.gif" loading="lazy" >}}
+{{< figure src="img/windows-rcc-python.gif" loading="lazy" >}}
 
 ---
 
-
 <green>In conclusion</green>, RCC is a powerful tool that greatly simplifies the development and execution of robot framework code by creating isolated and portable Python environments for it.  
-I hope the analogy to Docker has clarified how RCC helps to run robots consistently and without much effort across different platforms. 
+I hope the analogy to Docker has clarified how RCC helps to run robots consistently and without much effort across different platforms.

@@ -1,0 +1,102 @@
+# ── Hero ──────────────────────────────────────────────────────────────────────
+hero:
+  eyebrow: "Checkmk Synthetic Monitoring"
+  headline_pre: "Dein Monitoring zeigt"
+  headline_accent: "Grün"
+  headline_post_pre: "Deine User melden"
+  headline_post_red: "Probleme"
+  tagline: "Denn 'verfügbar' ist nicht dasselbe wie 'benutzbar'."
+  cta_primary: "Clarity Call buchen →"
+  cta_secondary: "Wie es funktioniert ↓"
+
+# ── Stats Bar ─────────────────────────────────────────────────────────────────
+stats:
+  heading: "Die Wahrheit hinter grünen Dashboards:"
+  source: 'Quelle: <a href="https://thenetworkinstallers.com/blog/cost-of-it-downtime-statistics/" target="_blank" rel="noopener noreferrer">The Network Installers — Cost of IT Downtime Statistics</a>'
+  description: "Klassisches Monitoring überwacht das, was selten ausfällt: die Hardware.<br>Unbemerkt bleibt, was deine User tatsächlich erleben – einen scheiternden Login, eine langsam ladende Seite, einen Checkout, der hängt etc.<br><b>Fatal: Nutzerzufriedenheit und Umsatz entstehen dort, wo Monitoring-Systeme blind sind - auf der Applikationsebene.</b>"
+  items:
+    - number: "7"
+      label: "von 10 IT-Ausfällen: menschengemacht."
+    - number: "2.5×"
+      label: "Kostensteigerung von 2014–2024 (Gartner/EMA)"
+    - number: "$14,000"
+      label: "Durchschnittliche Kosten einer Minute IT Ausfall (2026)"
+
+# ── Solution ──────────────────────────────────────────────────────────────────
+solution:
+  eyebrow: "Die Lösung"
+  heading: "Applikationstests mit Robot Framework<br>— nahtlos in Checkmk integriert"
+  rf_pitch_intro: "<b>Robot Framework</b> ist <i>das</i> bewährte und flexible Open-Source Tool für automatisierte Tests:"
+  rf_pitch:
+    - "Seit über 20 Jahren etabliert"
+    - "> 40.000 User weltweit"
+    - "Technologieoffen by Design: Web, Desktop, API, SAP, Citrix, Mobile — alles ist testbar"
+    - "AI ready"
+    - "Kein Vendor Lock-in"
+    - "Keine Lizenzkosten"
+    - "Keine Sackgassen"
+  rf_pitch_outro: "<b>Robotmk</b> integriert dieses Schweizer Taschenmesser in Checkmk — die Best-in-Class Monitoring-Plattform für Full-Stack Observability:"
+  flow_aria: "Flow: Robot Framework → Robotmk → Checkmk Synthetic Monitoring"
+  cta_why: "Warum Robotmk statt der Alternativen →"
+  card1:
+    label: "Für Checkmk-Nutzer"
+    heading: "Ich nutze Checkmk"
+    text: "Dein Monitoring zeigt grün — aber deine User melden Probleme. Robotmk ist das native Synthetic Monitoring Plugin für Checkmk. Kein zweites Tool, keine API-Integration."
+    cta: "Lernressourcen entdecken →"
+  card2:
+    label: "Für Robot Framework-Nutzer"
+    heading: "Ich nutze Robot Framework"
+    text: "Deine .robot-Tests laufen on-demand. Mit Robotmk werden sie zu kontinuierlichem Synthetic Monitoring — ohne Umschreiben."
+    cta: "Im Browser ausprobieren →"
+    codespace_hint: "Ohne Setup, sofort im Browser starten"
+
+# ── Why Robotmk ───────────────────────────────────────────────────────────────
+why:
+  eyebrow: "Warum Robotmk"
+  heading: "Zahl für das, was zählt. Nicht dafür, mehr zu testen vorzugaukeln."
+  body: "Manche Tools berechnen pro Netzwerk-Request, pro Check-Intervall, pro Minute. Checkmk Synthetic Monitoring berechnet genau eine Sache: die Anzahl der überwachten Testfälle. Teste so oft du willst, so gründlich du willst — der Preis bleibt gleich."
+  stat_line: "Aktionsbasierte Wettbewerber können bis zu 10× teurer sein — und der Abstand wächst mit jedem kürzeren Testintervall."
+  pillars:
+    - icon: "🔓"
+      label: "Open Source"
+      text: "Robot Framework — kein Vendor Lock-in von Anfang an."
+    - icon: "🔗"
+      label: "Tiefste Integration"
+      text: "Nativ in Checkmk integriert, nicht angeflanscht."
+    - icon: "🧑‍💻"
+      label: "Kein Personalrisiko"
+      text: "Lesbar, wartbar — und > 40.000 Engineers kennen es bereits."
+  cta: "Zum vollständigen Vergleich →"
+
+# ── Founder ───────────────────────────────────────────────────────────────────
+founder:
+  heading: "Erfunden. Perfektioniert.<br>Und jetzt nativ in Checkmk."
+  bio: "Ich bin <b>Simon Meggle</b>, der Gründer des Robotmk-Projektes.<br><br>Seit 2009 beschäftige ich mich mit der Frage, wie Monitoring über die Infrastruktur hinaus auch die Nutzersicht abbildet — und habe darauf eine Antwort gefunden.<br><br>Sie heißt <b>Robotmk</b>: eine Lösung, die Robot Framework-Tests direkt in Checkmk integriert, als wäre es von Anfang an dafür gebaut worden.<br><br>Und heute? Robotmk ist integraler Bestandteil von Checkmk. Und ich habe das Glück, in Teilzeit bei Checkmk als Produktmanager für meine eigene Erfindung zu arbeiten."
+  badges:
+    - "Gründer von ELABIT GmbH, Erfinder von Robotmk"
+    - "Synthetic Monitoring Experte"
+    - 'Robot Framework <a href="https://www.robotframework.org/ambassadors/" target="_blank" rel="noopener noreferrer">Ambassador</a>'
+    - Mitglied der <a href="https://www.robotframework.org/foundation/" target="_blank" rel="noopener noreferrer">Robot Framework Foundation</a> 
+    - Organisator der <a href="https://luma.com/rfugm" target="_blank" rel="noopener noreferrer">Robot Framework User Group München</a> 
+    - 'Akkreditierter Trainer für das "Robot Framework Certified Professional" <a href="https://cert.robotframework.org" target="_blank" rel="noopener noreferrer">Examen</a>'
+    - 'Senior Product Manager Synthetic Monitoring @ <a href="https://www.checkmk.com" target="_blank" rel="noopener noreferrer">Checkmk</a>'
+    - 'Chilli-Nerd 🌶️'
+  cta: "Meine Geschichte →"
+  img_alt: "Simon Meggle, Erfinder von Robotmk"
+
+
+
+# ── Bridge Teaser ─────────────────────────────────────────────────────────────
+bridge_teaser:
+  eyebrow: "Robotmk Bridge"
+  heading: "Kein Robot Framework? Kein Problem."
+  body: "Die Robotmk Bridge verbindet beliebige Test-Frameworks mit Checkmk. JUnit, pytest, Gatling, ZAP — behalte deine vertrauten Tools und gewinne volle Monitoring-Sichtbarkeit in Checkmk."
+  cta: "Zur Robotmk Bridge →"
+
+# ── Blog Preview ──────────────────────────────────────────────────────────────
+blog:
+  heading: "Robotmk Blog"
+  featured_heading: "Empfohlene Artikel"
+  latest_heading: "Aktuelle Artikel"
+  cta: "Alle Artikel →"
+  readmore: "Weiterlesen →"

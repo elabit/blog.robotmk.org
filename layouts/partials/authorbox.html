@@ -1,5 +1,5 @@
 {{- if .Param "authorbox" }}
-<div class="authorbox clearfix">
+<div class="authorbox">
 	{{ $name := .Site.Author.name }}
 	{{ if not $name }}
 		<p class="authorbox__warning">
@@ -9,7 +9,7 @@
 
 	{{ $avatar := .Site.Author.avatar }}
 	{{ if not $avatar }}
-		<p class="authorbox__warning"></p>
+		<p class="authorbox__warning">
 		<strong>WARNING:</strong> Authorbox is activated, but [Author.avatar] is not specified.
 		</p>
 	{{ end }}
@@ -27,16 +27,18 @@
 	</figure>
 	{{- end }}
 
-	{{- with $name }}
-	<div class="authorbox__header">
-		<span class="authorbox__name">{{ T "authorbox_name" (dict "Name" .) }}</span>
-	</div>
-	{{- end }}
+	<div class="authorbox__body">
+		{{- with $name }}
+		<div class="authorbox__header">
+			<span class="authorbox__name">{{ T "authorbox_name" (dict "Name" .) }}</span>
+		</div>
+		{{- end }}
 
-	{{- with $bio }}
-	<div class="authorbox__description">
-		{{ . | markdownify }}
+		{{- with $bio }}
+		<div class="authorbox__description">
+			{{ . | markdownify }}
+		</div>
+		{{- end }}
 	</div>
-	{{- end }}
 </div>
 {{- end }}

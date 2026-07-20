@@ -1,0 +1,68 @@
+{{ define "title" }}{{ .Title }} — {{ .Site.Title }}{{ end }}
+
+{{ define "main" }}
+<section class="page-hero">
+  <div class="container">
+    <h1 class="page-hero__title">{{ .Title }}</h1>
+    {{ with .Description }}<p class="page-hero__subtitle">{{ . }}</p>{{ end }}
+  </div>
+</section>
+
+<section class="blog-list">
+  <div class="container">
+    {{ if .Pages }}
+    <div class="blog-list__grid">
+      {{ range .Pages }}
+      <article class="card blog-card{{ if .Params.pinned }} blog-card--pinned{{ end }}">
+        {{ if .Params.pinned }}
+        <span class="blog-card__pin-icon" aria-label="{{ i18n "badge_pinned" | default "Pinned" }}">
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z"/>
+          </svg>
+        </span>
+        {{ end }}
+        {{- $thumb := .Resources.GetMatch .Params.thumbnail -}}
+        {{- if and (not $thumb) .Params.thumbnail }}{{- $thumb = .Resources.GetMatch (printf "**/%s" .Params.thumbnail) -}}{{- end -}}
+        {{ if $thumb }}
+        <a href="{{ .RelPermalink }}" class="blog-card__thumb-link" tabindex="-1" aria-hidden="true">
+          <img src="{{ $thumb.RelPermalink }}" alt="" class="blog-card__thumb" loading="lazy">
+        </a>
+        {{ end }}
+        <div class="blog-card__body">
+          <div class="blog-card__meta">
+            <time datetime="{{ .Date.Format "2006-01-02" }}" class="blog-card__date">
+              {{- .Date.Format "January 2, 2006" -}}
+            </time>
+            {{ with .Params.categories }}
+            <span class="blog-card__sep" aria-hidden="true">·</span>
+            {{ range first 2 . }}<span class="blog-card__cat">{{ . }}</span>{{ end }}
+            {{ end }}
+          </div>
+          <h2 class="blog-card__title">
+            <a href="{{ .RelPermalink }}">{{ .Title }}</a>
+          </h2>
+          {{ with .Params.lead }}
+          <p class="blog-card__lead">{{ . }}</p>
+          {{ else }}
+          <p class="blog-card__lead">{{ .Summary | plainify | truncate 140 }}</p>
+          {{ end }}
+          {{ with .Params.tags }}
+          <div class="blog-card__tags">
+            {{ range . }}<span class="badge blog-card__tag">{{ . }}</span>{{ end }}
+          </div>
+          {{ end }}
+        </div>
+        <div class="blog-card__footer">
+          <a href="{{ .RelPermalink }}" class="btn btn--ghost btn--sm">
+            {{ i18n "btn_read_more" | default "Read more" }} →
+          </a>
+        </div>
+      </article>
+      {{ end }}
+    </div>
+    {{ else }}
+    <p class="blog-list__empty">{{ i18n "blog_empty" | default "No posts yet." }}</p>
+    {{ end }}
+  </div>
+</section>
+{{ end }}

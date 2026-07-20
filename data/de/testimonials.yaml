@@ -1,0 +1,47 @@
+heading: "Kundenstimmen"
+items:
+  - quote: "Das bisher beste Training, das ich besucht habe. Checkmk + Robot Framework = ❤️"
+    author: "Sebastian Böhm"
+    company: "Landeshauptstadt München"
+    active: true
+  - quote: "Synthetic Monitoring mit Robotmk ist eine wirklich hervorragende Lösung, um den Observability Stack komplett zu machen. Wir sind äußerst zufrieden damit!"
+    author: "(Gartner Review)"
+    active: true
+  - quote: "Ich hatte das Vergnügen, am RobotMK-Kurs teilzunehmen, und bin absolut begeistert von den vermittelten Inhalten und der praxisnahen Umsetzung. Dank dieses Kurses fühle ich mich nun bestens gerüstet, eigene Testautomatisierungen mit RobotMK umzusetzen."
+    author: "André Bolli"
+    company: "WAGNER AG, CH"
+    active: true
+  - quote: "Klasse Kurs! Simon hat mit sehr viel Engagement und hervorragend aufbereitetem Schulungsmaterial die Themen Robot Framework und RobotMK anschaulich vermittelt. Ich kann den Kurs nur empfehlen – sowohl für Robot-Framework- als auch für End-to-End-Monitoring-Interessierte."
+    author: "Philipp Lemke"
+    company: "PL Automation Monitoring GmbH"
+    active: true
+  - quote: "Ich fand die Schulung sehr verständlich und sehr gut vorbereitet! Die Schulung kann ich jedem weiterempfehlen, der sich mit Robot Framework bzw. RobotMK auseinandersetzen möchte."
+    author: "Mathias Götze"
+    company: "Iteratio GmbH"
+    active: true
+  - quote: "Mit diesem Kurs erhalten nicht nur Anfänger einen umfassenden Überblick über Robot Framework, auch fortgeschrittene Tester profitieren und gewinnen wertvolle Einblicke."
+    author: "Kilian Kranz"
+    company: "Dedalus HealthCare GmbH"
+    active: true
+  - quote: "Das Training hat uns sehr geholfen und ich empfehle es jedem, der sich mit der Thematik auseinandersetzen möchte."
+    author: "Axel Rosemann"
+    company: "Hellmann Worldwide Logistics"
+    active: true
+  - quote: "Sehr guter Kurs, sehr kurzweilig. Gute Stimmung (auch dank der Top-Dozenten) und ein sehr interessantes Thema."
+    author: "Andreas Knapp"
+    company: "Deutsche Rentenversicherung Bund"
+    active: true
+  - quote: "In der neuesten Version wurde der Bereich der End-to-End-Überwachung durch die Integration von Robot Framework mithilfe von RobotMK erheblich verbessert. Bis dahin war die End-to-End-Überwachung für mich einer der schwierigsten Aspekte im Bereich der Überwachung."
+    author: "(Gartner Review)"
+    active: true    
+  - quote: "Der Kurs ermöglicht mir, weitere Anwendungsfelder für Testszenarien zu erschließen. Die intensive Schulung hat viele Fragen gelöst, die wir uns während unserer bisherigen eigenständigen Arbeit – ausschließlich mit Dokus – noch gestellt hatten."
+    author: "Wolfram Wilhelm"
+    company: "CH"
+    active: true
+  - quote: "Ich besuchte den Kurs bereits mit grundsätzlichem Wissen über Robot Framework und RobotMK. Oft fehlte mir jedoch das Detailverständnis – diese Lücken hat der Kurs sehr gut geschlossen. Simon konnte auch kompetent Detailfragen beantworten. Eine großartige Erfahrung, die unser Synthetic Monitoring auf ein neues Level hebt!"
+    author: "Maxi Sachmann"
+    company: "Landeshauptstadt München"
+    active: true
+  - quote: "Synthetic Monitoring mit Robotmk ist eine wirklich hervorragende Lösung, um den Observability Stack komplett zu machen. Wir sind äußerst zufrieden damit!"
+    author: "(Gartner Review)"
+    active: true

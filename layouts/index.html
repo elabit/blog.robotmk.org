@@ -1,28 +1,285 @@
 {{ define "main" }}
-<main class="main list" role="main">
-	{{- with .Content }}
-	<div class="content main__content clearfix">
-		{{ . }}
-	</div>
-	{{- end }}
-	{{/*  {{ $paginator := .Paginate (where .Site.RegularPages "Type" "in" .Site.Params.mainSections) }}  */}}
-	{{/*  SME: order by date reverse  */}}
-	{{ $pages := where .Site.RegularPages "Type" "in" .Site.Params.mainSections }}
-	{{ $sortedPages := $pages.ByDate.Reverse }}
-	{{ $paginator := .Paginate $sortedPages }}
-	{{- range $paginator.Pages }}
-		{{- .Render "summary" }}
-	{{- end }}
-	{{- if and (eq $paginator.TotalNumberOfElements 0) (not $.Content) }}
-		<div class="warning">
-			{{ partial "svg/files.svg" (dict "class" "warning__icon") }}
-			<h3 class="warning__headline">{{ T "noposts_warning_title" | safeHTML }}</h3>
-			<div class="warning__text">
-				<p class="warning__description">{{ T "noposts_warning_description" | safeHTML }}</p>
-				<p class="warning__tip">{{ T "noposts_warning_tip" | safeHTML }}</p>
-			</div>
-		</div>
-	{{ end }}
-</main>
-{{ partial "pagination.html" . }}
+{{- $home := index .Site.Data .Site.Language.Lang "home" -}}
+{{- $nl := index .Site.Data .Site.Language.Lang "newsletter" -}}
+
+<section class="hero" aria-label="Hero">
+  <div class="hero__container">
+    <div class="hero__split">
+
+      <div class="hero__text">
+        <span class="hero__eyebrow">{{ $home.hero.eyebrow }}</span>
+        <h1 class="hero__headline">
+          {{ $home.hero.headline_pre }} <span class="hero__green">{{ $home.hero.headline_accent }}</span>.<br>
+          {{ $home.hero.headline_post_pre }} <span class="hero__red">{{ $home.hero.headline_post_red }}</span>.
+        </h1>
+        <p class="hero__tagline">{{ $home.hero.tagline }}</p>
+        <div class="hero__cta-row">
+          <a href="{{ "/services/" | relLangURL }}" class="btn btn--primary">{{ $home.hero.cta_primary }}</a>
+          <a href="#solution" class="btn btn--ghost">{{ $home.hero.cta_secondary }}</a>
+        </div>
+      </div>
+
+      <div class="hero__viz">
+        {{- partial "hero-viz.html" . -}}
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<section class="stats-bar" role="region">
+  <h2 class="stats-bar__heading">{{ $home.stats.heading }}</h2>
+  <p class="stats-bar__description">{{ $home.stats.description  | safeHTML }}</p>
+  <p class="stats-bar__source">{{ $home.stats.source | safeHTML }}</p>
+  <div class="stats-bar__container">
+    {{- range $home.stats.items }}
+    <div class="stats-bar__item">
+      <span class="stats-bar__number stats-bar__number--error">{{ .number }}</span>
+      <span class="stats-bar__label">{{ .label }}</span>
+    </div>
+    {{- end }}
+  </div>
+</section>
+
+<section class="loesung section section--surface" id="solution" aria-label="{{ $home.solution.eyebrow }}">
+  <div class="loesung__container">
+
+    <header class="loesung__heading">
+      <span class="loesung__eyebrow">{{ $home.solution.eyebrow }}</span>
+      <h2>{{ $home.solution.heading  | safeHTML}}</h2>
+    </header>
+
+    <div class="loesung__logo">
+      <img src="/robotframework_white_transparent.png" alt="Robotmk" class="loesung__logo-img" loading="lazy">
+    </div>
+
+    <p class="loesung__rf-pitch-intro">{{ $home.solution.rf_pitch_intro  | safeHTML }}</p>
+    <ul class="loesung__rf-pitch">
+      {{- range $home.solution.rf_pitch }}
+      <li>{{ .  | safeHTML }}</li>
+      {{- end }}
+    </ul>
+    <p class="loesung__rf-pitch-outro">{{ $home.solution.rf_pitch_outro | safeHTML }}</p>
+
+    <div class="loesung__flow">
+      <img src="/images/rf_rmk_cmk-on_black.png"
+           alt="{{ $home.solution.flow_aria }}"
+           class="loesung__flow-img"
+           loading="lazy">
+    </div>
+    <div class="loesung__cta">
+      <a href="{{ "/why-robotmk/" | relLangURL }}" class="btn btn--ghost">{{ $home.solution.cta_why }}</a>
+    </div>
+
+  </div>
+</section>
+
+{{/*
+    <div class="loesung__switcher">
+      <div class="loesung__tab-bar" role="tablist">
+        <button class="loesung__tab loesung__tab--active"
+                role="tab" aria-selected="true" aria-controls="loesung-panel-1"
+                data-target="loesung-panel-1">
+          {{ $home.solution.card1.label }}
+        </button>
+        <button class="loesung__tab"
+                role="tab" aria-selected="false" aria-controls="loesung-panel-2"
+                data-target="loesung-panel-2">
+          {{ $home.solution.card2.label }}
+        </button>
+      </div>
+
+      <div class="loesung__tab-panel loesung__tab-panel--active"
+           id="loesung-panel-1" role="tabpanel">
+        <h3 class="loesung__card-heading">{{ $home.solution.card1.heading }}</h3>
+        <p class="loesung__card-text">{{ $home.solution.card1.text }}</p>
+        <div>
+          <a href="{{ "/learn/" | relLangURL }}" class="btn btn--ghost">{{ $home.solution.card1.cta }}</a>
+        </div>
+      </div>
+
+      <div class="loesung__tab-panel"
+           id="loesung-panel-2" role="tabpanel">
+        <h3 class="loesung__card-heading">{{ $home.solution.card2.heading }}</h3>
+        <p class="loesung__card-text">{{ $home.solution.card2.text }}</p>
+        <div>
+          <a href="https://github.com/elabit/robotmk-examples" target="_blank" rel="noopener noreferrer" class="btn btn--ghost">
+            {{ $home.solution.card2.cta }}
+          </a>
+        </div>
+        <p class="loesung__codespace-hint">{{ $home.solution.card2.codespace_hint }}</p>
+      </div>
+    </div>
+    <script>
+    (function () {
+      var tabs = document.querySelectorAll('.loesung__tab');
+      tabs.forEach(function (tab) {
+        tab.addEventListener('click', function () {
+          tabs.forEach(function (t) {
+            t.classList.remove('loesung__tab--active');
+            t.setAttribute('aria-selected', 'false');
+          });
+          document.querySelectorAll('.loesung__tab-panel').forEach(function (p) {
+            p.classList.remove('loesung__tab-panel--active');
+          });
+          tab.classList.add('loesung__tab--active');
+          tab.setAttribute('aria-selected', 'true');
+          document.getElementById(tab.dataset.target).classList.add('loesung__tab-panel--active');
+        });
+      });
+    })();
+    </script>
+
+  </div>
+</section>  */}}
+
+<section class="why section" id="why-robotmk-teaser" aria-label="{{ $home.why.eyebrow }}">
+  <div class="why__container">
+    <span class="why__eyebrow">{{ $home.why.eyebrow }}</span>
+    <h2 class="why__heading">{{ $home.why.heading }}</h2>
+    <p class="why__body">{{ $home.why.body }}</p>
+    <p class="why__stat-line">{{ $home.why.stat_line }}</p>
+    <ul class="why__pillars" role="list">
+      {{- range $home.why.pillars }}
+      <li class="why__pillar">
+        <span class="why__pillar-icon" aria-hidden="true">{{ .icon }}</span>
+        <span class="why__pillar-label">{{ .label }}</span>
+        <span class="why__pillar-text">{{ .text }}</span>
+      </li>
+      {{- end }}
+    </ul>
+    <a href="{{ "/why-robotmk/" | relLangURL }}" class="btn btn--ghost">{{ $home.why.cta }}</a>
+  </div>
+</section>
+
+<section class="bridge-teaser section" aria-label="{{ $home.bridge_teaser.eyebrow }}">
+  <div class="bridge-teaser__container">
+    <span class="bridge-teaser__eyebrow">{{ $home.bridge_teaser.eyebrow }}</span>
+    <h2 class="bridge-teaser__heading">{{ $home.bridge_teaser.heading }}</h2>
+    <p class="bridge-teaser__body">{{ $home.bridge_teaser.body }}</p>
+    {{ partial "bridge/tools-ticker.html" (dict "page" . "tooltip" true) }}
+    <a href="{{ "/bridge/" | relLangURL }}" class="btn btn--ghost">{{ $home.bridge_teaser.cta }}</a>
+  </div>
+</section>
+
+<section class="founder section" aria-label="{{ $home.founder.heading }}">
+  <div class="founder__container">
+
+    <div class="founder__photo">
+      {{/*  <img src="/images/portrait_büro_ich_sitze_RFCP_Logo.jpg"  */}}
+      <img src="/images/simonmeggle.png"
+           alt="{{ $home.founder.img_alt }}"
+           width="400" height="530"
+           loading="lazy"
+           onerror="this.style.display='none'">
+    </div>
+
+    <div class="founder__text">
+      <h2 class="founder__headline">{{ $home.founder.heading  | safeHTML }}</h2>
+      <p class="founder__bio">{{ $home.founder.bio | safeHTML }}</p>
+      <ul class="founder__badge-list">
+        {{- range $home.founder.badges }}
+        <li>{{ . | safeHTML }}</li>
+        {{- end }}
+      </ul>
+      {{/*  TODO  */}}
+      {{/*  <div>
+        <a href="{{ "/about/" | relLangURL }}" class="btn btn--ghost">{{ $home.founder.cta }}</a>
+      </div>  */}}
+    </div>
+
+  </div>
+</section>
+
+{{ partial "testimonials-carousel.html" . }}
+
+{{- $allBlogPosts := where .Site.RegularPages "Section" "blog" -}}
+{{- $featuredPosts := where $allBlogPosts "Params.pinned" true -}}
+{{- $latestPosts := first 3 (where $allBlogPosts "Params.pinned" "!=" true) -}}
+{{- if or $featuredPosts $latestPosts }}
+<section class="blog-preview section" aria-label="{{ $home.blog.heading }}">
+  <div class="blog-preview__container">
+    <header class="blog-preview__header">
+      <h2>{{ $home.blog.heading }}</h2>
+    </header>
+    {{- if $latestPosts }}
+    <header class="blog-preview__header blog-preview__header--latest">
+      <h3>{{ $home.blog.latest_heading }}</h3>
+      <a href="{{ "/blog/" | relLangURL }}" class="btn btn--ghost">{{ $home.blog.cta }}</a>
+    </header>
+    <div class="blog-preview__grid">
+      {{- range $latestPosts }}
+      <div class="card blog-post-card">
+        <time class="blog-post-card__date" datetime="{{ .Date.Format "2006-01-02" }}">
+          {{ .Date.Format "January 2, 2006" }}
+        </time>
+        <a class="blog-post-card__title" href="{{ .RelPermalink }}">{{ .Title }}</a>
+        <p class="blog-post-card__desc">{{ .Description | default (.Summary | plainify | truncate 120) }}</p>
+        <a class="blog-post-card__link" href="{{ .RelPermalink }}">{{ $home.blog.readmore }}</a>
+      </div>
+      {{- end }}
+    </div>
+    {{- end }}
+
+    {{- if $featuredPosts }}
+    <header class="blog-preview__header">
+      <h3>{{ $home.blog.featured_heading }}</h3>
+    </header>
+    <div class="blog-preview__grid">
+      {{- range $featuredPosts }}
+      <div class="card blog-post-card">
+        <time class="blog-post-card__date" datetime="{{ .Date.Format "2006-01-02" }}">
+          {{ .Date.Format "January 2, 2006" }}
+        </time>
+        <a class="blog-post-card__title" href="{{ .RelPermalink }}">{{ .Title }}</a>
+        <p class="blog-post-card__desc">{{ .Description | default (.Summary | plainify | truncate 120) }}</p>
+        <a class="blog-post-card__link" href="{{ .RelPermalink }}">{{ $home.blog.readmore }}</a>
+      </div>
+      {{- end }}
+    </div>
+    {{- end }}
+
+  </div>
+</section>
+{{- end }}
+
+<section class="newsletter-cta" aria-label="{{ $nl.heading }}">
+  <div class="newsletter-cta__container">
+    <h2>{{ $nl.heading }}</h2>
+    <p class="newsletter-cta__subtext">{{ $nl.subtext }}</p>
+    
+    <div class="newsletter-cta__wrapper">
+      <form class="newsletter-form"
+            id="newsletter-form"
+            data-webhook="{{ .Site.Params.newsletter_webhook_url }}"
+            data-msg-error-required="{{ $nl.error_required }}"
+            data-msg-confirm="{{ $nl.confirm }}"
+            data-msg-error-submit="{{ $nl.error_submit }}"
+            novalidate>
+        <div class="form-row">
+          <input class="input"
+                 type="email"
+                 name="email"
+                 id="newsletter-email"
+                 placeholder="{{ $nl.placeholder }}"
+                 required
+                 aria-label="{{ $nl.placeholder }}">
+          <button type="submit" class="btn btn--dark">{{ $nl.submit }}</button>
+        </div>
+        <label class="newsletter-form__consent">
+          <input type="checkbox" name="consent" required>
+          <span>{{ $nl.consent_label | safeHTML }}</span>
+        </label>
+      </form>
+      <p class="newsletter-cta__legal">
+        <a href="{{ i18n "url_privacypolicy" }}" target="_blank" rel="noopener noreferrer">{{ i18n "privacy_policy" }}</a>
+      </p>
+      <p class="newsletter-cta__status"
+         id="newsletter-status"
+         role="status"
+         aria-live="polite"></p>
+    </div>
+  </div>
+</section>
+
 {{ end }}

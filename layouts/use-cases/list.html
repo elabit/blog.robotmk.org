@@ -1,0 +1,34 @@
+{{ define "title" }}{{ .Title }} — {{ .Site.Title }}{{ end }}
+
+{{ define "main" }}
+<section class="use-cases__hero section">
+  {{ partial "hero-motif.html" . }}
+  <div class="container">
+    <span class="use-case__eyebrow">{{ T "use_case_eyebrow" }}</span>
+    <h1 class="use-case__title">{{ T "use_cases_overview_title" }}</h1>
+    <p class="use-case__teaser">{{ T "use_cases_overview_teaser" }}</p>
+  </div>
+</section>
+
+<section class="use-cases__list section section--surface">
+  <div class="container">
+    <ul class="use-cases__grid" role="list">
+      {{- range .Pages.ByWeight }}
+      <li>
+        <a class="use-cases__card" href="{{ .RelPermalink }}">
+          <span class="use-cases__card-title">{{ .Title }}</span>
+          {{- /* The problem sentence is pulled from the page itself, never copied,
+                 so the overview cannot drift from the subpage. */ -}}
+          <span class="use-cases__card-problem">{{ .Params.problem }}</span>
+          {{- with .Params.libraries }}
+          <span class="use-cases__card-libs">
+            {{- range . }}<span class="use-case__lib">{{ . }}</span>{{ end -}}
+          </span>
+          {{- end }}
+        </a>
+      </li>
+      {{- end }}
+    </ul>
+  </div>
+</section>
+{{ end }}

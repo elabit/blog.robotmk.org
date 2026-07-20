@@ -1,0 +1,83 @@
+{{/*
+  bridge/tools-ticker.html
+  Horizontal auto-scrolling logo band for Bridge-compatible tools.
+  Images live in /images/bridge-tools/*.svg|.png — add or swap files there.
+  Usage: {{ partial "bridge/tools-ticker.html" (dict "page" . "tooltip" true) }}
+*/}}
+
+{{- $tooltip := .tooltip -}}
+
+{{- $tools := slice
+  (dict "file" "gatling.png"  "label" "Gatling"          "desc" "Open-source load and performance testing tool. The Bridge reads native Gatling simulation logs directly.")
+  (dict "file" "junit.png"    "label" "JUnit / pytest"   "desc" "The universal JUnit XML format — produced by most major test runners and CI systems out of the box.")
+  (dict "file" "locust.png"   "label" "Locust"           "desc" "Python-based open-source framework for distributed load testing at scale.")
+  (dict "file" "tosca.png"    "label" "Tricentis Tosca"  "desc" "Enterprise test automation suite. The Bridge reads Tosca's ADO.Net DataSet result exports.")
+  (dict "file" "zaproxy.png"  "label" "OWASP ZAP"        "desc" "The world's most widely used web application security scanner. Supported via XML/JSON reports.")
+-}}
+
+<div class="tools-ticker-wrapper">
+  <div class="tools-ticker">
+    <div class="tools-ticker__track">
+      {{- range $tools }}
+      <div class="tools-ticker__item" data-desc="{{ .desc }}">
+        <img src="/images/bridge-tools/{{ .file }}"
+             alt="{{ .label }}"
+             width="120" height="48"
+             loading="lazy">
+      </div>
+      {{- end }}
+      {{/* Duplicate for seamless loop */}}
+      {{- range $tools }}
+      <div class="tools-ticker__item" aria-hidden="true" data-desc="{{ .desc }}">
+        <img src="/images/bridge-tools/{{ .file }}"
+             alt=""
+             width="120" height="48"
+             loading="lazy">
+      </div>
+      {{- end }}
+    </div>
+  </div>
+</div>
+
+{{- if $tooltip }}
+<script>
+(function () {
+  var tip = document.createElement('div');
+  tip.className = 'tools-ticker-tooltip';
+  tip.setAttribute('role', 'tooltip');
+  document.body.appendChild(tip);
+
+  var activeTrack = null;
+
+  document.querySelectorAll('.tools-ticker__item[data-desc]').forEach(function (item) {
+    item.addEventListener('mouseenter', function () {
+      tip.textContent = item.dataset.desc;
+      tip.classList.add('tools-ticker-tooltip--visible');
+
+      var rect = item.getBoundingClientRect();
+      var tipW = tip.offsetWidth;
+      var tipH = tip.offsetHeight;
+
+      var left = rect.left + rect.width / 2 - tipW / 2 + window.scrollX;
+      var top  = rect.top - tipH - 10 + window.scrollY;
+
+      left = Math.max(8, Math.min(left, window.innerWidth - tipW - 8));
+
+      tip.style.left = left + 'px';
+      tip.style.top  = top  + 'px';
+
+      activeTrack = item.closest('.tools-ticker__track');
+      if (activeTrack) activeTrack.style.animationPlayState = 'paused';
+    });
+
+    item.addEventListener('mouseleave', function () {
+      tip.classList.remove('tools-ticker-tooltip--visible');
+      if (activeTrack) {
+        activeTrack.style.animationPlayState = '';
+        activeTrack = null;
+      }
+    });
+  });
+})();
+</script>
+{{- end }}

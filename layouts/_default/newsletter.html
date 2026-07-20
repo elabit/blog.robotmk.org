@@ -1,0 +1,18 @@
+{{ define "title" }}{{ .Title }} — {{ .Site.Title }}{{ end }}
+
+{{ define "main" }}
+<section class="page-hero">
+  <div class="container">
+    <h1 class="page-hero__title">{{ .Title }}</h1>
+    {{ with .Description }}<p class="page-hero__subtitle">{{ . }}</p>{{ end }}
+  </div>
+</section>
+
+<section class="newsletter-page">
+  <div class="container">
+    <div class="newsletter-page__content">
+      {{ .Content }}
+    </div>
+  </div>
+</section>
+{{ end }}

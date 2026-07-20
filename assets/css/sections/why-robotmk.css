@@ -1,0 +1,912 @@
+/* ============================================================
+   Why Robotmk — Standalone Page
+   ============================================================ */
+
+/* Page-scoped: tighten the vertical rhythm on this page only. The shared
+   .section padding (--space-section, 120px) stays intact for every other
+   page; here the sections sit closer together. */
+.why-hero.section,
+.why-pricing.section,
+.why-pillars.section,
+.why-cta.section {
+  /* padding-block: var(--space-3xl); */
+  padding-block: var(--space-2xl);
+}
+
+@media (max-width: 768px) {
+  .why-hero.section,
+  .why-pricing.section,
+  .why-pillars.section,
+  .why-cta.section {
+    padding-block: var(--space-2xl);
+  }
+}
+
+.why-hero {
+  position: relative;
+  text-align: center;
+  overflow: hidden; /* the motif must never spill into page horizontal scroll */
+}
+
+.why-hero .container {
+  position: relative;
+  z-index: 1;
+}
+
+.why-hero__eyebrow {
+  display: block;
+  font-size: var(--text-label-size);
+  font-weight: var(--text-label-weight);
+  letter-spacing: var(--text-label-letter-spacing);
+  text-transform: uppercase;
+  color: var(--color-primary);
+  margin-bottom: var(--space-md);
+}
+
+.why-hero__title {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 5vw, var(--text-display-size));
+  font-weight: var(--text-display-weight);
+  letter-spacing: var(--text-display-letter-spacing);
+  color: var(--color-on-surface);
+  margin: 0 0 var(--space-md);
+}
+
+.why-hero__subtitle {
+  font-size: var(--text-body-lg-size);
+  line-height: var(--text-body-lg-line-height);
+  color: var(--color-on-surface-variant);
+  max-width: 60ch;
+  margin-inline: auto;
+}
+
+.why-pricing__heading,
+.why-pillars__heading {
+  text-align: center;
+  font-family: var(--font-display);
+  font-size: var(--text-headline-lg-size);
+  font-weight: var(--text-headline-lg-weight);
+  margin-bottom: var(--space-md);
+}
+
+.why-pricing__intro {
+  text-align: center;
+  max-width: 70ch;
+  margin: 0 auto var(--space-xl);
+  color: var(--color-on-surface-variant);
+  line-height: var(--text-body-md-line-height);
+}
+
+/* ============================================================
+   Formula contrast — compact inline callout replacing the old
+   "formula vs formula" section heading. Same status-colour logic as
+   the explorer: error for usage-based, primary for Checkmk.
+   ============================================================ */
+
+.formula-callout {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  justify-content: center;
+  gap: var(--space-md);
+  max-width: var(--content-width);
+  margin: 0 auto var(--space-2xl);
+}
+
+.formula-callout__item {
+  flex: 1 1 260px;
+  max-width: 360px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  padding: var(--space-md) var(--space-lg);
+  border: 1px solid var(--color-surface-border);
+  border-top: 2px solid var(--status-color);
+  --status-color: var(--color-surface-border);
+}
+
+.formula-callout__item--bad  { --status-color: var(--color-error); }
+.formula-callout__item--good { --status-color: var(--color-primary); }
+
+.formula-callout__label {
+  font-size: var(--text-label-size);
+  font-weight: var(--text-label-weight);
+  letter-spacing: var(--text-label-letter-spacing);
+  text-transform: uppercase;
+  color: var(--color-on-surface-variant);
+}
+
+.formula-callout__formula {
+  font-family: var(--font-code);
+  font-size: var(--text-code-size);
+  color: var(--color-on-surface);
+}
+
+.formula-callout__item--good .formula-callout__formula { color: var(--color-primary); }
+
+.formula-callout__vs {
+  align-self: center;
+  font-family: var(--font-code);
+  font-size: var(--text-body-sm-size);
+  color: var(--color-on-surface-muted);
+}
+
+@media (max-width: 640px) {
+  .formula-callout__vs { display: none; }
+}
+
+/* Narrower than the full content width, centred — table + notes read as a
+   compact block under the wide chart rather than spanning the whole page. */
+.why-pricing__table-wrapper {
+  overflow-x: auto;
+  max-width: 680px;
+  margin: 0 auto var(--space-md);
+}
+
+.why-pricing__table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 480px;
+}
+
+.why-pricing__table caption {
+  caption-side: top;
+  text-align: left;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--color-on-surface-muted);
+  margin-bottom: var(--space-sm);
+}
+
+/* Only the essential rules: a firm line under the header and faint
+   separators between rows — no vertical grid, no boxed cells. */
+.why-pricing__table th,
+.why-pricing__table td {
+  border: 0;
+  padding: var(--space-sm) var(--space-md);
+  font-size: var(--text-body-sm-size);
+}
+
+.why-pricing__table thead th {
+  font-family: var(--font-display);
+  color: var(--color-on-surface);
+  text-align: center;
+  border-bottom: 2px solid var(--color-surface-border);
+}
+.why-pricing__table thead th:first-child { text-align: left; }
+
+.why-pricing__table tbody th {
+  text-align: left;
+  font-weight: 600;
+  color: var(--color-on-surface);
+}
+
+.why-pricing__table tbody td {
+  text-align: center;
+  color: var(--color-on-surface-variant);
+  font-variant-numeric: tabular-nums;
+}
+
+.why-pricing__table tbody tr + tr th,
+.why-pricing__table tbody tr + tr td {
+  border-top: 1px solid var(--color-surface-border);
+}
+
+/* The Robotmk column is the whole point of the table — tint the full column
+   and accent its text so the eye lands there. */
+.why-pricing__table-checkmk {
+  color: var(--color-primary);
+  font-weight: 600;
+  background: rgba(21, 209, 160, 0.08);
+}
+.why-pricing__table thead .why-pricing__table-checkmk {
+  color: var(--color-primary);
+  border-bottom-color: var(--color-primary);
+}
+
+/* The slider-label info tooltips live at the top of the controls column, so
+   opening upward gets clipped by .explorer's overflow guard (overflow-x:
+   hidden makes overflow-y compute to auto). Open these downward instead. */
+.explorer__controls .explorer__info-tooltip {
+  top: calc(100% + var(--space-sm));
+  bottom: auto;
+  transform: translateY(-4px);
+}
+.explorer__controls .explorer__info-btn:hover + .explorer__info-tooltip,
+.explorer__controls .explorer__info-btn:focus + .explorer__info-tooltip {
+  transform: translateY(0);
+}
+
+.why-pricing__source {
+  max-width: 680px;
+  margin-inline: auto;
+  font-size: var(--text-body-sm-size);
+  color: var(--color-on-surface-muted);
+}
+
+/* The long calculation notes sit a touch smaller than body copy. */
+.why-pricing__source--note {
+  font-size: 11.5px;
+  line-height: 1.55;
+}
+
+.why-pillars__grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-md);
+}
+
+.why-pillar-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+/* Four teal dots inset from the corners — reads as a plaque screwed into
+   place. Muted at rest, full teal when the card is hovered. The .card
+   component already supplies the border + hover-border transition. */
+.why-pillar-card__rivet {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  opacity: 0.3;
+  transition: opacity var(--transition-fast);
+}
+.why-pillar-card__rivet:nth-child(1) { top: var(--space-md); left: var(--space-md); }
+.why-pillar-card__rivet:nth-child(2) { top: var(--space-md); right: var(--space-md); }
+.why-pillar-card__rivet:nth-child(3) { bottom: var(--space-md); left: var(--space-md); }
+.why-pillar-card__rivet:nth-child(4) { bottom: var(--space-md); right: var(--space-md); }
+
+.why-pillar-card:hover .why-pillar-card__rivet {
+  opacity: 0.9;
+}
+
+.why-pillar-card__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--color-surface-border);
+  color: var(--color-on-surface-variant);
+  transition: border-color var(--transition-fast), color var(--transition-fast);
+}
+
+.why-pillar-card:hover .why-pillar-card__icon {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.why-icon {
+  width: 22px;
+  height: 22px;
+}
+
+/* The single filled focal detail per icon — coloured independently of the
+   monoline stroke so it stays teal while the stroke follows currentColor. */
+.why-icon__accent {
+  fill: var(--color-primary);
+  stroke: none;
+}
+
+.why-pillar-card__body {
+  flex: 1;
+  min-width: 0;
+}
+
+.why-pillar-card__title {
+  font-family: var(--font-display);
+  font-size: var(--text-headline-sm-size);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin: 0 0 var(--space-xs);
+}
+
+.why-pillar-card__text {
+  font-size: var(--text-body-sm-size);
+  color: var(--color-on-surface-variant);
+  line-height: var(--text-body-sm-line-height);
+  margin: 0;
+}
+
+/* "Learn more" expander — a native <details> (keyboard-operable and
+   readable with no JS); pillar-expand.js layers a height animation on top. */
+.why-more {
+  margin-top: var(--space-md);
+}
+
+.why-more__toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  cursor: pointer;
+  list-style: none;
+  font-size: var(--text-body-sm-size);
+  font-weight: 600;
+  color: var(--color-primary);
+}
+.why-more__toggle::-webkit-details-marker { display: none; }
+
+.why-more__toggle:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 3px;
+}
+
+.why-more__chevron {
+  transition: transform var(--transition-fast);
+}
+.why-more[open] .why-more__chevron {
+  transform: rotate(180deg);
+}
+
+.why-more__panel {
+  overflow: hidden;
+}
+
+.why-more__panel p {
+  margin: var(--space-sm) 0 0;
+  font-size: var(--text-body-sm-size);
+  line-height: var(--text-body-sm-line-height);
+  color: var(--color-on-surface-variant);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .why-more__chevron { transition: none; }
+}
+
+/* The 7th pillar closes the list rather than sitting stranded alone in a
+   3-column grid's leftover row: full-width, horizontal, accent-bordered —
+   a deliberate "closing reassurance" rather than a 7th identical box. */
+.why-pillar-card--closing {
+  grid-column: 1 / -1;
+  flex-direction: row;
+  align-items: center;
+  gap: var(--space-lg);
+  border-left: 3px solid var(--color-primary);
+  padding-left: calc(var(--space-xl) - 3px);
+}
+
+.why-pillar-card--closing .why-pillar-card__icon {
+  width: 56px;
+  height: 56px;
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.why-pillar-card--closing .why-icon {
+  width: 28px;
+  height: 28px;
+}
+
+@media (max-width: 768px) {
+  .why-pillars__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .why-pillar-card--closing {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+/* ============================================================
+   Explorer — interactive pricing bar chart
+
+   Same status-color logic as the cost chart above: --color-error for
+   the three usage-based vendors, --color-primary for Checkmk. Unlike
+   the overlapping-lines version this replaced, bars are already
+   spatially separated and each carries its own vendor-name label
+   underneath, so sharing one hue across the three "bad" bars doesn't
+   hurt identification — no dash-pattern/legend trick needed here.
+   ============================================================ */
+
+.explorer {
+  max-width: var(--content-width);
+  margin-inline: auto;
+  text-align: left;
+  /* Six absolutely-positioned tooltips (2 sliders + 4 vendors) can extend
+     past this box's edge even while invisible (opacity:0 doesn't remove
+     an element's geometry from the layout) — same class of bug as the
+     chart tooltip fixed earlier. Contain it here rather than per-tooltip. */
+  overflow-x: hidden;
+}
+
+.explorer__body {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: var(--space-2xl);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-xl);
+}
+
+/* DOM order is controls-then-chart (so mobile, which needs sliders before
+   the graph, needs no override) — flex `order` flips the visual sequence
+   on wide viewports where the chart should lead. */
+.explorer__chart-col {
+  flex: 1 1 420px;
+  max-width: 480px;
+  order: 1;
+}
+
+/* --- Sliders --- */
+
+.explorer__controls {
+  flex: 1 1 260px;
+  max-width: 320px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2xl);
+  padding-top: var(--space-xl);
+  order: 2;
+}
+
+.explorer__control-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-md);
+}
+
+.explorer__slider-label-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.explorer__slider-label {
+  font-size: 13px;
+  font-weight: var(--text-label-weight);
+  letter-spacing: var(--text-label-letter-spacing);
+  text-transform: uppercase;
+  color: var(--color-on-surface-variant);
+}
+
+.explorer__slider {
+  position: relative;
+  padding-block: var(--space-sm);
+}
+
+.explorer__range {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: 100%;
+  height: 24px;
+  margin: 0;
+  appearance: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.explorer__range:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 4px;
+  border-radius: 50%;
+}
+
+/* The fill-gradient is painted directly on the native track (not a separate
+   overlaid div) so the thumb — which the browser centers relative to this
+   same track — is always correctly seated on top of it, never floating
+   above it. */
+.explorer__range::-webkit-slider-runnable-track {
+  height: 5px;
+  background: linear-gradient(
+    to right,
+    var(--color-primary) 0%,
+    var(--color-primary) var(--fill, 0%),
+    var(--color-surface-border) var(--fill, 0%),
+    var(--color-surface-border) 100%
+  );
+}
+
+.explorer__range::-moz-range-track {
+  height: 5px;
+  background: linear-gradient(
+    to right,
+    var(--color-primary) 0%,
+    var(--color-primary) var(--fill, 0%),
+    var(--color-surface-border) var(--fill, 0%),
+    var(--color-surface-border) 100%
+  );
+}
+
+/* A round knob is a deliberate, scoped exception to the site's sharp-corners
+   token rule — a literal square thumb reads as broken on a slider, and a
+   circular knob is the near-universal convention for this control. */
+.explorer__range::-webkit-slider-thumb {
+  appearance: none;
+  width: 22px;
+  height: 22px;
+  margin-top: -8.5px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  border: 3px solid var(--color-background);
+  box-shadow: 0 0 0 1px var(--color-surface-border);
+  cursor: pointer;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+  animation: explorer-knob-pulse 2.6s ease-out infinite;
+}
+
+.explorer__range::-moz-range-thumb {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  border: 3px solid var(--color-background);
+  box-shadow: 0 0 0 1px var(--color-surface-border);
+  cursor: pointer;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+  animation: explorer-knob-pulse 2.6s ease-out infinite;
+}
+
+@keyframes explorer-knob-pulse {
+  0%   { box-shadow: 0 0 0 1px var(--color-surface-border), 0 0 0 0 rgba(21, 209, 160, 0.35); }
+  70%  { box-shadow: 0 0 0 1px var(--color-surface-border), 0 0 0 11px rgba(21, 209, 160, 0); }
+  100% { box-shadow: 0 0 0 1px var(--color-surface-border), 0 0 0 0 rgba(21, 209, 160, 0); }
+}
+
+.explorer__range:hover::-webkit-slider-thumb,
+.explorer__range:active::-webkit-slider-thumb,
+.explorer__range--touched::-webkit-slider-thumb {
+  animation: none;
+}
+
+.explorer__range:hover::-moz-range-thumb,
+.explorer__range:active::-moz-range-thumb,
+.explorer__range--touched::-moz-range-thumb {
+  animation: none;
+}
+
+.explorer__range:hover::-webkit-slider-thumb,
+.explorer__range:active::-webkit-slider-thumb {
+  transform: scale(1.15);
+  box-shadow: 0 0 0 1px var(--color-surface-border), 0 0 0 6px rgba(21, 209, 160, 0.18);
+}
+
+.explorer__range:hover::-moz-range-thumb,
+.explorer__range:active::-moz-range-thumb {
+  transform: scale(1.15);
+  box-shadow: 0 0 0 1px var(--color-surface-border), 0 0 0 6px rgba(21, 209, 160, 0.18);
+}
+
+.explorer__slider-ticks {
+  display: flex;
+  justify-content: space-between;
+  margin-top: var(--space-md);
+  font-family: var(--font-code);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-on-surface-variant);
+}
+
+.explorer__slider-current {
+  font-family: var(--font-code);
+  font-size: var(--text-headline-sm-size);
+  font-weight: 700;
+  color: var(--color-primary);
+  white-space: nowrap;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .explorer__range::-webkit-slider-thumb,
+  .explorer__range::-moz-range-thumb {
+    transition: none;
+    animation: none;
+  }
+}
+
+/* --- Info tooltips (shared: slider labels + vendor bar labels) ---
+
+   Anchored left rather than centered on the trigger button, because a
+   centered popup on an edge-adjacent trigger (the first/last vendor
+   label, or a slider label near the left of a narrow controls column)
+   would overflow its container. The last vendor label gets an explicit
+   right-anchor override instead. */
+
+.explorer__label-info {
+  position: relative;
+  display: inline-flex;
+}
+
+.explorer__info-btn {
+  all: unset;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 15px;
+  height: 15px;
+  border: 1px solid var(--color-on-surface-muted);
+  border-radius: 50%;
+  font-family: var(--font-code);
+  font-size: 10px;
+  font-style: italic;
+  color: var(--color-on-surface-muted);
+  cursor: help;
+  transition: border-color var(--transition-fast), color var(--transition-fast);
+}
+
+.explorer__info-btn:hover,
+.explorer__info-btn:focus-visible {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.explorer__info-btn:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.explorer__info-tooltip {
+  position: absolute;
+  bottom: calc(100% + var(--space-sm));
+  left: 0;
+  transform: translateY(4px);
+  width: max-content;
+  max-width: 240px;
+  background: var(--color-surface-high);
+  border: 1px solid var(--color-surface-border);
+  color: var(--color-on-surface);
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 400;
+  font-style: normal;
+  text-transform: none;
+  letter-spacing: normal;
+  line-height: 1.5;
+  padding: var(--space-sm) var(--space-md);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--transition-fast), transform var(--transition-fast);
+  z-index: 5;
+}
+
+.explorer__bar-label-item--last .explorer__info-tooltip {
+  left: auto;
+  right: 0;
+}
+
+/* Plain :focus (not :focus-visible) here — a tap on touch devices doesn't
+   reliably set the focus-visible flag in every mobile browser, but it
+   always fires a plain focus event. The visible ring above stays
+   keyboard-only via :focus-visible; reveal just needs any focus. */
+.explorer__info-btn:hover + .explorer__info-tooltip,
+.explorer__info-btn:focus + .explorer__info-tooltip {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .explorer__info-tooltip {
+    transition: none;
+  }
+}
+
+/* --- Chart --- */
+
+.explorer__y-label {
+  display: block;
+  font-family: var(--font-code);
+  font-size: 11px;
+  color: var(--color-on-surface-muted);
+  margin-bottom: var(--space-xs);
+}
+
+.explorer__chart-wrap {
+  position: relative;
+  overflow: hidden;
+}
+
+.explorer__svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.explorer__gridlines line {
+  stroke: var(--color-surface-border);
+  stroke-width: 1;
+}
+
+.explorer__axis-y text {
+  font-family: var(--font-code);
+  font-size: 11px;
+  fill: var(--color-on-surface-muted);
+}
+
+.explorer__bar {
+  transition: y 500ms cubic-bezier(.16, .84, .44, 1), height 500ms cubic-bezier(.16, .84, .44, 1);
+}
+
+.explorer__bar--bad  { fill: var(--color-error); }
+.explorer__bar--good { fill: var(--color-primary); }
+
+/* Capped-bar indicator: two small chevrons drifting slowly upward and
+   fading, in a subtle lighter/translucent red — read as "more, above the
+   frame" rather than the harsher zigzag "break" mark this replaced. */
+.explorer__bar-cap {
+  display: none;
+}
+
+.explorer__bar-cap.is-capped {
+  display: block;
+}
+
+.explorer__bar-cap path {
+  fill: none;
+  stroke: var(--color-error);
+  opacity: 0.5;
+  stroke-width: 2.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  animation: explorer-cap-rise 2.2s ease-in-out infinite;
+}
+
+.explorer__bar-cap path:nth-child(2) {
+  animation-delay: 0.55s;
+}
+
+@keyframes explorer-cap-rise {
+  0%   { transform: translateY(7px); opacity: 0; }
+  35%  { opacity: 0.5; }
+  85%  { opacity: 0.08; }
+  100% { transform: translateY(-8px); opacity: 0; }
+}
+
+.explorer__bar-value {
+  font-family: var(--font-code);
+  font-size: 13px;
+  font-weight: 600;
+  fill: var(--color-on-surface);
+  text-anchor: middle;
+  transition: y 500ms cubic-bezier(.16, .84, .44, 1);
+}
+
+.explorer__bar-value--capped {
+  fill: var(--color-error);
+  font-weight: 700;
+}
+
+/* Vendor names live as an HTML row below the SVG (not SVG <text>) so they
+   can carry a real, CSS-styled tooltip — each item's left offset is set by
+   JS to match its bar's horizontal center exactly. Width is capped to
+   roughly one bar-slot and wrapping is allowed (not nowrap): the longest
+   name ("Checkmk with Robotmk") would otherwise overlap its neighbor at
+   these tight 4-across positions regardless of exact wording. */
+.explorer__bar-labels {
+  position: relative;
+  height: 40px;
+  margin-top: var(--space-sm);
+}
+
+.explorer__bar-label-item {
+  position: absolute;
+  top: 0;
+  transform: translateX(-50%);
+  /* Percentage, not a fixed px, so it shrinks in step with the responsive
+     SVG — a fixed width stayed constant while the chart narrowed, so
+     labels collided again at phone widths. ~19% comfortably clears the
+     ~21% slot pitch (chart width / 4 vendors) with a small gap either side. */
+  width: 19%;
+  text-align: center;
+}
+
+.explorer__bar-label-text {
+  font-size: 12px;
+  line-height: 1.3;
+  color: var(--color-on-surface-variant);
+}
+
+.explorer__bar-label-item .explorer__label-info {
+  vertical-align: middle;
+  margin-left: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .explorer__bar,
+  .explorer__bar-value {
+    transition: none;
+  }
+
+  .explorer__bar-cap path {
+    animation: none;
+    opacity: 0.5;
+    transform: none;
+  }
+}
+
+.explorer__hint {
+  text-align: center;
+  font-size: var(--text-body-sm-size);
+  color: var(--color-on-surface-muted);
+  margin: var(--space-lg) 0 0;
+}
+
+.explorer__noscript {
+  text-align: center;
+  color: var(--color-on-surface-muted);
+  font-size: var(--text-body-sm-size);
+}
+
+@media (max-width: 860px) {
+  .explorer__body {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-lg);
+  }
+
+  /* flex-basis meant for width in row-mode becomes a *height* constraint
+     once flex-direction switches to column — reset both to full-width,
+     content-sized blocks instead of inheriting the row-mode numbers. */
+  .explorer__chart-col,
+  .explorer__controls {
+    flex: 0 0 auto;
+    width: 100%;
+    max-width: none;
+  }
+
+  /* Sliders before the graph on narrow viewports — DOM order already
+     puts controls first, so just cancel the desktop order flip. */
+  .explorer__controls {
+    order: 1;
+    padding-top: 0;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: var(--space-xl);
+  }
+
+  .explorer__chart-col {
+    order: 2;
+  }
+
+  .explorer__control {
+    flex: 1 1 220px;
+  }
+}
+
+@media (max-width: 480px) {
+  .explorer__controls {
+    flex-direction: column;
+  }
+
+  /* Narrower popup + right-anchor the last two vendor labels (not just the
+     literal last one) — at phone widths four evenly-spread items leave too
+     little room right of the third for a left-anchored tooltip to clear
+     the edge before it gets clipped by .explorer's overflow guard. */
+  .explorer__info-tooltip {
+    max-width: 170px;
+  }
+
+  .explorer__bar-label-item:nth-last-child(-n+2) .explorer__info-tooltip {
+    left: auto;
+    right: 0;
+  }
+}
+
+.why-cta__container {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-lg);
+}
+
+.why-cta__text {
+  font-family: var(--font-display);
+  font-size: var(--text-headline-md-size);
+  font-weight: var(--text-headline-md-weight);
+  margin: 0;
+}
+
+@media (max-width: 768px) {
+  .why-pillars__grid {
+    grid-template-columns: 1fr;
+  }
+}

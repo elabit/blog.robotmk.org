@@ -1,0 +1,132 @@
+hero:
+  eyebrow: Robotmk Bridge
+  title1: Eine Monitoring-Plattform.
+  title2: Alle deine Test-Tools
+  title3: unter Kontrolle.
+  subtitle: Die Robotmk Bridge bringt die Ergebnisse beliebiger Test-Tools in Checkmk
+    — ganz ohne Migration zu Robot Framework.
+problem:
+  eyebrow: Das Problem
+  heading: Du kannst Robot Framework nicht nutzen?
+  paragraphs:
+  - Robotmk ist die leistungsstärkste Synthetic-Monitoring-Integration für Checkmk.
+    Es repräsentiert die Ergebnisse automatisierter Tests als Monitoring-Services.
+    Laufzeit-Überwachung, Sub-Step-Discovery, und HTML-Logs inclusive.
+  - Schon oft kam die Frage auf, ob Robotmk nicht auch andere Test-Tools und Frameworks
+    unterstützen könnte.
+  - 'Denn niemand migriert seine Tests gerne auf eine andere Technologie, wenn sie
+    eigentlich gut funktionieren. Denn auch wenn Robot Framework Open Source ist:
+    das macht den Umstieg nicht kostenneutral.'
+  - Also blieb Robotmk bislang auf der Wunschliste — und die Testergebnisse für Checkmk
+    unsichtbar.
+  pivot: Die Robotmk Bridge ändert das. Deine Tools bleiben, die Robotmk Bridge integriert
+    sie.
+how:
+  eyebrow: So funktioniert es
+  heading: In drei Schritten zur nahtlosen Integration.
+  steps:
+  - title: Die Bridge installieren
+    body: Lade das Installationspaket von Checkmk Exchange und installiere es in Checkmk.
+  - title: Die Bridge konfigurieren
+    body: Im webbasierten Regel-Editor konfigurierst Du, an welchen Orten die Bridge
+      nach den Ergebnissen Deiner Test-Tools schauen soll.
+  - title: Services discovern
+    body: Die Bridge kümmert sich um die Konvertierung der Ergebnisse und bindet sie
+      mit dem vollen Komfort des Robotmk-Monitorings in Checkmk als reguläre Services
+      ein. Mit Schwellenwerten, Alerts und vollständiger Historie.
+diy:
+  eyebrow: Der Mehrwert
+  heading: Warum die Bridge einem Custom Check Plugin überlegen ist.
+  lead: 'Technisch gesehen spricht nichts dagegen, für die Integration Deiner Test-Tools
+    dedizierte Agent-Plugins zu programmieren. <br>Die Sache hat nur einen Haken:
+    solche Integrationen bergen eine Wartungslast, die mit jedem weiteren Tool anwächst.'
+  pivot: 'Eine Integration mit der <b>Robotmk Bridge</b> löst für Dich:'
+  advantages:
+  - icon: ⏱️
+    title: Runtime-Monitoring
+    body: Robotmk überwacht nicht nur die finalen Ergebnisse, sondern auch Laufzeiten
+      der Tests.
+  - icon: 🔬
+    title: KPI Step-Discovery
+    body: Oft interessiert nicht nur der Gesamtstatus eines tests. Mit Robotmk kannst
+      Du auch Teilschritte als separate Services discovern - für volle Transparenz
+      und schnellere Root-Cause Analyse.
+  - icon: 📄
+    title: HTML-Testlog
+    body: Alle über die Bridge integrierten Testläufe sind mit einem HTML-Logfile
+      detailliert nachvollziehbar - ohne lästiges 'grep' in verschiedenen Logformaten.
+  - icon: 🔔
+    title: Pro-Schritt-Alerting
+    body: Zielgerichtete Benachrichtigung von verantwortlichen Personen/Teams über
+      den Erfolg von Teilschritten.
+  - icon: 🍞
+    title: Agent Bakery Deployment
+    body: Wie bei Checkmk üblich, erfolgt die Konfiguration einheitlich über das Regelwerk.
+      Der Agent wird im Hintergrund speziell für die Bridge-Hosts erstellt und über
+      die automatischen Agentenupdates auf die Zielmaschinen ausgebracht.
+  - icon: 🏆
+    title: 6 Jahre Robotmk R&D included
+    body: Robotmk ist die fortschrittlichste Integration von Testergebnissen, die
+      je für Checkmk entwickelt wurde. Die Bridge öffnet Dir diese Welt für alle Frameworks,
+      die kein Robot Framework sind.
+  closing: Ein Custom Plugin für Test-Tools erfindet ein Rad neu, das bereits perfektioniert
+    wurde. Die Bridge schließt sich an das an, was bereits funktioniert.
+tools:
+  eyebrow: Bereits unterstützt
+  heading: 'Welche Formate die Bridge heute schon unterstützt:'
+  items:
+  - icon: 🧪
+    tool: pytest · JUnit · Maven · NUnit
+    format: JUnit XML
+    desc: Das universelle Testergebnis-Format — wird von fast allen Test-Runnern und
+      CI-Systemen direkt erzeugt.
+  - icon: 🧪
+    tool: Gatling
+    format: simulation.log
+    desc: Open-Source Last- und Performance-Test-Tool. Die Bridge liest native Gatling
+      Simulation Logs direkt.
+  - icon: 🧪
+    tool: OWASP ZAP
+    format: XML / JSON Reports
+    desc: Der meistgenutzte Web-Application-Security-Scanner weltweit.
+  - icon: 🧪
+    tool: Locust
+    format: CSV
+    desc: Das Python-basierte Open-Source-Framework für Lasttests
+  - icon: 🧪
+    tool: Tricentis Tosca
+    format: ADO.Net DataSet
+    desc: Testautomatisierungs-Suite
+  
+  - icon: ➕
+    tool: '...Dein Tool?'
+    
+    desc: Ein Handler für dein Tool kann in wenigen Stunden gebaut werden. Einfach
+      anfragen.
+extend:
+  heading: Dein Tool steht nicht auf der Liste?
+  body: Die Robotmk Bridge ist Open Source und von Grund auf so gebaut, dass sie um
+    Handler für ein weiteres Tool erweitert werden kann.<br>Wenn dein Tool noch nicht
+    unterstützt wird, helfe ich gerne beim Schreiben des Handlers oder zeige dir den
+    richtigen Einstieg.
+  cta: Jetzt Kontakt aufnehmen →
+ctas:
+  eyebrow: "Deine nächsten Schritte"
+  heading: "Wähle deinen Einstieg."
+  lab:
+    icon: 🧪
+    title: Ausprobieren
+    body: Vollständiges Tutorial mit Lab für den sofortigen Start
+    url: TODO
+    label: Lab-Umgebung starten →
+  use:
+    icon: 🚀
+    title: Anwenden
+    body: MKP von GitHub herunterladen und installieren.
+    url: https://exchange.checkmk.com/p/robotmk-bridge-plugin
+    label: Auf Checkmk Exchange herunterladen →
+  services:
+    icon: 🛠️
+    title: Hilfe benötigt?
+    body: Hier gibt es Hands-on Unterstützung beim Einrichten der Bridge in deiner Umgebung.
+    label: Zu den Services →

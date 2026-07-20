@@ -1,0 +1,66 @@
+{{- /* Story 5.2: Schema.org JSON-LD structured data */ -}}
+
+{{ if .IsHome -}}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "ELABIT GmbH",
+  "url": "{{ .Site.BaseURL }}",
+  "logo": "{{ "/img/rmk_crop_transp_w150.png" | absURL }}",
+  "sameAs": [
+    "https://github.com/elabit",
+    "https://www.linkedin.com/in/simon-meggle/"
+  ],
+  "founder": {
+    "@type": "Person",
+    "name": "Simon Meggle",
+    "jobTitle": "PM Synthetic Monitoring",
+    "worksFor": {
+      "@type": "Organization",
+      "name": "Checkmk GmbH"
+    }
+  }
+}
+</script>
+{{- end }}
+
+{{ if .IsPage -}}
+  {{ if eq .Section "blog" -}}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": {{ .Title | jsonify }},
+  "datePublished": "{{ .Date.Format "2006-01-02T15:04:05Z07:00" }}",
+  "dateModified": "{{ .Lastmod.Format "2006-01-02T15:04:05Z07:00" }}",
+  "url": "{{ .Permalink }}",
+  "author": {
+    "@type": "Person",
+    "name": "Simon Meggle"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "ELABIT GmbH",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "{{ "/img/rmk_crop_transp_w150.png" | absURL }}"
+    }
+  }
+  {{ with .Params.description }}, "description": {{ . | jsonify }}{{ end }}
+}
+</script>
+  {{- end }}
+{{- end }}
+
+{{ if eq .RelPermalink (printf "/%s/learn/" .Site.Language.Lang) -}}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "ItemList",
+  "name": "Robotmk Courses",
+  "description": "Video courses and learning resources for RF Synthetic Monitoring with Robotmk and Checkmk",
+  "url": "{{ .Permalink }}"
+}
+</script>
+{{- end }}

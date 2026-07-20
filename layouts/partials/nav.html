@@ -1,0 +1,122 @@
+<nav class="nav" aria-label="Main navigation">
+  <div class="nav__container">
+
+    {{- /* Logo */ -}}
+    <a class="nav__logo" href="{{ "/" | relLangURL }}" aria-label="{{ .Site.Title }} — Home">
+      <img src="/robotmk2_crop_transp.png"
+           alt="{{ .Site.Title }}"
+           width="auto" height="32"
+           onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+      <span class="nav__logo-text" style="display:none">{{ .Site.Title }}</span>
+    </a>
+
+    {{- /* Desktop Nav Links */ -}}
+    <ul class="nav__links" role="list">
+      {{- $currentPage := . -}}
+      {{- range .Site.Menus.main }}
+      {{- if .HasChildren }}
+      <li class="nav__item nav__item--has-children">
+        {{- /* A button, not a link: the toggle must not navigate, and nav.js
+               closes the mobile overlay on every <a> click. */ -}}
+        <button class="nav__dropdown-toggle{{ if $currentPage.HasMenuCurrent "main" . }} nav__link--active{{ end }}"
+                aria-expanded="false"
+                aria-controls="dropdown-{{ .Identifier }}">
+          {{ .Name }}
+          <span class="nav__dropdown-caret" aria-hidden="true"></span>
+        </button>
+        <ul class="nav__dropdown" id="dropdown-{{ .Identifier }}" role="list">
+          {{- range .Children }}
+          <li>
+            <a class="nav__dropdown-link{{ if $currentPage.IsMenuCurrent "main" . }} nav__link--active{{ end }}"
+               href="{{ .URL }}">{{ .Name }}</a>
+          </li>
+          {{- end }}
+        </ul>
+      </li>
+      {{- else }}
+      <li class="nav__item">
+        <a class="nav__link{{ if $currentPage.IsMenuCurrent "main" . }} nav__link--active{{ end }}"
+           href="{{ .URL }}">{{ .Name }}</a>
+      </li>
+      {{- end }}
+      {{- end }}
+    </ul>
+
+    {{- /* Right: Language Switcher + CTA */ -}}
+    <div class="nav__right">
+      {{- /* Language Switcher — uses .Translations for page-level context (Story 4.3) */ -}}
+      <div class="nav__lang" aria-label="Language switcher">
+        {{- $currentLang := .Site.Language.Lang -}}
+        {{- range .Site.Languages -}}
+          {{- $lang := .Lang -}}
+          {{- if eq $lang $currentLang -}}
+          <a class="nav__lang-link nav__lang-link--active"
+             href="{{ $.RelPermalink }}"
+             hreflang="{{ $lang }}"
+             lang="{{ $lang }}"
+             aria-current="true">{{ $lang | upper }}</a>
+          {{- else -}}
+            {{- $translation := index (where $.Translations "Lang" $lang) 0 -}}
+            {{- $href := cond (ne $translation nil) $translation.RelPermalink (printf "/%s/" $lang) -}}
+            <a class="nav__lang-link"
+               href="{{ $href }}"
+               hreflang="{{ $lang }}"
+               lang="{{ $lang }}"
+               {{- if eq $translation nil }} data-no-translation="true"{{ end }}>{{ $lang | upper }}</a>
+          {{- end -}}
+        {{- end }}
+      </div>
+
+      {{- /* Primary CTA */ -}}
+      <a class="btn btn--primary nav__cta" href="{{ "/services/" | relLangURL }}">
+        Clarity Call &rarr;
+      </a>
+
+      {{- /* Hamburger toggle (mobile only) */ -}}
+      <button class="nav__hamburger" aria-label="Menü öffnen" aria-expanded="false" aria-controls="nav-overlay">
+        <span class="nav__hamburger-bar"></span>
+        <span class="nav__hamburger-bar"></span>
+        <span class="nav__hamburger-bar"></span>
+      </button>
+    </div>
+
+  </div>
+
+  {{- /* Mobile Full-Screen Overlay */ -}}
+  <div class="nav__overlay" id="nav-overlay" aria-hidden="true">
+    <ul class="nav__overlay-links" role="list">
+      {{- $currentPage := . -}}
+      {{- range .Site.Menus.main }}
+      {{- if .HasChildren }}
+      <li>
+        {{- /* Must be a button: nav.js closes the overlay on every <a> click,
+               so a link here would collapse the menu instead of expanding it. */ -}}
+        <button class="nav__overlay-toggle" aria-expanded="false"
+                aria-controls="overlay-{{ .Identifier }}">
+          {{ .Name }}
+          <span class="nav__dropdown-caret" aria-hidden="true"></span>
+        </button>
+        <ul class="nav__overlay-sublinks" id="overlay-{{ .Identifier }}" role="list">
+          {{- range .Children }}
+          <li>
+            <a class="nav__overlay-sublink{{ if $currentPage.IsMenuCurrent "main" . }} nav__link--active{{ end }}"
+               href="{{ .URL }}">{{ .Name }}</a>
+          </li>
+          {{- end }}
+        </ul>
+      </li>
+      {{- else }}
+      <li>
+        <a class="nav__overlay-link{{ if $currentPage.IsMenuCurrent "main" . }} nav__link--active{{ end }}"
+           href="{{ .URL }}">{{ .Name }}</a>
+      </li>
+      {{- end }}
+      {{- end }}
+      <li>
+        <a class="btn btn--primary nav__overlay-cta" href="{{ "/services/" | relLangURL }}">
+          {{ T "nav_cta_mobile" | default "Clarity Call buchen &rarr;" | safeHTML }}
+        </a>
+      </li>
+    </ul>
+  </div>
+</nav>

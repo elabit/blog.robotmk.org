@@ -1,0 +1,102 @@
+# ── Hero ──────────────────────────────────────────────────────────────────────
+hero:
+  eyebrow: "Checkmk Synthetic Monitoring"
+  headline_pre: "Your monitoring shows"
+  headline_accent: "green"
+  headline_post_pre: "Your users are"
+  headline_post_red: "struggling"
+  tagline: "Because 'available' is not the same as 'usable'."
+  cta_primary: "Book a Clarity Call →"
+  cta_secondary: "How it works ↓"
+
+# ── Stats Bar ─────────────────────────────────────────────────────────────────
+stats:
+  heading: "The truth behind green dashboards:"
+  source: 'Source: <a href="https://thenetworkinstallers.com/blog/cost-of-it-downtime-statistics/" target="_blank" rel="noopener noreferrer">The Network Installers — Cost of IT Downtime Statistics</a>'
+  description: "Traditional monitoring watches what rarely fails: the hardware.<br>What it doesn't see is what your users actually experience — a failed login, an endlessly loading page, a checkout that hangs.<br><b>Fatal: user satisfaction and revenue are created exactly where monitoring systems are blind — at the application level.</b>"
+  items:
+    - number: "7"
+      label: "of 10 IT failures: human-made."
+    - number: "2.5×"
+      label: "Cost increase from 2014–2024 (Gartner/EMA)"
+    - number: "$14,000"
+      label: "Average cost of one minute of IT downtime (2026)"
+
+# ── Solution ──────────────────────────────────────────────────────────────────
+solution:
+  eyebrow: "The Solution"
+  heading: "Application Tests with Robot Framework<br>— seamlessly integrated into Checkmk"
+  rf_pitch_intro: "<b>Robot Framework</b> is <i>the</i> proven and flexible open-source tool for automated testing:"
+  rf_pitch:
+    - "Established for over 20 years"
+    - "> 40,000 users worldwide"
+    - "Technology-agnostic by design: web, desktop, API, SAP, Citrix, mobile — everything is testable"
+    - "AI ready"
+    - "No vendor lock-in"
+    - "No licensing costs"
+    - "No dead ends"
+  rf_pitch_outro: "<b>Robotmk</b> integrates this Swiss Army knife into Checkmk — the best-in-class monitoring platform for full-stack observability:"
+  flow_aria: "Flow: Robot Framework → Robotmk → Checkmk Synthetic Monitoring"
+  cta_why: "Why Robotmk over the alternatives →"
+  card1:
+    label: "For Checkmk Users"
+    heading: "I use Checkmk"
+    text: "Your monitoring shows green — but your users report problems. Robotmk is the native Synthetic Monitoring plugin for Checkmk. No second tool, no API integration."
+    cta: "Discover learning resources →"
+  card2:
+    label: "For Robot Framework Users"
+    heading: "I use Robot Framework"
+    text: "Your .robot tests run on demand. With Robotmk they become continuous Synthetic Monitoring — without rewriting."
+    cta: "Try it in the browser →"
+    codespace_hint: "No setup required, start instantly in the browser"
+
+# ── Why Robotmk ───────────────────────────────────────────────────────────────
+why:
+  eyebrow: "Why Robotmk"
+  heading: "Pay for what matters. Not for pretending to test more."
+  body: "Some tools charge by network request, by check interval, by the minute. Checkmk Synthetic Monitoring charges for exactly one thing: the number of test cases you monitor. Test as often as you like, as thoroughly as you like — the price doesn't move."
+  stat_line: "Action-based competitors can cost up to 10× more — and the gap grows every time you shorten the test interval."
+  pillars:
+    - icon: "🔓"
+      label: "Open source"
+      text: "Robot Framework, zero lock-in from day one."
+    - icon: "🔗"
+      label: "Deepest integration"
+      text: "Built into Checkmk, not bolted on."
+    - icon: "🧑‍💻"
+      label: "No talent risk"
+      text: "Readable, maintainable — and 40,000+ engineers already know it."
+  cta: "See the full comparison →"
+
+# ── Founder ───────────────────────────────────────────────────────────────────
+founder:
+  heading: "Invented. Perfected.<br>And now built into Checkmk."
+  bio: "I am <b>Simon Meggle</b>, the founder of the Robotmk project. <br><br>Since 2009, I have been exploring the question of how monitoring can capture not only the infrastructure but also the user perspective — and I have found an answer. <br><br>Its name is <b>Robotmk</b>: a solution that integrates Robot Framework tests directly into Checkmk, as if it had been built for that purpose from the outset.<br><br>And today? Robotmk is an integral part of Checkmk. And I am lucky enough to work part-time at Checkmk as a product manager for my own invention."
+  badges:
+    - "Founder of ELABIT GmbH, Inventor of Robotmk"
+    - "Synthetic Monitoring Expert"
+    - 'Robot Framework <a href="https://www.robotframework.org/ambassadors/" target="_blank" rel="noopener noreferrer">Ambassador</a>'
+    - Member of the <a href="https://www.robotframework.org/foundation/" target="_blank" rel="noopener noreferrer">Robot Framework Foundation</a>
+    - Organizer of the <a href="https://luma.com/rfugm" target="_blank" rel="noopener noreferrer">Robot Framework User Group Munich</a>  
+    - 'Accredited Trainer for the "Robot Framework Certified Professional" <a href="https://cert.robotframework.org" target="_blank" rel="noopener noreferrer">exam</a>'
+    - 'Senior Product Manager Synthetic Monitoring @ <a href="https://www.checkmk.com" target="_blank" rel="noopener noreferrer">Checkmk</a>'
+    - 'Chilli-Nerd 🌶️'
+  cta: "My Story →"
+  img_alt: "Simon Meggle, Inventor of Robotmk"
+
+
+
+# ── Bridge Teaser ─────────────────────────────────────────────────────────────
+bridge_teaser:
+  eyebrow: "Robotmk Bridge"
+  heading: "Not using Robot Framework? No problem."
+  body: "The Robotmk Bridge connects any test framework to Checkmk. JUnit, pytest, Gatling, ZAP — keep the tools you already trust, and gain full monitoring visibility."
+  cta: "Learn about the Bridge →"
+
+# ── Blog Preview ──────────────────────────────────────────────────────────────
+blog:
+  heading: "Robotmk Blog"
+  featured_heading: "Featured articles"
+  latest_heading: "Latest articles"
+  cta: "All Articles →"
+  readmore: "Read more →"

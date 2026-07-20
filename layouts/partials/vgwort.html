@@ -1,0 +1,27 @@
+{{- $page := . -}}
+{{- with $page.Params.vgwort }}
+
+
+{{- $plain := $page.Plain | replaceRE "\\s+" " " | trim " " -}}
+  {{- $length := len $page.Plain -}}
+  {{ if and (lt $length 1900) (eq hugo.Environment "development") }}
+    <div style="color: red; font-weight: bold; border: 2px solid red; padding: 1em; margin-top: 2em;">
+      ⚠️ VG WORT FEHLER: Der Artikel enthält nur {{ $length }} Zeichen (mind. 1800 nötig),
+      aber eine Zählmarke ist gesetzt:<br/>
+      <code>{{ $page.Params.vgwort }}</code><br/>
+      Bitte Text verlängern oder Zählmarke entfernen.
+    </div>
+  {{ else }}
+    {{/*  {{ if (eq hugo.Environment "development") }}
+      <img 
+      style="border: 1px solid red; padding: 2px;"
+      src="{{ $page.Params.vgwort }}" width="1" height="1" alt="">
+    {{ else }}  */}}
+      <span 
+        style='display:inline-block; width:4px; height:4px; background:#28a745; border-radius:50%; margin-right:5px; vertical-align:middle; float:right;'
+        title='{{ substr ($page.Params.vgwort | replaceRE "^.*/" "") 0 6 }}'
+      ></span>
+      <img src="{{ $page.Params.vgwort }}" width="1" height="1" alt="">
+    {{/*  {{ end }}  */}}
+  {{ end }}
+{{ end }}

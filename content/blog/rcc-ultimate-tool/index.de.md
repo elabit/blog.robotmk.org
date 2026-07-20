@@ -23,6 +23,8 @@ pager: false
 #weight: 10
 # --- must be in the leaf bundle folder or static
 thumbnail: img/rcc-environments.png
+vgwort: https://vg04.met.vgwort.de/na/468b05b78f234036bc4ce4c1822010df
+translationKey: "rcc-ultimate-tool"
 ---
 
 In diesem Blogartikel beleuchten wir die Hintergründe der Entwicklung von RCC, die Probleme, die es löst, und den immensen Vorteil, den es im Robotmk-Projekt bringt.
@@ -208,15 +210,21 @@ Stelle sicher, dass Du Visual Studio Code und darin die Extension [RobotCode](ht
 
 Wir nehmen als Beispiel die Robot-[Suite](https://github.com/elabit/robotmk-examples/tree/main/web/cmk_synthetic_web) aus dem Schnellstart-Tutorial.
 
-Das folgende Video zeigt im einzelnen:
+
+Das folgende Video zeigt:
 
 - Öffnen der `.robot`-Datei direkt in VS Code. Obwohl die Extension RobotCode installiert ist, werden keine Bedienelemente angezeigt, um den test zu starten. Das liegt daran, dass die Extension gar keinen Python-Interpreter, geschweige denn eine RobotFramework-Installation findet.
+  
+{{< figure src="img/windows-rcc-nopython.gif" loading="lazy" >}}
+
+Im zweiten Video siehst Du, wie das RCC-Environment erzeugt wird und das darin gestartete VS Code Zugriff auf Python hat - der Robot kann gestartet werden: 
+
 - Öffnen einer `cmd` im Verzeichnis der Suite (=wo die beiden RCC-Files `robot.yaml` und `conda.yaml` liegen).
 - `rcc task shell` zum Aktivieren des Python-Environments. Sollte es nicht existieren, wird es neu erstellt.
 - `code .` zum Öffnen des aktuellen Ordners in VS Code. Da zu diesem Zeitpunkt in der CMD bereits die Pfade auf das RCC-Environment "umgebogen" wurden, verhält sich diese CMD nun so, als wäre Python und alle Packages im Betriebssystem installiert. Auch das darin gestartete VS Code verwendet diese Interpreter.
 - Den Start der Robot Framework Suite über die Debug/Start-Schaltflächen der RobotCode-Extension. Hier könntest Du nun direkt loslegen und den Test erweitern/anpassen.
 
-{{< figure src="img/windows-rcc.gif" loading="lazy" >}}
+{{< figure src="img/windows-rcc-python.gif" loading="lazy" >}}
 
 ---
 

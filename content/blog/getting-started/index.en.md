@@ -1,10 +1,11 @@
 ---
 draft: false
+pinned: true
 title: Robotmk v2 quick start
 lead: Integrate the first RobotFramework test with Robotmk v2 in Checkmk step by step.
 commentid: rmkv2-quickstart
 menutitle: Getting started
-date: 2024-04-17T21:37:42+02:00
+date: 2025-11-08T21:37:42+02:00
 categories:
   - tutorials
 tags:
@@ -12,193 +13,230 @@ tags:
 authorbox: true
 sidebar: true
 pager: false
-menu: main
-weight: 10
-thumbnail: img/start-title.png
+# weight: 10
+thumbnail: img/start-title4.png
 slug: robotmk-v2-quickstart
+vgwort: https://vg04.met.vgwort.de/na/16f96186fe6643c1a9e5cfdcfd3898fc
+translationKey: "getting-started"
 ---
 
   
-This step-by-step guide will help you get started with synthetic monitoring with the new version of Robotmk, which is integrated in Checkmk 2.3.
+The step-by-step guide updated for Checkmk 2.4 for a successful start with synthetic monitoring using Robotmk!
 
 <!--more-->
 
-## Prerequisites 
+In this tutorial, you will learn how to integrate a Robot Framework test into Checkmk using Robotmk.
+Just a web test? No!
+The test is intended to give you a little taste of what Robot Framework is all about: the sheer number of libraries for every conceivable use case.  
+The "web-images" test opens the page of a car insurance company and checks whether the home page contains an image of a motorbike. The following are used...
 
-- Windows-VM 
-  - Internet access (needed by `rcc` to download the installation packages)
-  - 8 GB RAM
-  - 4, better 8 CPUs (don't even try with only 2 CPUs; it won't work)
-  - basic monitoring by checkmk ("Vanilla"-Agent)
-- Checkmk 2.3 on a Linux server
+- [Browser Library](https://marketsquare.github.io/robotframework-browser/Browser.html): some call it an alternative, I call it the worthy successor to the Selenium library. Under the hood, [Playwright](https://playwright.dev) is at work, which, in terms of features, clearly outshines the much older Selenium.
+- [DoctestLibrary](https://github.com/manykarim/robotframework-doctestlibrary): a true all-purpose weapon for testing PDF documents and images or comparing them with reference data.
 
-## Windows test client
+## TL'DR – what is this actually about?
 
-### Download the RCC binary
+- **Robot Framework** is the most powerful and flexible testing tool you can find. It gives you the automation power of Python without having to write Python – because Robot Framework focuses strongly on readability and maintainability.
+- **Robotmk** is the integration of Robot Framework into Checkmk. It bridges the gap between testing (run once and be satisfied) and monitoring (run continuously, record data and monitor).  Robotmk consists of
+- **Bakery** rule: for configuring the Robotmk scheduler
+- Robotmk **Scheduler**: runs Robot Framework tests at regular intervals
+  - Robotmk **Agent Plugin**: reads the test results written by the scheduler and generates a Checkmk-compatible agent section from them.
+  - Robotmk **Check**: the Checkmk-side "counterpart": it parses the results contained in the agent section and discovers a Checkmk service for each test.
 
-> The Checkmk agent, which we will install soon, will include the `rcc.exe` binary. You can therefore skip this step here if you want to integrate the robot into Checkmk immediately (i.e. without prior testing).  
-> I have got into the habit of creating a `bin` directory in the user profile and putting the binary there like this: `c:\Users\simonmeggle\bin\rcc.exe`
+## Prepare yourself
 
-For a prior test or to set up a development host, you will need to obtain the RCC binary yourself. Download it [here](https://downloads.robocorp.com/rcc/releases/index.html) (version [v17.18](https://downloads.robocorp.com/rcc/releases/v17.18.0/windows64/rcc.exe) is the current one at the time of writing) and save it to a location of your choice. 
+- A Robotmk **test client**: here, the Robotmk scheduler will run the Robot Framework tests at regular intervals and report them to Checkmk via the Checkmk agent output.
+  - OS: Windows 11 or Server 2022/2025 or Ubuntu 22 or 24 (the limitation with Linux stems from the Playwright library; Additional apt packages required, see below)
+  - Internet access (to download the installation packages via `rcc`)
+  - min 8 GB RAM
+  - 4, preferably 8 CPUs (2 CPUs do not work – better not to try)
+  - Basic monitoring of the host set up by Checkmk
+- **Checkmk** >= 2.3 (you can get it [here](https://checkmk.com/download) for free if you don't have more than 750 services – easily enough for testing)
 
-Now add this folder to the user environment variable `%PATH%`: 
+(In this tutorial, we will use Windows as an example; the procedure is relatively similar on Linux. I recommend the seven-part series on the Checkmk YouTube channel: <https://www.youtube.com/playlist?list=PL8DfRO2DvOK2XZVvaZwUztchXWoOYfnDM>)
+
+---
+
+## Let's get started: Setting up the test client
+
+### Downloading RCC
+
+> The Checkmk agent, which we will install together with the scheduler in a moment, will include the `rcc.exe` binary. You can skip this step if you no longer want to run the robot yourself and want to start directly with the scheduler.
+
+For a preliminary test or to set up a development host, you will need to obtain the RCC binary yourself.  
+Download it [here](https://github.com/elabit/robotmk/releases/tag/v3.0.2) and save it to a location of your choice as `rcc.exe`. I have made it a habit to create a `bin` directory in the user profile: `c:\Users\simonmeggle\bin\rcc.exe`
+
+> **Note:** In Checkmk 2.5, we will provide an alternative method to RCC based on Micromamba, which comes with its own command line tool `csm` (Checkmk Synthetic Monitoring). I will update this article soon. 
+
+Now add this folder to the user environment variable `%PATH%`:
 
 {{< figure src="img/bin-path.png" title="Adding the RCC path to the user variable `%PATH%`" >}}
 
-Open a new CMD and test whether you can now execute `rcc` from any location: 
+Open a new CMD and test whether you can now execute `rcc` from any location:
 
 {{< figure src="img/cmd_where_rcc.png" title="First call of RCC" >}}
 
-### Download of the minimal example
+If you encounter any problems here, here are some possible sources of error that I have identified in my training courses so far: [RCC Troubleshooting](/en/blog/rcctrouble/)
 
-Now it's time to download the [repo](https://github.com/elabit/robotmk-examples/archive/refs/heads/main.zip) with the robot suite that we want to integrate into Checkmk. 
+## Download the minimal test
 
-> I have created the repository https://github.com/elabit/robotmk-examples especially for example suites. It is best to save it in your bookmarks. 
+Now it's time to download the [demo repo](https://github.com/Checkmk/robotmk-examples/archive/refs/heads/main.zip) with the robot suite that we want to integrate into Checkmk.
 
-> Creating the environment for the web test `web/cmk_synthetic_web` takes a few minutes (Python packages, NodeJS, ...).  
-If you want to start an absolute minimal example, you can alternatively use the robot `minimal` from the demo repo.  
-In this case, nothing else is installed apart from Robot Framework.
+> I created the repository <https://github.com/Checkmk/robotmk-examples> specifically for sample suites. It is best to save it in your bookmarks.
 
-Unzip the file `master.zip` and save the subfolder `web/cmk_synthetic_web` in the folder `C:\robots\`. This folder serves as the so-called **base directory** for all robot suites. 
+Unzip the file `master.zip` and save the subfolder `examples/web/web-images` in the folder `C:\robots\`. This folder serves as the **base directory** for all robot suites.
 
-{{< figure src="img/robot-basedir.png" title="Location of the new robot" >}}
+{{< figure src="img/robot-basedir2.png" title="Storage location of the new robot" >}}
 
-### Manual execution of the robot with RCC
+### Testing the robot with RCC
 
-> Please note that we have not yet installed *any software*. The hour of RCC is about to strike! 
+> At this point, it should be noted that we have not installed any software yet. Now it is time for RCC, which installs Python, NodeJs, etc. completely autonomously in an isolated environment in the background.
 
-Open a CMD and change to the folder `C:\robots\cmk_synthetic_web` you just copied. 
-I will now explain a few commands in more detail, as they are important to understand: 
+Open a CMD and navigate to the folder you just copied, `C:\robots\web-images`.
+Now follow these commands, which you should execute in exactly this order. Read my explanation so that you understand how RCC works:
 
-- `where python`: Do we have Python available?  
-   The `where` command is the equivalent of the Linux command `which` and attempts to find the command passed as an argument via the `%PATH%` variable.  
-   The `%PATH%` variable usually consists of a whole series of search paths separated by semicolons. Windows searches for the specified programme in exactly this sequence of paths. 
-   With this test, I would like to find out whether Python is already installed on the system - and if so, where.  
-   There will probably be no output at all on your system. On the Windows shown in the video, only "pyenv" is displayed. (We don't need to go into this any further - there is no Python interpreter, period).
--  `rcc task shell`: The fastest way into an RCC environment.  
-   This command starts `rcc` with the instruction to search for the file `robot.yaml` in the current directory. From this, rcc is only interested in a single line: the one that refers to the file `conda.yaml` (usually in the same directory).  
-   If `rcc` finds it, the tool now starts to build a completely isolated environment; it contains everything our web test needs: Python (+packages), NodeJS (+packages), and three web browsers (Firefox, Chromium, Webkit).  
-- `where python`: This time the command returns the path to the Python interpreter in the newly created environment. 
-- `where robot`: NodeJS is also installed and is found via `%PATH%`. (Isn't that cool? 😎)
-- `robot tests.robot`: Robot Framework also comes with a command line tool called `robot`, and this is also found in the search path.  
-To start the web test from this environment, it is sufficient to enter the name of the .robot file in the command. This starts the web browser in the foreground and Robot Framework performs a short Google search. 
+- `where python`: Do we have Python available?
+The command `where` is the equivalent of the Linux command `which` and attempts to find the command passed as an argument ("Python") via the `%PATH%` variable.  
+  The `%PATH variable%` usually consists of a whole series of search paths separated by semicolons. Windows searches for the specified programme in exactly this order of paths.
+  With this test, I want to find out whether Python is already installed on the system – and if so, where.  
+  On a freshly installed system, there will probably be no output at all.
+- `rcc task shell`: This creates the runtime environment for our test.  
+  When you execute this command, you will see many lines that I do not need to explain here – the important thing to know is that the file `conda.yaml` contains all the packages that are now to be installed. RCC does this fully automatically.  
+  When RCC is finished, you are in the environment. We say that the environment is now "activated".
+- `where python`: This time, the command returns the path to the Python interpreter in the newly created and now activated environment.
+- `where robot`: Not only Python, but also Robot Framework is installed (isn't that cool...? 😎).
+- `robot tests.robot`: With the `robot` command, we can now start the Robot Framework test. Let yourself be surprised 😉
 
+> At this point, you will initially see error messages under Linux (Debian/Ubuntu). This is because certain packages need to be installed.  
+> Now is the right time to do this because, in the activated environment, you can install the packages directly with the command `npx playwright install-deps`. Of course, this only works if you have **root privileges**.  
+> Otherwise, you can run `npx playwright install-deps --dry-run` and simply copy the command line for *apt install*. Then start a new shell with root and paste it there. 
+> Afterwards, restart the robot with `robot tests.robot`.
 
+{{< figure src="img/rcc-task-shell-run2.gif" title="Starting the robot with RCC" loading="lazy">}}
 
+**This section has proven that the robot can be started via RCC.** ✓
 
-{{< figure src="img/rcc-task-shell-run.gif" title="Starting the robot with RCC" loading="lazy">}}
+If this didn't seem spectacular to you so far, then open the log file `C:\robots\web-images\log.html`.  
+The RobotFramework test didn't just open a web page.  
+It also performed a visual comparison to see whether one of the images in the "Hero" section actually contained the motorbike.
 
-> The execution of this test including the browser is completely based on an RCC environment! We have not installed any software beforehand!
+{{< figure src="img/loghtml-demo.gif" title="The log.html with the image comparison" loading="lazy">}}
 
-This section has provided the proof: the robot can be started via RCC.  ✓
-
-In the next section we will now turn to the integration in Checkmk.  
+In the next section, we will now turn our attention to integration with Checkmk.
 
 ---
 
 ## Checkmk server
 
-Not much has happened on the Checkmk server (v2.3) so far: the Windows host is currently only monitored with a vanilla CMK agent: 
+Not much has happened on the Checkmk server (v2.4) so far: the Windows host is currently only monitored with a vanilla CMK agent:
 
-{{< figure src="img/cmk-win1.png" title="Windows-Host in Checkmk" >}}
+{{< figure src="img/cmk-win1.png" title="Windows host in Checkmk" >}}
 
-### Configuring the bakery
+### Configuring the Bakery
 
-The Robotmk scheduler, which will later execute the robot tests on the Windows client, can be completely configured via the bakery rule "*Robotmk Scheduler (Windows)*": 
+The Robotmk Scheduler can be installed on Windows and Linux. There is a separate Bakery rule for each, but both are completely identical in content.  
 
-{{< figure src="img/bakery-search.png" title="All Robotmk rules are most easily found using the search term 'robot'." >}}
+> Pro tip: The easiest way to find all Robotmk rules is to enter the search string "*robot*" in the setup menu.
 
+Now let's open the rule page "*Robotmk Scheduler (Windows)*":
 
-{{< figure src="img/bakery-rule.png" title="The bakery rule for the Robotmk scheduler." >}}
+{{< figure src="img/bakery-search2.png" title="All Robotmk rules are easiest to find using the search term 'robot'." >}}
 
-Explanations / values of the individual fields: 
+{{< figure src="img/bakery-rule2.png" title="The Bakery rule for the Robotmk Scheduler." >}}
 
+Below, I will explain the fields of the Bakery rule with the values to be entered:
 
-| No | Description | Value |
-| --- | ---------- | ------------------------------- |
-| 1. | The base directory where we had placed the sample suite.  | `C:\robots` |
-| 2. | The first (and only) parallel execution group.                                                               | |
-| 3. | Sequential executions of Robot Framework suites are possible per execution group.                            | |
-| 4. | Execution interval of the group | `3` |
-| 5. | The name of the application to be tested | `GoogleSearch` |
-| 6. | The path to the Robot Framework suite is specified *relative to the base directory*.                                  | `cmk_synthetic_web\tests.robot` |
-| 7. | This timeout determines how much time the suite receives from the scheduler for execution. It is then terminated. | `1` |
-| 8. | Relative path (like 6.) to `robot.yaml` (central config file for RCC, contains reference to `conda.yaml`) | `cmk_synthetic_web\robot.yaml` |
-| 9. | Timeout for building the environment.                                                                                | `10` |
+| No  | Description                                                                                                       | Value                      |
+| --- | ------------------------------------------------------------------------------------------------------------------ | ------------------------- |
+| 1.  | The base directory where we stored the sample suite.                                                | `C:\robots`               |
+| 2.  | The first (and only) parallel execution group.                                                               |                           |
+| 3.  | Sequential executions of Robot Framework suites are possible for each execution group.                            |                           |
+| 4.  | Execution interval of the group                                                                                    | `3` minutes                |
+| 5.  | Name of the application to be tested                                                                                  | `CarInsurance`            |
+| 6.  | The path to the Robot Framework suite is specified *relative to the base directory*.                                  | `web-images\images.robot` |
+| 7.  | This timeout determines how much time the suite is given by the scheduler for execution. After that, it is terminated. | `1`                       |
+| 8.  | Relative path specification (as in 6.) to `robot.yaml` (central configuration file for RCC, contains reference to `conda.yaml`)   | `web-images\robot.yaml`   |
 
-At the bottom, the rule is restricted to the host `windows`: 
+At the very bottom, the rule is restricted to the host `windows`:
 
 {{< figure src="img/bakery-condition.png" title="The condition restricts the rule to only one host." >}}
 
-Then save the rule. 
+Then save the rule.
 
-### Bake agents
+### Baking agents
 
 Now switch to the Agent Bakery...
 
-{{< figure src="img/bakery-related.png" title="The 'related' menu offers a practical shortcut to the Bakery." >}}
+{{< figure src="img/bakery-related.png" title="The 'related' menu provides a handy shortcut to the Bakery." >}}
 
-...and bake a new installation agent: 
+...and bake a new installation agent:
 
 {{< figure src="img/agent-bake.png" title="Baking a new agent." >}}
 
-As soon as the creation of the agent installer is finished, you will see a new line with the host to which you have restricted the rule (`windows`) on the far right. Download the MSI package from here. 
+Once the agent installer has been created, you will see a new line with the host you restricted the rule to (`windows`) on the far right. Download the MSI package from here.
 
 {{< figure src="img/agent-baked.png" title="Download MSI installer" >}}
 
-### Discovery of the services
+### Discovery of services
 
-The first service that can be discovered immediately after deployment is the "Scheduler Status" service: 
+The first service that can be discovered immediately after deployment is the "Scheduler Status" service:
 
 {{< figure src="img/discovery-schedulerstatus.png" title="Scheduler Status Service" >}}
 
-It monitors the Robotmk scheduler, which runs permanently alongside the agent as an "Extension" agent. 
+It monitors the Robotmk Scheduler, which runs permanently alongside the agent as an "Extension" agent.
 
-The scheduler runs through two phases after the agent is started: 
+After the agent is started, the scheduler goes through two phases:
 
 - **Phase 1**: Sequential building of all RCC environments
-- **Phase 2**: Scheduling of the plans (=configured Robot Framework suites) at the configured interval. 
+- **Phase 2**: Scheduling of plans (=configured Robot Framework suites) at the configured interval.
 
 It may take a few minutes for the environment to be built in the background by the scheduler.  
-You can see when it is finished by the fact that the output of the scheduler service changes: 
+You can see when it is finished by the change in the output of the Scheduler Service:
 
 {{< figure src="img/plan-scheduling.png" title="The scheduler has built the environment." >}}
 
-After the first execution of the suite took has been done in the background (="headless"), two further services can be discovered: 
+After the first execution of the suite has taken place in the background (="headless"), two further services can be discovered:
 
-{{< figure src="img/discovery-plan-test.png" title="Plan- u. TestService" >}}
+{{< figure src="img/discovery-plan-test2.png" title="Plan and Test Service" >}}
 
-- **Plan Service**: Similar to the "Scheduler Status" service, this is also a service aimed at administrators that alarms, for example, when results are too old (=the suite is no longer executed)
-- **Test Service**: Aimed at application managers. Represents the status (PASS/FAIL) of the test from the point of view of Robot Framework. 
+- **Plan Service**: Again, a service aimed at administrators, which, for example, strikes when results are too old (=the suite is no longer running).
+- **Test Service**: Aimed at application managers. Represents the status (PASS/FAIL) of the test from the perspective of Robot Framework.
 
 ---
 
-## Checklist 
+## Checklist
 
-This checklist summarises all the steps in a nutshell: 
+This checklist summarises all the steps in brief:
 
-- ✓ Download and unpack the [example repo](https://github.com/elabit/robotmk-examples/archive/refs/heads/main.zip)
+- ✓ Download and unzip the [sample repository](https://github.com/elabit/robotmk-examples/archive/refs/heads/main.zip)
 - ✓ Save the robot suite in the base directory `C:\robots\`
-- ✓ The **Bakery rule** in Checkmk requires at least these settings:
+- ✓ The **Bakery rule** in Checkmk requires at least the following settings:
   - ✓ Base directory (e.g. `C:\robots\`)
   - ✓ Execution interval of the group
-  - ✓ Application name 
-  - ✓ (relative) path to the suite file/directory
-  - ✓ (relative) path to the `robot.yaml`
-- ✓ Baking / Deploying / Installing the agent
+- ✓ Application name
+- ✓ (Relative) path to the suite file/directory
+- ✓ (Relative) path to `robot.yaml`
+- ✓ Bake/deploy/install the agent
 - ✓ Discovery
 
-(If everything worked out, this would be a great time to star :star: the project on Github, right? :smile: )  
+(If everything worked out, this would be a great time to give the project a star :star: on Github, right? :smile: )  
 {{< github_button button="star" user="elabit" repo="robotmk" count="true" large="true" dark="false" >}}
 
 ---
 
-## Summary
+## What's next?
 
-With these few steps you have integrated **your first Robot Framework-based web test** (based on Playwright, by the way) into Checkmk.  
-**Here are a few tips for your next steps:**
+That was just the tip of the iceberg... we've only used two of over 200 RobotFramework libraries.  
+Robotmk opens up a whole new world for Checkmk administrators:
 
-- Explore the monitoring rule "*Robotmk tests*", with which you can monitor the discovered test runtime and also the keywords contained in the test for their runtime.
-- Install and open Visual Studio Code. Start an RCC shell in the suite folder and run `code .`. This opens the IDE directly in the RCC environment. Here you can view the robot suite and experiment a little.
+- Testing Windows desktop applications
+- Testing RDP and Citrix sessions
+- API testing (REST/SOAP)
+- Kubernetes testing
+- PDF comparisons
+- MFA authentication with OTP
+- etc.
 
-Have fun with Robotmk!
+I am passionate about this topic and have therefore developed a special training course for it – you can find the training content at <https://checkmk.com/trainings/classes>.  
+If you have any questions or problems, simply book a Clarity Call (just click on "Support" at the top).
+
+Have fun and enjoy great implementation successes with Robotmk!

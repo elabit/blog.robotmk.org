@@ -3,11 +3,12 @@ title: Imprint
 date: 2024-01-25T14:00:00.000Z
 authorbox: false
 sidebar: false
+nocomments: true
 menu: footer
 weight: 1
 ---
 
-<h2>Information pursuant to Sect. 5 German Telemedia Act (TMG)</h2>
+<h2>Information pursuant to Sect. 5 Digitale-Dienste-Gesetz (DDG)</h2>
 
 {{< address_elabit >}}
 
@@ -16,4 +17,3 @@ weight: 1
 
 <h2>Dispute resolution proceedings in front of a consumer arbitration board</h2>
 <p>We are not willing or obliged to participate in dispute resolution proceedings in front of a consumer arbitration board.</p>
-

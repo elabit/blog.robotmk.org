@@ -1,0 +1,116 @@
+{{ define "title" }}{{ .Title }} — {{ .Site.Title }}{{ end }}
+
+{{ define "main" }}
+{{- $svc := index .Site.Data .Site.Language.Lang "services" -}}
+
+<section class="page-hero">
+  <div class="container">
+    <h1 class="page-hero__title">{{ $svc.hero.title }}</h1>
+    <p class="page-hero__subtitle">{{ $svc.hero.subtitle | safeHTML }}</p>
+  </div>
+</section>
+
+<section class="services-offerings">
+  <div class="container">
+    <div class="offerings-grid">
+
+      {{/* Clarity Call */}}
+      <div class="card offering-card">
+        <div class="offering-card__icon">{{ $svc.clarity_call.icon }}</div>
+        <div class="offering-card__meta">{{ $svc.clarity_call.meta }}</div>
+        <h3 class="offering-card__title">{{ $svc.clarity_call.title }}</h3>
+        <p class="offering-card__tagline">{{ $svc.clarity_call.tagline }}</p>
+        <a href="mailto:simon.meggle@elabit.de?subject=Clarity+Call" class="btn btn--primary">
+          {{ $svc.clarity_call.btn_email }}
+        </a>
+      </div>
+
+      {{/* Live Demo */}}
+      <div class="card offering-card">
+        <div class="offering-card__icon">{{ $svc.demo.icon }}</div>
+        <div class="offering-card__meta">{{ $svc.demo.meta }}</div>
+        <h3 class="offering-card__title">{{ $svc.demo.title }}</h3>
+        <p class="offering-card__tagline">{{ $svc.demo.tagline }}</p>
+        <a href="mailto:simon.meggle@elabit.de?subject=Live+Demo" class="btn btn--ghost">
+          {{ $svc.demo.btn_email }}
+        </a>
+      </div>
+
+      {{/* POC */}}
+      <div class="card offering-card">
+        <div class="offering-card__icon">{{ $svc.poc.icon }}</div>
+        <div class="offering-card__meta">{{ $svc.poc.meta }}</div>
+        <h3 class="offering-card__title">{{ $svc.poc.title }}</h3>
+        <p class="offering-card__tagline">{{ $svc.poc.tagline }}</p>
+        <a href="mailto:simon.meggle@elabit.de?subject=POC" class="btn btn--ghost">
+          {{ $svc.poc.btn_email }}
+        </a>
+      </div>
+
+      {{/* Individual Consulting */}}
+      <div class="card offering-card">
+        <div class="offering-card__icon">{{ $svc.consulting.icon }}</div>
+        <div class="offering-card__meta">{{ $svc.consulting.meta }}</div>
+        <h3 class="offering-card__title">{{ $svc.consulting.title }}</h3>
+        <ul class="offering-card__highlights">
+          {{- range $svc.consulting.highlights }}
+          <li><span aria-hidden="true">{{ .icon }}</span> {{ .label }}</li>
+          {{- end }}
+        </ul>
+        <p class="offering-card__note">{{ $svc.consulting.note }}</p>
+        <a href="mailto:simon.meggle@elabit.de?subject=Individual+Consulting" class="btn btn--ghost">
+          {{ $svc.consulting.btn_email }}
+        </a>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<section class="services-partnerships">
+  <div class="container">
+    <div class="partnerships">
+      <h2 class="partnerships__title">{{ $svc.partnerships.title }}</h2>
+      <p class="partnerships__intro">{{ $svc.partnerships.intro | safeHTML }}</p>
+
+      <div class="partnerships__grid">
+        {{- range $svc.partnerships.cards }}
+        <div class="card partnership-card{{ if .recommended }} partnership-card--recommended{{ end }}">
+          {{- if .badge }}
+          <div class="partnership-card__header">
+            <span class="badge">{{ .badge }}</span>
+          </div>
+          {{- end }}
+          <div class="partnership-card__type">{{ .type }}</div>
+          <h3 class="partnership-card__name">{{ .name }}</h3>
+          <p class="partnership-card__price">{{ .price }}</p>
+          <ul class="partnership-card__features">
+            {{- range .features }}
+            <li>{{ . }}</li>
+            {{- end }}
+          </ul>
+          {{- with .training }}
+          <ul class="partnership-card__training-list">
+            {{- range . }}
+            <li>{{ . }}</li>
+            {{- end }}
+          </ul>
+          {{- end }}
+          {{- if .early_access_label }}
+          <div class="partnership-card__early-access-note">
+            <strong>{{ .early_access_label }}</strong>
+            {{ .early_access_text }}
+          </div>
+          {{- end }}
+          <a href="mailto:simon.meggle@elabit.de?subject={{ .email_subject }}"
+             class="btn {{ if .recommended }}btn--primary{{ else }}btn--ghost{{ end }}">
+            {{ $svc.partnerships.btn_contact }}
+          </a>
+        </div>
+        {{- end }}
+      </div>
+    </div>
+  </div>
+</section>
+
+{{ end }}

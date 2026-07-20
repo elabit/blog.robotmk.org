@@ -1,3 +1,16 @@
+# ── UI strings (shared across pages) ──────────────────────────────────────────
+- id: skip_to_content
+  translation: "Skip to content"
+- id: no_translation_notice
+  translation: "This page is not yet available in your language."
+- id: badge_pinned
+  translation: "Pinned"
+- id: btn_read_more
+  translation: "Read more"
+- id: blog_empty
+  translation: "No posts yet."
+
+# ── General (legacy) ──────────────────────────────────────────────────────────
 # General
 - id: read_more
   translation: "Read more…"
@@ -62,6 +75,16 @@
 - id: tags_title
   translation: "Tags"
 
+# prefooter home
+- id: download_rmk
+  translation: "Download Robotmk"
+
+- id: rmk_version
+  translation: "MKP, Version 1.4.2 (compatible with Checkmk 2.2)"
+
+- id: latest_release_cta
+  translation: "Get the latest release from GitHub"
+
 # Footer
 - id: footer_credits
   translation:
@@ -102,7 +125,7 @@
 # URLS
 # TODO: Privacy policy URL i18n
 - id: url_privacypolicy
-  translation: "https://www.robotmk.org/pages/privacypolicy"
+  translation: "https://www.robotmk.org/en/privacy-policy"
 
 - id: privacy_policy
   translation: "Privacy Policy"
@@ -110,8 +133,22 @@
 
 # BREVO Forms 
 - id: brevo_form_iframe_src_robotmk_blog_newsletter
-  translation: "https://cbbd9bbd.sibforms.com/serve/MUIFAO63AA8lZYzFFT1iDYGdtd9HXhgfl1XMjzhmiGUxmiHdPQPmVRzpgZ2cmGxxHsU8y7BFbvXrTbURs3dgdbTs5Ce8W0mUfKQo9WJ-zOd5ATeL_JJI3iTMcM-Yl7JSRgGMvkTkxahCY8MF_OGzIxqQll0cm_hGC94SwezWq1Xp2sq6GSk41gnrPQHLh0JdPTioaxRuY1si2Qoa"
+  translation: "https://cbbd9bbd.sibforms.com/serve/MUIFAExeEh22LFBGzr8yMm2SW1tAauUAnFrJp05TLQuwSC_0uwXTFliX4iTe2Fxyj_7-ddrRu-xRkMrv4btBjGQ1ZMc7y_sSJEhLhi1r3g2TNAYI_eP7LbOAApg74433bIgG4rS2AH374xqzPw0KRLd1hNR0MsCqmAQ4aLWHwQsxst0hNjl_VzBiubLnUAZ-bSmnUFP5c5fQQeLW"
 
 # BREVO Meeting
 - id: brevo_meeting_iframe_src_professional_support
   translation: https://meet.brevo.com/simon-meggle/borderless?l=professional-support-request
+
+# Use Cases
+- id: use_case_eyebrow
+  translation: "Use Case"
+- id: use_case_cta_text
+  translation: "Want to see this running in your environment?"
+- id: use_case_cta_button
+  translation: "Book a Clarity Call →"
+- id: use_cases_overview_title
+  translation: "One language. Every technology."
+- id: use_cases_overview_teaser
+  translation: "Web, Citrix, SAP, desktop, REST, SaaS — Robot Framework tests them all. Your team learns one language instead of five tools."
+- id: nav_cta_mobile
+  translation: "Book a Clarity Call &rarr;"

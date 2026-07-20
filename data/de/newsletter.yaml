@@ -1,0 +1,8 @@
+heading: "Synthetic Monitoring — praxisnah erklärt."
+subtext: "Neue Artikel, Tutorials und Robotmk-Updates — direkt in dein Postfach."
+placeholder: "deine@email.de"
+submit: "Abonnieren"
+consent_label: 'Ich möchte den Robotmk-Newsletter mit Updates zu synthetischem Monitoring, Robot Framework und Checkmk erhalten. Die Einwilligung kann ich jederzeit widerrufen, z. B. über den Abmeldelink in jeder E-Mail.'
+confirm: "Fast geschafft! Wir haben dir eine Bestätigungs-E-Mail geschickt. Bitte klicke den Link darin, um das Abo zu aktivieren."
+error_required: "Bitte E-Mail-Adresse eintragen und Einwilligung bestätigen."
+error_submit: "Da ist etwas schiefgelaufen. Bitte versuche es später noch einmal."

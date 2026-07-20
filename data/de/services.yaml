@@ -1,0 +1,76 @@
+# ── Page Hero ─────────────────────────────────────────────────────────────────
+hero:
+  title: "Robotmk Professional Services"
+  subtitle: "Synthetic Monitoring lohnt sich - aber nur, wenn die richtigen Geschäftsprozesse automatisiert getestet werden und die Tests langfristig stabil bleiben.<br>Damit Sie nicht bei Null anfangen, biete ich drei aufeinander aufbauende Service-Modelle an."
+
+# ── Clarity Call ──────────────────────────────────────────────────────────────
+clarity_call:
+  icon: "💬"
+  meta: "30 min · Kostenlos"
+  title: "Clarity Call"
+  tagline: "Wir klären, ob und wo Synthetic Monitoring in Ihrer Umgebung Sinn ergibt — unverbindlich, ohne Vertriebsdruck."
+  desc: "Ein unverbindliches und kostenfreies Erstgespräch von rund 30 Minuten.<br><ul><li>Wir klären, ob und wo Synthetic Monitoring in Ihrer Umgebung Sinn ergibt.</li><li>Wir sprechen über Ihre kritischen Geschäftsprozesse, bestehende Monitoring-Lücken und mögliche Einstiegspunkte mit Robotmk.</li><li>Am Ende wissen Sie, ob sich der nächste Schritt für Sie lohnt.</li></ul><br>Ohne Verpflichtung, ohne Vertriebsdruck."
+  pending: "Kalender-Integration folgt in Kürze."
+  btn_email: "Termin buchen"
+  no_sales: "Kein Vertriebsgespräch"
+
+# ── Partnerships ──────────────────────────────────────────────────────────────
+partnerships:
+  title: "Partnership-Modelle"
+  intro: "Für Unternehmen, die Synthetic Monitoring fest in ihrer Observability-Strategie verankern wollen.<br>Im Partnership-Modell begleite ich Sie kontinuierlich: <br>beim Ausbau der Test-Suite, bei der Entwicklung neuer Blueprints für interne Anwendungen, beim Onboarding Ihrer Teams und bei strategischen Fragen rund um Robotmk und Checkmk.<br>Sie buchen ein monatliches Kontingent, das Sie flexibel einsetzen können – von Code-Reviews über Architektur-Sessions bis zu Workshops."
+  btn_contact: "Jetzt bewerben"
+  cards:
+    - name: "PRO"
+      # price: "Ab €2.500"
+      email_subject: "PRO+Partnership"
+      features:
+        - "8h mtl. Kontingent für flexiblen Einsatz"
+        - "attraktiver Stundensatz für zusätzliche Leistungen"       
+    - name: "GROWTH"
+      # price: "€850 / Monat"
+      badge: "Early Access"
+      recommended: true
+      email_subject: "GROWTH+Partnership"
+      features:
+        - "8h mtl. Kontingent für flexiblen Einsatz"
+        - "attraktiver Stundensatz für zusätzliche Leistungen"
+        - "Monatlicher Strategie- & Review-Call (60 Min.)"        
+        - "Early-Access zu noch nicht veröffentlichten Trainingsmodulen"
+      early_access_label: "Early-Access-Vorteil:"
+      early_access_text: "Early Access Trainings werden zum vereinbarten Partnerstundensatz auf das monatliche Kontingent angerechnet. Geplante Themen umfassen u. a. fortgeschrittene Playwright-Tests, AI-Integration, Mobile Testing, CI/CD-Integration, Security etc."
+
+# ── Demo ──────────────────────────────────────────────────────────────────────
+demo:
+  icon: "🖥️"
+  meta: "60 min · Live"
+  title: "Live Demo"
+  tagline: "Robotmk live in einer echten Checkmk-Umgebung erleben — mit anschließendem offenem Q&A für alle Fragen, die Sie wirklich beschäftigen."
+  desc: "Robotmk live erleben — 60-minütiger Termin mit einer Live-Demonstration von Synthetic Monitoring in einer echten Checkmk-Umgebung, anschließend offenes Q&A."
+  btn_email: "Demo-Termin anfragen"
+
+# ── Individuelles Consulting ──────────────────────────────────────────────────
+consulting:
+  icon: "🛠️"
+  meta: "On demand · Stundenweise"
+  title: "Individuelles Consulting"
+  desc: "Für Notfälle, fokussierte Lernsessions oder gezielte Code-Reviews — buchen Sie genau die Kapazität, die Sie brauchen, wann Sie sie brauchen."
+  highlights:
+    - label: "Troubleshooting & Incident-Support"
+      icon: "🔥"
+    - label: "Code-Review & Architektur-Feedback"
+      icon: "🔍"
+    - label: "Fokussierte Trainingseinheiten (1–3 Std.)"
+      icon: "🎯"
+    - label: "Kurze Vorlaufzeit, vollständig remote"
+      icon: "⚡"
+  note: "Volle Kostenkontrolle — keine Abnahmeverpflichtung, kein Retainer."
+  btn_email: "Session anfragen"
+
+# ── POC ───────────────────────────────────────────────────────────────────────
+poc:
+  icon: "⚗️"
+  meta: "Festpreis · Definierter Scope"
+  title: "Proof of Concept"
+  tagline: "Eine oder zwei geschäftskritische Anwendungen, vollständig in Checkmk integriert — inklusive Knowhow-Transfer. Sie erhalten ein lauffähiges Setup und eine fundierte Entscheidungsgrundlage."
+  desc: "Ein schlankes und klar umrissenes Projekt mit festem Zeitrahmen und Festpreis.<br>Gemeinsam wählen wir ein bis zwei geschäftskritische Anwendungen aus, entwickeln dafür belastbare Robot-Framework-Tests und integrieren diese vollständig in Ihre Checkmk-Instanz – inklusive Knowhow-Transfer und Dokumentation.<br>Sie erhalten ein lauffähiges Setup und eine fundierte Entscheidungsgrundlage, ob ein breiter Rollout für Sie sinnvoll ist."
+  btn_email: "POC-Termin anfragen"

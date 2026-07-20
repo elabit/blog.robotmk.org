@@ -22,6 +22,7 @@ pager: false
 #weight: 10
 # --- must be in the leaf bundle folder or static
 #thumbnail: ""
+translationKey: "robotmk-faq"
 ---
 
 TODO: FAQ

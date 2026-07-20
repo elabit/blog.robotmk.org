@@ -1,0 +1,50 @@
+{{ define "title" }}{{ .Title }} — {{ .Site.Title }}{{ end }}
+
+{{ define "main" }}
+<article class="post" itemscope itemtype="https://schema.org/BlogPosting">
+  <div class="container post__container">
+
+    <header class="post__header">
+      <div class="post__meta">
+        <time datetime="{{ .Date.Format "2006-01-02" }}" class="post__date" itemprop="datePublished">
+          {{- .Date.Format "January 2, 2006" -}}
+        </time>
+        {{ with .Params.categories }}
+        <span class="post__sep" aria-hidden="true">·</span>
+        {{ range . }}<span class="post__cat">{{ . }}</span>{{ end }}
+        {{ end }}
+      </div>
+      {{ partial "vgwort.html" . }}      
+      <h1 class="post__title" itemprop="headline">{{ .Title }}</h1>
+      {{ with .Params.lead }}
+      <p class="post__lead">{{ . }}</p>
+      {{ end }}
+    </header>
+
+    {{- $thumb := $.Resources.GetMatch $.Params.thumbnail -}}
+    {{- if not $thumb }}{{- $thumb = $.Resources.GetMatch (printf "**/%s" $.Params.thumbnail) -}}{{- end -}}
+    {{ if $thumb }}
+    <div class="post__thumb">
+      <img src="{{ $thumb.RelPermalink }}" alt="{{ $.Title }}" loading="eager" itemprop="image">
+    </div>
+    {{ end }}
+
+    {{- partial "post_toc.html" . -}}
+
+    <div class="post__content" itemprop="articleBody">
+      {{ .Content }}
+    </div>
+
+    {{ with .Params.tags }}
+    <div class="post__tags">
+      {{ range . }}<a href="{{ (printf "/en/tags/%s/" (. | urlize)) | relURL }}" class="badge post__tag">{{ . }}</a>{{ end }}
+    </div>
+    {{ end }}
+    <br>
+    <hr>
+
+    {{ partial "authorbox.html" . }}
+    {{ partial "comments.html" . }}
+  </div>
+</article>
+{{ end }}

@@ -3,11 +3,22 @@
 	<button class="menu__btn" aria-haspopup="true" aria-expanded="false" tabindex="0">
 		<span class="menu__btn-title" tabindex="-1">{{ T "menu_label" }}</span>
 	</button>
-	<ul class="menu__list">
+	<ul class="menu__list header_new__container">
 		{{- $currentNode := . }}
-		{{- range .Site.Menus.main }}
+		{{ $inMenu := slice }}
+
+		{{- range $k,$v := .Site.Menus.main }}
+		{{ $inMenu = $inMenu | append .URL }}
+		{{ end }}	
+
+		{{- range $k,$v := .Site.Menus.main }}
 		{{- if .Name }}
+		{{ if in site.Params.menu_filter $currentNode.RelPermalink }}
+		<li class="menu__item {{if and (eq $currentNode.RelPermalink (index $inMenu $k)) ($.IsPage) }}menu__item--active{{end}}">
+		{{ else }}
 		<li class="menu__item{{ if or ($currentNode.IsMenuCurrent "main" .) ($currentNode.HasMenuCurrent "main" .) }} menu__item--active{{ end }}">
+		{{ end }}
+		
 			<a class="menu__link" href="{{ .URL }}">
 				{{ .Pre }}
 				<span class="menu__text">

@@ -23,6 +23,7 @@ pager: false
 #weight: 10
 # --- must be in the leaf bundle folder or static
 thumbnail: "title.png"
+translationKey: "robotmk-migration-guide"
 ---
 
 

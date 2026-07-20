@@ -1,0 +1,57 @@
+{{- /*
+  Custom monoline icon set for the "Why Robotmk" pillar cards.
+  24x24 viewBox, stroke=currentColor, no baked fills — each icon carries
+  exactly one filled focal detail in <… class="why-icon__accent">, coloured
+  teal by CSS independently of the stroke, so hover/theme changes just work.
+  Usage: {{ partial "why-icon.html" "open-source" }}
+*/ -}}
+{{- $name := . -}}
+<svg class="why-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+  {{- if eq $name "open-source" }}
+  {{/* Open padlock — the shackle is unlatched; teal keyhole is the accent. */}}
+  <rect x="5.5" y="11" width="13" height="9"/>
+  <path d="M8.5 11V7.5A3.5 3.5 0 0 1 15.5 6.2"/>
+  <circle class="why-icon__accent" cx="12" cy="15.2" r="1.7"/>
+  <path d="M12 16.4V18"/>
+
+  {{- else if eq $name "no-lockin" }}
+  {{/* Content leaving an open box — portable, not trapped. Teal arrowhead. */}}
+  <path d="M13 5H5v14h8"/>
+  <path d="M9.5 12H19"/>
+  <path class="why-icon__accent" d="M16.5 8.5 21 12l-4.5 3.5z"/>
+
+  {{- else if eq $name "integration" }}
+  {{/* Native, not bolted-on: a teal core living inside the Checkmk frame. */}}
+  <rect x="4" y="4" width="16" height="16"/>
+  <path d="M4 9h3M17 9h3M4 15h3M17 15h3M9 4v3M15 4v3M9 17v3M15 17v3"/>
+  <rect class="why-icon__accent" x="9" y="9" width="6" height="6"/>
+
+  {{- else if eq $name "one-framework" }}
+  {{/* One hub, every technology radiating out. Teal core node. */}}
+  <circle cx="12" cy="4"  r="1.6"/>
+  <circle cx="20" cy="12" r="1.6"/>
+  <circle cx="12" cy="20" r="1.6"/>
+  <circle cx="4"  cy="12" r="1.6"/>
+  <path d="M12 5.6V9M18.4 12H15M12 18.4V15M5.6 12H9"/>
+  <circle class="why-icon__accent" cx="12" cy="12" r="2.4"/>
+
+  {{- else if eq $name "bridge" }}
+  {{/* Suspension arch with hangers; teal keystone dot at the apex. */}}
+  <path d="M4 17a8 8 0 0 1 16 0"/>
+  <path d="M3 17.5h18"/>
+  <path d="M8 17.5v-5M16 17.5v-5"/>
+  <circle class="why-icon__accent" cx="12" cy="9.5" r="1.7"/>
+
+  {{- else if eq $name "community" }}
+  {{/* A shared speech bubble — the common language. Teal middle "word". */}}
+  <path d="M4 5h16v10h-8l-4 4v-4H4z"/>
+  <circle cx="8.5" cy="10" r="1"/>
+  <circle class="why-icon__accent" cx="12" cy="10" r="1.2"/>
+  <circle cx="15.5" cy="10" r="1"/>
+
+  {{- else if eq $name "no-risk" }}
+  {{/* Shield of trust with a solid teal check — nothing to worry about. */}}
+  <path d="M12 3.2 19 6v5.5c0 5-3.2 7.9-7 9-3.8-1.1-7-4-7-9V6z"/>
+  <path class="why-icon__accent" d="M10.4 15.2 7.4 12.2l1.3-1.3 1.7 1.7 4.2-4.2 1.3 1.3z"/>
+  {{- end }}
+</svg>

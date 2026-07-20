@@ -15,6 +15,8 @@ sidebar: true
 pager: false
 thumbnail: img/ihl-title.png
 slug: imagehorizon-edgedetection
+vgwort: https://vg04.met.vgwort.de/na/00a6cc0fdd5a4fec832a7d57abe3e7c7
+translationKey: "ihl-skimage-pr"
 ---
 
 Edge Detection in der `ImageHorizonLibrary` - ein Experiment mit viel Potential.
