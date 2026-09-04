@@ -164,6 +164,20 @@ Denn in ihr steht nicht, was Du wolltest, sondern **was Du tatsächlich bekommen
 
 Genau die Pakete, die vorher unsichtbar waren - `cffi`, `pycparser`, `wcwidth`, `wrapt`, `overrides` -, stehen jetzt namentlich und mit Version da. **Das schließt exakt das Loch, um das es in diesem Artikel geht.**
 
+<!-- NACHMESSEN / WICHTIG vor Veröffentlichung:
+     Dieses Freeze-File (aus ~/Downloads/rf-output-examples-cryptolibrary-ubuntu-latest/)
+     passt exakt zur conda.yaml oben (rf 7.4, browser 19.14.2, crypto 0.3, nodejs 22.11.0,
+     pip 23.2.1) und listet 28 conda + 22 pip = 50 Pakete.
+     Falle 1 weiter unten nennt dagegen 119/122 Pakete aus "pip freeze --all".
+     Beides kann nicht gleichzeitig fuer dasselbe Environment stimmen. Zwei Moeglichkeiten:
+       a) die 119/122 stammen aus dem groesseren Playground-Env -> dann Falle-1-Zahlen
+          in diesem Env neu messen, damit Titel ("fuenfzig") und Text zusammenpassen;
+       b) rcc-freeze listet WENIGER als pip freeze --all -> das waere der wichtigste
+          Fallstrick ueberhaupt und gehoert prominent nach "Was der Freeze nicht kann".
+     Gegenprobe: pip freeze --all im gebauten Env gegen die pip-Sektion des Freeze diffen.
+-->
+
+
 ### Einbauen
 
 Die Datei gehört eine Ebene höher, neben die `conda.yaml`, und wird in der `robot.yaml` eingetragen:
