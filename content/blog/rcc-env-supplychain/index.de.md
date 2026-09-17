@@ -1,8 +1,8 @@
 ---
 draft: true
-title: "Drei Pakete, fünfzig Downloads"
+title: "RCC-Environment - sicher bauen"
 # --- Italic subheading
-lead: "Was `rfbrowser init` wirklich tut - und warum die Antwort auf das Problem längst in Deinem `output`-Verzeichnis liegt."
+lead: "Ein kleiner Trick, der den Bau von Robot Framework Environments mit RCC sicherer macht."
 # -- giscus id to match comments
 commentid: rcc-env-supplychain
 # -- predefined URL
@@ -32,11 +32,30 @@ vgwort:
 translationKey: "rcc-env-supplychain"
 ---
 
-Robotmk nimmt Dir eine Menge Arbeit ab: Du schreibst in einer Konfigurationsdatei auf, was Dein Test braucht, und der überwachte Host baut sich die passenden Laufzeitumgebungen für Robot Framework selbst zusammen.
+**Robotmk** nimmt Dir eine Menge Arbeit ab:  
+Du hinterlegst in einer Konfigurationsdatei (`conda.yaml`), welche Pakete Dein Test braucht, und der überwachte Host baut sich die passenden Laufzeitumgebungen für Robot Framework selbst zusammen.
 
-Ich habe mir im Rahmen eines Kundenprojektes einmal genauer angesehen, was da eigentlich passiert, und bin dabei auf ein paar Punkte gestoßen, die mir nicht gefallen haben. Die gute Nachricht vorweg: Das Gegenmittel ist eine einzige Datei, und RCC schreibt sie Dir längst - Du musst sie nur benutzen.
+Ich habe mir im Rahmen eines Kundenprojektes einmal genauer angesehen, was da eigentlich passiert, und bin dabei auf ein paar Punkte gestoßen, die mir nicht gefallen haben.  
+Die gute Nachricht: Das Gegenmittel ist eine einzige Datei, und RCC schreibt sie Dir längst - Du musst sie nur benutzen.
 
 <!--more-->
+
+## Ein kurzes Vorwort zu RCC
+
+**RCC** wurde ursprünglich von **Robocorp** entwickelt.  
+Robocorp war ein Startup, das Robot Framework in die Cloud bringen wollte.
+
+RCC sollte für die Automatisierungen einen stabilen und idempotenten Unterbau garantieren - auf Kundenseite (während der Entwicklung) und in der Cloud (bei der Ausführung).
+
+Nach der Übernahme durch **Sema4.ai** im Jahr 2024 wurde das Werkzeug neu lizenziert und ist heute proprietär; die Weiterentwicklung der offenen Version wurde eingestellt.
+
+Checkmk pflegt seitdem einen **eigenen Fork** auf Basis der letzten quelloffenen Fassung, der fester Bestandteil von Robotmk/Synthetic Monitoring ist.
+
+(RCC kann auch ohne Robotmk genutzt werden, z.B. für die lokale Entwicklung von Robot Framework Automatisierungen. In diesem Artikel geht es aber um die Nutzung in Verbindung mit Robotmk.)
+
+RCC kann unter diesem Link heruntergeladen werden: [Robotmk Releases](https://github.com/elabit/robotmk/releases)
+
+---
 
 ## Das Problem kompakt erklärt
 
@@ -46,7 +65,8 @@ Und genau da liegt das Problem: Wenn jemand eines solcher Pakete missbraucht, in
 
 **Auf einem Server, der in Deinem Netz steht und Zugangsdaten für die Anwendungen kennt, die er testet.**
 
-> **Info:** Der Fachbegriff hierfür ist "**Supply-Chain-Angriff**" - nicht der Angreifer greift Dich an, sondern etwas, das Du benutzt und dem Du vertraust. Die bekannten Fälle der letzten Jahre liefen fast alle so ab.
+> Der Fachbegriff hierfür ist "**Supply-Chain-Angriff**" - nicht der **Angreifer** greift Dich an, sondern etwas, das Du benutzt und dem Du vertraust.  
+> Die bekannten Fälle der letzten Jahre liefen fast alle so ab.
 
 ---
 
@@ -71,55 +91,74 @@ rccPostInstall:
 
 Die Inhalte kurz erklärt:
 
-- Python, Pip und Nodejs werden von [conda-forge](https://conda-forge.org) geladen, einem Community-getriebenen Repository.
-- Pip ist Pythons interner Paketmanager: sobald er installiert ist, holt er sich von [PyPI](https://pypi.org) RobotFramework, die Browser Library und die CryptoLibrary.
-- Im Falle der Browser Library kommt noch die letzte Zeile hinzu: `rfbrowser init` startet ein Python-Programm, mit dem das auf NodeJS basierende Playwright initialisiert wird. *Darauf gehen wir gleich genauer ein.*
+- **Python, Pip und Nodejs** werden von [conda-forge](https://conda-forge.org) geladen, einem Community-getriebenen Repository.
+- Pip (Pythons interner Paketmanager) installiert die drei Pakete unterhalb des `pip:`-Schlüssels von [PyPI](https://pypi.org).
+- Im Falle der **Browser Library** kommt noch die letzte Zeile hinzu: `rfbrowser init` startet ein Python-Programm, mit dem das auf NodeJS basierende Playwright initialisiert wird. *Darauf gehen wir jetzt genauer ein.*
 
 ---
 
 ## Wo die Kette hält - und wo nicht
 
-Die gute Nachricht zuerst: **Auf der Node-Seite ist alles festgezurrt.** Playwright bringt ein [`package-lock.json`](https://github.com/microsoft/playwright/blob/main/package-lock.json) mit, in dem jedes Paket mit exakter Version und Prüfsumme steht, und installiert genau die - nicht das, was gerade aktuell ist. Da kann nichts unbemerkt hineinrutschen.
+Ich habe mir angesehen, was beim Bau dieses Environments tatsächlich passiert.
 
-Zwei andere Stellen sind aber offen.
+Die gute Nachricht zuerst: **Auf der Node-Seite (`rfbrowser init`) ist alles im grünen Bereich.**
 
-### Erstens: der nachgeladene Browser
+Dieser Befehl installiert u.a. **Playwright**, und das kommt mit einer Datei namens [`package-lock.json`](https://github.com/microsoft/playwright/blob/main/package-lock.json), in der jedes Paket mit exakter Version und Prüfsumme steht.  
+Und genau mit dieser Version werden sämtliche Pakete installiert - da kann nichts unbemerkt hineinrutschen.
 
-`rfbrowser init` holt am Ende Chromium von einem Download-Server. Eine Prüfsumme wird dabei nirgends verglichen. Was ankommt, wird ausgepackt und benutzt. Wie wenig das trägt, hat sich bei meinem Testlauf von selbst gezeigt:
+Zwei andere Stellen sind aber offen:
+
+❌ **Erstens: der nachgeladene Browser.** `rfbrowser init` holt am Ende Chromium von einem Download-Server. Eine Prüfsumme wird dabei nirgends verglichen.
+
+❌ **Zweitens: schwaches Versions-Pinning in Python.** Die `conda.yaml` gibt zwar nur drei Python-Pakete mit fester Version an:
 
 ```
-10:47:17  npx --quiet playwright install
-10:47:20  Error: Download failed: server returned code 400 body
-          'GatewayExceptionResponse'.
-          URL: https://playwright.azureedge.net/builds/chromium/1084/chromium-mac-arm64.zip
-10:47:22  |                    |   0% of 131.1 Mb
-10:47:43  |████████████████████| 100% of 131.1 Mb
-10:48:21  rfbrowser init completed
+  - pip:
+      - robotframework==7.4
+      - robotframework-browser==19.14.2
+      - robotframework-crypto==0.3
 ```
 
-Ein Fehlschlag, ein stiller zweiter Versuch, ein Erfolg - und niemand prüft, ob das, was da im zweiten Anlauf ankam, auch das ist, was ankommen sollte.
+Aber im fertigen Environment liegen deutlich mehr.
 
-### Zweitens: schwaches Versions-Pinning in Python
+Wie kann das sein?
 
-Schau Dir die `conda.yaml` oben an: dort stehen drei Python-Pakete mit fester Version. Im gebauten Environment liegen deutlich mehr.
+Ganz einfach: **faule Entwickler sind gute Entwickler**, denn sie nutzen bestehenden Python-Code in ihrem Projekt, statt ihn selbst zu schreiben.
 
-Wie kann das sein? Ganz einfach: **faule Entwickler sind gute Entwickler**, denn sie nutzen bestehenden Python-Code, statt ihn selbst zu schreiben. Solche Abhängigkeiten bleiben für Dich in `conda.yaml` unsichtbar. Sie stecken in den Paketen selbst - oft sehr vage bis gar nicht:
+Allerdings bleiben solche Abhängigkeiten für Dich in `conda.yaml` unsichtbar.  
+Sie stecken in den Paketen selbst - oft sehr vage bis gar nicht festgelegt. Die Abhängigkeit von einem Paket `mypackage` kann also z.B. als `mypackage>=2.1` oder - noch schlimmer - einfach als `mypackage` angegeben sein.
 
-- `mypackage==2` installiert das aktuellste *mypackage*, Hauptsache über Version 2
-- `mypackage>=2.1` installiert das aktuellste *mypackage*, Hauptsache über Version 2.1
-- `mypackage` installiert das aktuellste *mypackage*, *egal* welche Version das ist
+=> Erwarte also lieber nicht, dass Du nächste Woche exakt das gleiche Environment bauen kannst.
 
-Erwarte also lieber nicht, dass Du nächste Woche exakt das gleiche Environment bauen kannst. Und genau das ist der Hebel für einen Angreifer: Nicht die drei Pakete, die Du bewusst hingeschrieben hast, sind das Problem - sondern eines der vielen, die automatisch nachgezogen werden.
+**Und genau das ist der Hebel für einen Angreifer:**
 
-Ist Robotmk deshalb unbenutzbar? Nein. Ist das ein Problem von RCC? Erst recht nicht - RCC bringt die Lösung von Haus aus mit, und die meisten Anwender wissen nur nicht, dass sie sie schon haben.
+- Nicht die drei Pakete, die Du in `conda.yaml` bewusst hingeschrieben hast, sind das Problem.
+- Sondern eines der vielen, die automatisch nachinstalliert werden, um die Sub-Dependencies zu erfüllen.
+
+Du fragst Dich vielleicht: *Ist Robotmk deshalb unbenutzbar?* **Nein.**
+
+Oder: *Ist das ein Problem von RCC?* **Nein**, im Gegenteil - RCC bringt die Lösung von Haus aus mit, und die meisten Anwender wissen nur nicht, dass sie sie schon haben.
 
 ---
 
 ## Die Lösung liegt schon in `output/`
 
-Immer wenn Du RCC von der Kommandozeile aufrufst, schreibt es nebenbei eine Datei namens `environment_<os>_<arch>_freeze.yaml` in Dein `output`-Verzeichnis. Die meisten übersehen sie. Sie ist die eigentliche Antwort auf alles oben.
+Wechsle in Dein Robot-Verzeichnis und baue das Environment:
 
-Denn in ihr steht nicht, was Du wolltest, sondern **was Du tatsächlich bekommen hast** - jedes einzelne Paket, auch die, die Du nie hingeschrieben hast, jedes auf eine exakte Version festgenagelt:
+```bash
+rcc task script --space refbuild-web --robot robot.yaml -- python --version
+```
+
+Was macht dieser Befehl?
+
+- `rcc task script`: Startet den Befehl hinter dem doppelten Bindestrich im Environment
+- `--space refbuild-web` (optional): Weist RCC an, nicht das Environment im Default-Namespace zu überschreiben
+- `--robot robot.yaml`: Gibt den Pfad zur RCC-Konfigurationsdatei an (die auf `conda.yaml` verweist)
+- `python --version`: Ein beliebiger Befehl, der im gebauten Environment ausgeführt wird. Ich habe ihn gewählt, weil er schnell ist und keine weiteren Abhängigkeiten hat.
+
+Das baut das Environment inklusive Post-Install. Und nebenbei entsteht eine Datei, die die meisten übersehen: `output/environment_<os>_<arch>_freeze.yaml`. Die Platzhalter `<os>` und `<arch>` stehen für die Plattform, auf der Du gerade baust.
+
+Diese Datei ist die eigentliche Antwort auf alles oben. Denn in ihr steht nicht, was Du wolltest, sondern **was Du tatsächlich bekommen hast** - alle (!) transitiven Abhängigkeiten, jede auf eine exakte Version festgenagelt:
 
 > **Beleg · `environment_linux_amd64_freeze.yaml`** (rcc `v17.29.1`)
 >
@@ -164,23 +203,9 @@ Denn in ihr steht nicht, was Du wolltest, sondern **was Du tatsächlich bekommen
 
 Genau die Pakete, die vorher unsichtbar waren - `cffi`, `pycparser`, `wcwidth`, `wrapt`, `overrides` -, stehen jetzt namentlich und mit Version da. **Das schließt exakt das Loch, um das es in diesem Artikel geht.**
 
-<!-- NACHMESSEN / WICHTIG vor Veröffentlichung:
-     Dieses Freeze-File (aus ~/Downloads/rf-output-examples-cryptolibrary-ubuntu-latest/)
-     passt exakt zur conda.yaml oben (rf 7.4, browser 19.14.2, crypto 0.3, nodejs 22.11.0,
-     pip 23.2.1) und listet 28 conda + 22 pip = 50 Pakete.
-     Falle 1 weiter unten nennt dagegen 119/122 Pakete aus "pip freeze --all".
-     Beides kann nicht gleichzeitig fuer dasselbe Environment stimmen. Zwei Moeglichkeiten:
-       a) die 119/122 stammen aus dem groesseren Playground-Env -> dann Falle-1-Zahlen
-          in diesem Env neu messen, damit Titel ("fuenfzig") und Text zusammenpassen;
-       b) rcc-freeze listet WENIGER als pip freeze --all -> das waere der wichtigste
-          Fallstrick ueberhaupt und gehoert prominent nach "Was der Freeze nicht kann".
-     Gegenprobe: pip freeze --all im gebauten Env gegen die pip-Sektion des Freeze diffen.
--->
-
-
 ### Einbauen
 
-Die Datei gehört eine Ebene höher, neben die `conda.yaml`, und wird in der `robot.yaml` eingetragen:
+Schiebe die Datei eine Ebene nach oben ins Robot-Verzeichnis (neben die `conda.yaml`). Öffne dann die `robot.yaml` und trage die Freeze-Datei unter `environmentConfigs` **vor** der `conda.yaml` ein:
 
 ```yaml
 environmentConfigs:
@@ -190,7 +215,9 @@ environmentConfigs:
   - conda.yaml
 ```
 
-RCC sucht diese Liste von oben nach unten ab; **der erste Treffer gewinnt**. Ab dann baut jeder Host aus der Freeze-Datei statt aus der `conda.yaml` - und bekommt Paket für Paket dasselbe.
+Beim nächsten Bau verwendet RCC die erste Datei dieser Liste, die vorhanden ist **und auf die Plattform passt**. Ab dann baut jeder Host aus der Freeze-Datei statt aus der `conda.yaml` - und bekommt Paket für Paket dasselbe.
+
+Diesen Vorgang wiederholst Du für jede Plattform, die Du unterstützen willst.
 
 ### Warum das ohne Prüfsummen reicht
 
@@ -219,7 +246,7 @@ rccPostInstall:
 
 Diese Zeile ist **unverändert aus der `conda.yaml` übernommen**, nicht eingefroren. Der Freeze friert die Paketliste ein - nicht das, was ein Post-Install-Kommando danach aus dem Netz nachlädt.
 
-Konkret heißt das: Der ungeprüfte Chromium-Download aus dem Log oben findet weiterhin statt. Auf jedem Host, bei jedem Bau, ohne Prüfsumme. Das ist die einzige Stelle, an der der Freeze wirklich nichts ausrichtet - und der einzige Grund, weiter unten über ein Artefakt nachzudenken.
+Konkret heißt das: Der ungeprüfte Chromium-Download von oben findet weiterhin statt. Auf jedem Host, bei jedem Bau, ohne Prüfsumme. Das ist die einzige Stelle, an der der Freeze wirklich nichts ausrichtet - und der einzige Grund, weiter unten über ein Artefakt nachzudenken.
 
 Zwei Dinge sind auch ohne größeren Umbau zu haben:
 
@@ -235,7 +262,7 @@ Beide Variablen sind im gebauten Environment verifiziert; es braucht dafür kein
 
 ### 2. Er gilt pro Plattform - und fällt sonst still zurück
 
-Der Dateiname trägt Betriebssystem und Architektur, und RCC nimmt aus `environmentConfigs` den ersten *existierenden* Eintrag. Liegt für Deine Zielplattform kein Freeze im Repo, rutscht RCC klaglos auf die `conda.yaml` durch - und baut wieder mit losen Versionen. Ohne Fehlermeldung.
+Der Dateiname trägt Betriebssystem und Architektur. Liegt für Deine Zielplattform kein passender Freeze im Repo, rutscht RCC klaglos auf die `conda.yaml` durch - und baut wieder mit losen Versionen. Ohne Fehlermeldung.
 
 Deshalb: je Zielplattform ein Freeze, gebaut auf einem Host dieser Plattform. Sonst greift der Schutz auf der halben Flotte nicht, und niemand merkt es.
 
@@ -255,28 +282,48 @@ Plane das Erneuern deshalb als bewussten, wiederkehrenden Vorgang ein, so wie Du
 
 Bleibt ein Punkt, der aus den vier oben folgt und der wichtiger ist als jedes Werkzeug: **Der Freeze nagelt auch das fest, was am Bautag schon faul war** - und zwar auf allen Hosts, dauerhaft.
 
-Ein Pin macht aus einem zufälligen Risiko eine bewusste Entscheidung. Das ist der ganze Gewinn. Aber eine bewusste Entscheidung sollte man einmal angeschaut haben, bevor man sie trifft. Also: einmal scannen, direkt nach dem Bau, bevor der Freeze ins Repo geht. Kein Cronjob, kein Dauerbetrieb - **einmal**.
+Ein Pin macht aus einem zufälligen Risiko eine bewusste Entscheidung. Das ist der ganze Gewinn. Aber eine bewusste Entscheidung sollte man einmal angeschaut haben, bevor man sie trifft. Also: einmal prüfen, direkt nach dem Bau, bevor der Freeze ins Repo geht. Kein Cronjob, kein Dauerbetrieb - **einmal**.
+
+### Prüfgrundlage exportieren
 
 ```bash
-# Pfad des gebauten Environments ermitteln
-PREFIX=$(rcc holotree variables --space refbuild --robot robot.yaml --json \
-  | python3 -c "import json,sys; print([v['value'] for v in json.load(sys.stdin) \
-                if v['key']=='CONDA_PREFIX'][0])")
+# Python-Stack auflisten - --all ist nicht optional, siehe Falle 1
+rcc task script --space refbuild-web -- pip freeze --all > frozen.txt
 
-# Python-Seite - --all ist nicht optional, siehe Falle 1
-"$PREFIX/bin/python" -m pip freeze --all > frozen.txt
+# Lockfile der Browser Library ins Robot-Verzeichnis kopieren
+rcc task script --space refbuild-web -- sh -c 'find "$CONDA_PREFIX" -path "*/Browser/wrapper/package-lock.json" -exec cp {} . \;'
+```
 
-# Node-Seite - das Lockfile liegt im Wheel der Browser Library
-find "$PREFIX" -path "*/Browser/wrapper/package-lock.json" -exec cp {} . \;
+### Karenzzeit prüfen
 
-# Scannen
+Die Regel: **Lade keine Abhängigkeiten, die jünger als 14 Tage sind.** Kompromittierte Pakete werden meist binnen weniger Tage entdeckt und zurückgezogen - statistisch deckt das schon den Großteil der realen Angriffsfenster ab.
+
+Für die Prüfung habe ich ein kleines Script geschrieben: [`pypi_grace_check.py`](https://gist.github.com/simonmeggle/32d62e5ffd1a829507c02ea8842624db). Es liest per Default `frozen.txt` und prüft auf ein Mindestalter von 14 Tagen:
+
+```bash
+rcc task script --space refbuild-web -- python3 pypi_grace_check.py
+...
+  363 d  ok  cffi 2.0.0
+  161 d  ok  grpcio 1.80.0
+ 1143 d  ok  pip 23.2.1
+  172 d  ok  protobuf 6.33.6
+  153 d  ok  robotframework-browser 19.14.2
+  228 d  ok  wheel 0.46.3
+  ...
+```
+
+Ausnahme: Ein Sicherheitsupdate darf die Karenzzeit brechen - sonst zwingt Dich Deine eigene Regel, ein bekanntes Loch zwei Wochen offen zu lassen.
+
+### Auf Schwachstellen prüfen
+
+Lade den **OSV-Scanner** von Google herunter ([Releases](https://github.com/google/osv-scanner/releases), Installation per brew, winget etc. [hier](https://google.github.io/osv-scanner/installation/)):
+
+```bash
 osv-scanner scan source --no-resolve -L "requirements.txt:frozen.txt"
 osv-scanner scan source --no-resolve -L "package-lock.json:package-lock.json"
 ```
 
-Auf Windows liegt der Interpreter unter `<prefix>\python.exe` statt `<prefix>/bin/python`. Wichtig: Der Scanner wird **nicht** ins Environment installiert - sonst prüfst Du etwas anderes als das, was in Produktion läuft.
-
-Und eine Faustregel, die nichts kostet: **Nimm keine Direktabhängigkeit, die jünger als zwei Wochen ist.** Kompromittierte Pakete werden meist binnen weniger Tage entdeckt und zurückgezogen. Bei einem Environment, das ohnehin nicht wöchentlich wechselt, tut diese Karenzzeit nicht weh. Ausnahme: Ein Sicherheitsupdate darf sie brechen.
+Beide Flags und beide Dateien sind bewusst gewählt - warum, steht gleich unter [Drei Messfallen](#drei-messfallen). Wichtig: Der Scanner wird **nicht** ins Environment installiert - sonst prüfst Du etwas anderes als das, was in Produktion läuft.
 
 ---
 
@@ -291,19 +338,20 @@ Getestet gegen rcc `v17.29.1` und osv-scanner `2.5.1`.
 `pip freeze` lässt `pip`, `setuptools` und `wheel` per Default weg. Klingt harmlos. Ist es nicht:
 
 ```
-$ python -m pip freeze       | wc -l
-119
-$ python -m pip freeze --all | wc -l
-122
+$ pip freeze       | wc -l
+22
+$ pip freeze --all | wc -l
+25
 $ diff …
 > pip==23.2.1
-> setuptools==84.0.0
-> wheel==0.48.0
+> setuptools==80.10.2
+> wheel==0.46.3
 ```
 
 Ausgerechnet `pip 23.2.1` - die Version, die auch in unserer `conda.yaml` oben steht - trägt allein **13 Advisories**, die andernfalls nie aufgetaucht wären. Drei Zeilen Differenz, ein Drittel aller Funde. `--all` ist keine Option, sondern Pflicht.
 
-<!-- NACHMESSEN: Zahlen stammen aus dem alten Playground-Stand -->
+<!-- NACHMESSEN: Zeilenzahlen/Versionen aus der pypi_grace_check-Ausgabe abgeleitet (25 inkl. pip/setuptools/wheel).
+     "13 Advisories" und "ein Drittel aller Funde" stammen noch aus dem alten Playground-Stand. -->
 
 ### Falle 2 - osv-scanner erfindet Pakete
 
@@ -317,6 +365,8 @@ Beim Scannen einer Manifest-Datei löst osv-scanner per Default transitive Abhä
 > ```
 >
 > Zusätzlich erschien `pdfminer-six` doppelt, einmal als `20221105` und einmal als `20221105.0.0` - vier Advisories doppelt gezählt.
+
+<!-- NACHMESSEN: Phantomfund stammt aus dem alten Playground-Stand (setuptools 84.0.0, pdfminer-six ist im Beispiel-Env nicht enthalten) -->
 
 Mit `--no-resolve` verschwinden beide Artefakte, und jeder verbleibende Fund lässt sich Zeile für Zeile gegen die Installation verifizieren. Genau das willst Du: eine Liste, die Du nachprüfen kannst.
 
@@ -351,7 +401,7 @@ Von 90 gemeldeten npm-Advisories betrafen **73 Pakete, die nie installiert werde
 
 ## Wenn es mehr als eine Handvoll Hosts sind
 
-Der Freeze sorgt dafür, dass alle Hosts *dasselbe* bauen. Er sorgt nicht dafür, dass sie *seltener* bauen: Bei fünfzig Hosts sprechen weiterhin fünfzig Rechner mit PyPI, conda-forge und dem Playwright-CDN - und laden dabei jeweils den ungeprüften Chromium-Tarball aus Punkt 1.
+Der Freeze sorgt dafür, dass alle Hosts *dasselbe* bauen. Er sorgt nicht dafür, dass sie *seltener* bauen: Bei fünfzig Hosts sprechen weiterhin fünfzig Rechner mit PyPI, conda-forge und dem Playwright-CDN - und laden dabei jeweils den ungeprüften Chromium-Download aus Punkt 1.
 
 Wenn Dich das stört (oder wenn Deine Hosts ohnehin kein Internet sehen dürfen), gibt es den nächsten Schritt fertig in RCC:
 
@@ -361,9 +411,9 @@ rcc holotree import hololib.zip                                # auf dem Zielhos
 export RCC_NO_BUILD=1
 ```
 
-Das Interessante daran: `rcc holotree export` schreibt nicht die Paketliste, sondern den vollständigen Zustand **nach** dem Browser-Download - die Binaries eingeschlossen, jede Datei mit SHA-256. Damit findet der ungeprüfte Download genau **einmal** statt, unter Aufsicht, statt N-mal unbeaufsichtigt. `rcc holotree check` prüft die Library später gegen diese Digests.
+Das Interessante daran: `rcc holotree export` schreibt nicht einfach nur den "Einkaufszettel", sondern packt den komplett beladenen Einkaufswagen zusammen - die Browser-Binaries eingeschlossen, jede Datei mit SHA-256. Damit findet der ungeprüfte Download genau **einmal** statt, unter Aufsicht, statt N-mal unbeaufsichtigt. `rcc holotree check` prüft die Library später gegen diese Digests.
 
-Den Weg habe ich in [RCC-Environments in isolierten Umgebungen]({{< ref "/rcc-envoffline/" >}}) schon einmal ausführlich beschrieben - dort als Lösung für air-gapped Hosts. Der Mechanismus ist derselbe, der Sicherheitsgewinn ein Nebeneffekt.
+Wie man Environments aus einem ZIP-File lädt, habe ich in [RCC-Environments in isolierten Umgebungen]({{< ref "/rcc-envoffline/" >}}) schon einmal ausführlich beschrieben - dort als Lösung für air-gapped Hosts. Der Mechanismus ist derselbe, der Sicherheitsgewinn ein Nebeneffekt.
 
 Für die meisten Umgebungen ist das aber der zweite Schritt. Der erste ist die Datei in `output/`.
 
@@ -377,7 +427,7 @@ Und eine Erkenntnis, die mich selbst überrascht hat: **Das Werkzeug dagegen lie
 
 Der ehrliche Anspruch lautet danach nicht "das Environment ist sicher", sondern:
 
-> *Gebaut aus Paketen mit fester Version, geprüft am TT.MM., unverändert seitdem - bis auf den Browser, den ich bewusst zentral bereitstelle.*
+> *Gebaut aus Paketen mit fester Version und mindestens 14 Tagen Karenz, geprüft am TT.MM., unverändert seitdem - bis auf den Browser, den ich bewusst zentral bereitstelle.*
 
 Das ist der Satz, der trägt, wenn jemand nachfragt. Und er ist deutlich mehr wert als ein Häkchen.
 

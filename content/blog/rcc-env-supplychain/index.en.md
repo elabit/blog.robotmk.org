@@ -1,8 +1,8 @@
 ---
 draft: true
-title: "Three Packages, Fifty Downloads"
+title: "Building RCC Environments Securely"
 # --- Italic subheading
-lead: "What `rfbrowser init` actually does - and why the answer has been sitting in your `output` directory all along."
+lead: "A small trick that makes building Robot Framework environments with RCC more secure."
 # -- giscus id to match comments
 commentid: rcc-env-supplychain
 # -- predefined URL
