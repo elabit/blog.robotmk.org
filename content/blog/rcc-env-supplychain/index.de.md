@@ -147,12 +147,11 @@ Ein frisch kompromittiertes und veröffneltichtes Paket steht **für ein bestimm
 Die wirksamste Strategie gegen diese Art von Angriffen ist ein kontrollierter Bauprozess, der die folgenden Punkte erfüllt:
 
 - **Zeit.** Environments nicht auf brandneuen Versionen bauen. Kompromittierte Pakete werden meist binnen weniger Tage entdeckt und von dern Repos entfernt.
-- **Einfrieren:** Ein einmal gebautes Environment, kann sich kein neues bösartiges Paket einfangen.
-
+- **Einfrieren:** Ein einmal gebautes Environment kann sich kein neues bösartiges Paket einfangen.
 
 ---
 
-## Das Rezept zu mehr Sicherheit in acht Schritten
+## Das Rezept zu mehr Sicherheit in sieben Schritten
 
 Im Standardbetrieb baut jeder Robotmk-Host sein Environment selbst.  
 Das heißt: Jeder dieser Hosts baut seine eigenen Environments, und lädt sich die Quellen von PyPI, der npm-Registry und CDNs.  
@@ -193,7 +192,7 @@ Dieser Befehl baut ein komplettes RobotFramework-Environment, inklusive Browser-
 - `--robot robot.yaml`: Gibt den Pfad zur RCC-Configdatei an (die auf `conda.yaml` verweist)
 - `python --version`: Ein beliebiger Befehl, der im gebauten Environment ausgeführt wird. Ich habe hier `python --version` gewählt, weil er schnell ist und keine weiteren Abhängigkeiten hat.
   
-Gleichzeitig wird eine "Freeze"-Datei angelegt: sie befindet sich im Unterordner `output`. 
+Gleichzeitig legt RCC eine "Freeze"-Datei an: sie befindet sich im Unterordner `output`. 
 
 In dieser Datei hat RCC nun alle (!) transitiven Abhängigkeiten **mit ihrer exakten Version** festgeschrieben.  
 Die Platzhalter `<o>s>` und `<arch>` stehen für die Plattform, auf der Du gerade baust.
@@ -213,116 +212,96 @@ Schiebe diese Datei nun 1 Ebene nach oben ins Robot-Verzeichnis (neben `conda.ya
 
 {{< figure src="img/robotfreeze.png" title="Das Freeze-File wird in robot.yaml referenziert" >}} 
 
-Möchtest Du das Environment auch auf Linux nutzen, wiederhole den kompletten Schritt 2 dort.
+> Möchtest Du das Environment auch auf Linux nutzen, wiederhole den kompletten Schritt 2 dort.
 
 Das Freeze-File für Windows/AMD steht nicht ohne Grund an erster Stelle: ab sofort verwendet RCC auf dieser Plattform nicht mehr `conda.yaml` mit den "losen" Dependencies, sondern das spezifische Freeze-File.
 
-### Schritt 3 - Prüfgrundlage exportieren
 
-Nun gilt es, für Python und NodeJS die tatsächlich installierten Pakete in Dateien zu exportieren, die wir später prüfen können.  
-Hinweis: die Browser Library selbst ist in `package-lock.json` bereits vollständig dokumentiert, wir müssen das File nur ins Root-Verzeichnis kopieren.
-
-```bash
-# Python-Pakete
-❯ rcc task script --space refbuild -- pip freeze --all > requirements.txt
-# NodeJS 
-# - Linux
-❯ rcc task script --space refbuild -- sh -c 'find "$CONDA_PREFIX" -path "*/Browser/wrapper/package-lock.json" -exec cp {} . \;'
-# - Windows
-❯ rcc task script --space refbuild -- powershell -NoProfile -Command 'Get-ChildItem $env:CONDA_PREFIX -Recurse -Filter package-lock.json | Where-Object FullName -like "*\Browser\wrapper\*" | Copy-Item -Destination .'
-```
-
-Beide Dateien gehören ins Repo. 
-
-
-### Schritt 4 - Karenzzeit mit pypi_grace_check.py prüfen
+### Schritt 3 - Karenzzeit von Python-Paketen prüfen
 
 Die Regel: lade keine Abhängigkeiten, die jünger als **14 Tage** sind.  
 Statistisch deckt das schon den Großteil der realen Angriffsfenster ab.  
 
-`pypi_grace_check.py` ist ein kleines praktisches Script, mit dem Du die Pakete in `requirements.txt` (Schritt 3) auf ihr Alter prüfen kannst. Du kannst es [hier](https://gist.github.com/simonmeggle/32d62e5ffd1a829507c02ea8842624db) herunterladen.
+Dafür habe ich `depguard.py` geschrieben - ein einzelnes Script ohne Abhängigkeiten, das die Prüfungen aus diesem und dem nächsten Schritt übernimmt. Du kannst es [hier](https://gist.github.com/simonmeggle/17abdec8f8039165404a69192d6e93fd) herunterladen.
 
-Wieder nutzt Du `rcc task script`, um das Script direkt im Environment auszuführen.  
-Die default-Argumente sind übrigens: 
-
-- `--requirements requirements.txt` (die Datei aus Schritt 3)
-- `--min-age 14` (Mindestalter in Tagen)
+Leg es ins Robot-Verzeichnis und führe es mit `rcc task script` direkt im Environment aus:
 
 ```bash
-rcc task script --space refbuild -- python3 pypi_grace_check.py
-...
-  363 d  ok  cffi 2.0.0
-  138 d  ok  click 8.3.3
-  161 d  ok  grpcio 1.80.0
-  161 d  ok  grpcio-tools 1.80.0
- 1175 d  ok  natsort 8.4.0
-  953 d  ok  overrides 7.7.0
- 1143 d  ok  pip 23.2.1
-  376 d  ok  prompt_toolkit 3.0.52
-  172 d  ok  protobuf 6.33.6
-  221 d  ok  psutil 7.2.2
-  229 d  ok  pycparser 3.0
-  248 d  ok  PyNaCl 1.6.2
-  346 d  ok  PyYAML 6.0.3
-  374 d  ok  questionary 2.1.1
-  269 d  ok  robotframework 7.4
-  208 d  ok  robotframework-assertion-engine 4.0.0
-  153 d  ok  robotframework-browser 19.14.2
- 1985 d  ok  robotframework-crypto 0.3.0
-  234 d  ok  robotframework-pythonlibcore 4.5.0
-  460 d  ok  seedir 0.5.1
-  224 d  ok  setuptools 80.10.2
-  378 d  ok  typing_extensions 4.15.0
-  128 d  ok  wcwidth 0.7.0
-  228 d  ok  wheel 0.46.3
-  185 d  ok  wrapt 2.1.2
+rcc task script --space refbuild -- python3 depguard.py grace-check
+```
+
+```
+  394 d  ok       cffi 2.0.0
+  169 d  ok       click 8.3.3
+  192 d  ok       grpcio 1.80.0
+  192 d  ok       grpcio-tools 1.80.0
+ 1206 d  ok       natsort 8.4.0
+  984 d  ok       overrides 7.7.0
+ 1174 d  ok       pip 23.2.1
+  407 d  ok       prompt_toolkit 3.0.52
+  204 d  ok       protobuf 6.33.6
+  253 d  ok       psutil 7.2.2
+  260 d  ok       pycparser 3.0
+  280 d  ok       PyNaCl 1.6.2
+  377 d  ok       PyYAML 6.0.3
+  406 d  ok       questionary 2.1.1
+  300 d  ok       robotframework 7.4
+  239 d  ok       robotframework-assertion-engine 4.0.0
+  185 d  ok       robotframework-browser 19.14.2
+ 2016 d  ok       robotframework-crypto 0.3.0
+  265 d  ok       robotframework-pythonlibcore 4.5.0
+  491 d  ok       seedir 0.5.1
+  255 d  ok       setuptools 80.10.2
+  409 d  ok       typing_extensions 4.15.0
+  159 d  ok       wcwidth 0.7.0
+  259 d  ok       wheel 0.46.3
+  216 d  ok       wrapt 2.1.2
 ```
 
 Die Ausgabe zeigt: alle Pakete sind älter als 14 Tage. Zero-Day-Exploits sind damit schon mal sehr viel unwahrscheinlicher.
 
-> **Moment - widerspricht das nicht Schritt 5?**
->
-> Ein naheliegender Einwand: Wenn die Karenzzeit mich auf ältere Versionen festlegt, meckert der Schwachstellen-Scanner doch genau die an - denn deren Lücken wurden ja erst in neueren Versionen geschlossen.
->
-> Der Einwand löst sich auf, sobald man auf die Zeitskalen schaut. Die Karenzzeit schützt vor **unbekannter, absichtlicher** Manipulation; ihr Fenster sind **Tage**. Der Scanner findet **bekannte, versehentliche** Fehler; deren Fenster sind **Monate bis Jahre**. Und die Regel verbietet Dir keine alten Versionen, sondern nur die allerneuesten: Du nimmst die neueste Version, die älter als 14 Tage ist - und das ist praktisch immer eine gefixte.
+Drei Dinge nimmt Dir das Script dabei ab:
+
+- **Es legt die Prüfliste selbst an.** Fehlt `requirements.txt`, fragt es, ob es sie mit `pip freeze --all` erzeugen darf - und zwar erzwungen in UTF-8. Das `--all` ist nicht kosmetisch, siehe [Falle 1](#falle-1---pip-freeze-unterschlägt-drei-pakete).
+- **Es erkennt zurückgezogene Releases.** Neben `TOO NEW` gibt es das Urteil `YANKED`. Ein von PyPI zurückgezogenes Release ist genau das Signal, auf das Du bei einem kompromittierten Paket hoffst.
+- **Es ist skriptbar.** Exitcode 0, wenn alles passt, 1 bei jedem Fund - also auch für einen CI-Lauf brauchbar.
+
+Zwei Schalter, die Du kennen solltest: `--min-age DAYS` ändert die Karenzzeit (Default 14), `-f FILE` prüft eine andere Datei, und `-y` beantwortet alle Rückfragen mit ja - nötig, wenn kein Terminal da ist.
+
+Wenn das Script bei Dir Pakete meldet, die jünger als 14 Tage sind, öffne `conda.yaml` und pinne die Version des Pakets auf die letzte Version, die älter als 14 Tage ist.
+ Du kannst das Alter der Versionen auf [PyPI](https://pypi.org/project/<paketname>/#history) nachschauen.
+
+> Man könnte nun einwenden, dass man durch die Festlegung auf ältere Versionen bewusst Verbesserungen außen vor lässt. Schließlich werden neue Lücken ja erst in neueren Versionen geschlossen.  
+> Der Einwand löst sich auf, sobald man auf die Zeitskalen schaut. Die Karenzzeit von 14 *Tagen* schützt vor **unbekannter, absichtlicher** Manipulation; Der Scanner findet **bekannte, versehentliche** Fehler; deren Fenster sind **Monate bis Jahre**. Und die Regel verbietet Dir keine alten Versionen, sondern nur die allerneuesten: Du nimmst die neueste Version, die älter als 14 Tage ist - und das ist praktisch immer eine gefixte.
 >
 > Beispiel aus genau diesem Environment: `pip 23.2.1` ist 1143 Tage alt und trägt sieben Advisories. Der erste Fix `pip 23.3` ist 1089 Tage alt, und selbst `pip 26.2`, das die jüngste dieser Lücken schließt, ist 70 Tage alt. Alle Fixversionen liegen weit jenseits der Karenzzeit.
 >
 > Ein echter Konflikt entsteht nur in einem Fall: ein Sicherheitsfix, der vor drei Tagen erschienen ist. Dann darf die Karenzzeit brechen - ein bekanntes Loch zwei Wochen offen zu lassen, ist die schlechtere Wahl. Die Begründung gehört in den Commit.
 
-### Schritt 5 - Auf Schwachstellen prüfen
+### Schritt 4 - Auf Schwachstellen prüfen
 
-Lade den **OSV-Scanner** von [OSV Releases](https://github.com/google/osv-scanner/releases), Hinweise zur Installation mit brew, winget etc. finden sich [hier](https://google.github.io/osv-scanner/installation/).
-
-```bash
-osv-scanner scan source --no-resolve -L "requirements.txt:requirements.txt"
-
-osv-scanner scan source --no-resolve -L "package-lock.json:package-lock.json"
-```
-
-(Solltest Du den Fehler `No package sources found` bekommen, liegt das daran, dass der `pip freeze`-Befehl die Datei als UTF-16-BOM abgespeichert hat. Dann einfach die Datei in UTF-8 konvertieren: öffne sie im Editor, wähle "Speichern unter" und wähle UTF-8 als Encoding.)
-
-> Die Parametrisierung `-L requirements.txt:requirements.txt` sieht seltsam aus, ist aber korrekt: die linke Seite gibt an, welches Format der Scanner parsen soll - die rechte Seite ist die Datei, die er einliest.
-
-#### Dev-Abhängigkeiten herausfiltern
-
-Beim Lockfile hat der Scan einen Haken: `package-lock.json` beschreibt **alles**, was zum Entwickeln der Browser Library nötig ist - nicht das, was bei Dir installiert wird. Im untersuchten Stand sind das 807 Einträge, von denen **722 mit `"dev": true` markiert** sind. Du scannst also zu 90 % Werkzeug, das Dein Host nie zu Gesicht bekommt.
-
-Die gute Nachricht: Das Lockfile sagt selbst, was Dev ist. Du brauchst keine andere Datei, nur einen Filter:
+Jetzt die zweite Frage: Sind in den Paketen **bekannte** Lücken? Das beantwortet der [OSV-Scanner](https://github.com/google/osv-scanner) von Google, der die Datenbank [osv.dev](https://osv.dev) abfragt. Und auch hier übernimmt `depguard.py` die Arbeit:
 
 ```bash
-python3 - <<'EOF'
-import json
-d = json.load(open("package-lock.json"))
-d["packages"] = {k: v for k, v in d["packages"].items() if not v.get("dev")}
-json.dump(d, open("package-lock.prod.json", "w"), indent=1)
-print(len(d["packages"]), "Laufzeit-Einträge übrig")
-EOF
-
-osv-scanner scan source --no-resolve -L "package-lock.json:package-lock.prod.json"
+rcc task script --space refbuild -- python3 depguard.py osv-scan
 ```
 
-Der Unterschied ist drastisch - und zwar genau der, den Du im Monitoring **nicht** als Alarm haben willst:
+Ohne Argument prüft es **beide** Seiten - Python und NodeJS. `depguard.py osv-scan python` oder `... node` beschränkt den Lauf auf eine davon.
+
+Das Script findet den `osv-scanner` auf dem `PATH` oder im aktuellen Verzeichnis. Fehlt er, fragt es, ob es ihn herunterladen soll - und prüft den Download gegen die von Google veröffentlichte `osv-scanner_SHA256SUMS`. Für einen Artikel über Lieferketten wäre alles andere auch schlecht zu rechtfertigen.
+
+#### Die Dev-Abhängigkeiten fallen automatisch raus
+
+Beim Lockfile hat der Scan nämlich einen Haken: `package-lock.json` enthält **alles**, was die Entwickler der Browser Library brauchen - nicht das, was bei Dir installiert wird. Im untersuchten Stand sind das 807 Einträge, von denen **722 mit `"dev": true` markiert** sind. Ein naiver Scan prüft also zu 90 % Zeug, das nie auf einem Robotmk-Host landet.
+
+`osv-scanner` hat dafür keinen Schalter. `depguard.py` filtert die Dev-Einträge deshalb aus einer Kopie des Lockfiles heraus, bevor es scannt, und sagt Dir, was es getan hat:
+
+```
+=== osv-scan node: package-lock.json ===
+dev dependencies excluded: 722 skipped, 84 scanned (use --dev to include them)
+```
+
+Mit `--dev` bekommst Du die vollständige Liste, wenn Du sie sehen willst. Der Unterschied ist drastisch - und zwar genau der, den Du im Monitoring **nicht** als Alarm haben willst:
 
 | Lockfile | Gescannte Pakete | Advisories | davon High+Critical |
 |---|---:|---:|---:|
@@ -362,7 +341,7 @@ Vier Dinge, die man wissen muss, um das richtig zu lesen:
 
 Das Wichtigste aber: **CVSS ist ein Maß für Schwere, nicht für Risiko.** Der Score weiß nicht, ob Dein Robot die betroffene Funktion überhaupt aufruft.
 
-### Schritt 6 - Bewerten und entscheiden
+### Schritt 5 - Bewerten und entscheiden
 
 Kein automatischer Rebuild, keine CVSS-Schwelle.
 
@@ -377,7 +356,7 @@ Der belastbare Anspruch heißt deshalb nicht "keine Funde", sondern **"keine unb
 
 Mehr dazu unten unter [Bewerten, nicht abarbeiten](#bewerten-nicht-abarbeiten).
 
-### Schritt 7 - Exportieren
+### Schritt 6 - Exportieren
 
 ```bash
 rcc holotree export --robot robot.yaml --zipfile hololib.zip
@@ -385,7 +364,7 @@ rcc holotree export --robot robot.yaml --zipfile hololib.zip
 
 Die Datei wird **nicht** versioniert - sie ist ein Binärartefakt und gehört nicht in ein Git-Repo. Ins Repo gehören `conda.yaml`, das Freeze-YAML, `requirements.txt`, `package-lock.json` und `osv-scanner.toml`.
 
-### Schritt 8 - Verteilen und einziehen
+### Schritt 7 - Verteilen und einziehen
 
 Der Transportweg ist Deine Sache: kopieren, Ansible, ein Fileshare - was bei Dir ohnehin etabliert ist. Auf dem Zielhost:
 
@@ -437,7 +416,7 @@ Drei Zeilen Differenz. Und jetzt der Scan auf beide Dateien:
 | `pip freeze --all` | 25 | **8** (7 in `pip 23.2.1`, 1 in `setuptools 80.10.2`) |
 | `pip freeze` | 22 | `No issues found` |
 
-Ohne `--all` bekommst Du also keinen um ein Drittel zu kurzen Scan, sondern einen **vollständig grünen - der zu 100 % falsch ist.** Sämtliche Funde dieses Environments stecken in genau den drei Paketen, die `pip freeze` wegläßt. `--all` ist keine Option, sondern Pflicht.
+Ohne `--all` bekommst Du also keinen um ein Drittel zu kurzen Scan, sondern einen **vollständig grünen - der zu 100 % falsch ist.** Sämtliche Funde dieses Environments stecken in genau den drei Paketen, die `pip freeze` weglässt. `--all` ist keine Option, sondern Pflicht - und genau deshalb erzeugt `depguard.py` die Datei bei Bedarf selbst, statt sich darauf zu verlassen, dass Du den Schalter kennst.
 
 ### Falle 2 - osv-scanner erfindet Pakete
 
@@ -474,7 +453,7 @@ Die über hundert tatsächlich installierten Python-Distributionen kommen darin 
 
 ### Und die vierte, die keine Falle ist, sondern ein Gewinn
 
-Diese Falle ist die einzige, die Du mit einer Zeile Code in einen Gewinn verwandelst - deshalb steht der Filter schon oben in [Schritt 5](#schritt-5---auf-schwachstellen-prüfen).
+Diese Falle ist die einzige, die sich vollständig automatisieren lässt - deshalb erledigt `depguard.py` den Filter schon oben in [Schritt 4](#schritt-4---auf-schwachstellen-prüfen).
 
 Der Punkt dahinter ist aber wichtig genug für eine eigene Betrachtung, denn er erklärt, warum ein Erstscan so erschreckend aussieht:
 
@@ -555,7 +534,7 @@ Angefangen hat das mit einer Frage zu einer einzigen Zeile `conda.yaml`. Herausg
 
 Die eigentliche Bewegung ist dabei ganz unspektakulär: Statt dass hundert Hosts hundertmal unbeaufsichtigt einkaufen gehen, geht **ein** Host **einmal** einkaufen, und Du siehst ihm dabei zu.
 
-Bleibt die ehrliche Schwachstelle: der Cron-Job aus Schritt 8. Er erzeugt eine Mail, keinen Zustand. Dabei betreibst Du längst ein System, dessen einziger Zweck es ist, wiederkehrende Prüfungen auszuführen und bei Abweichung zu alarmieren.
+Bleibt die ehrliche Schwachstelle: der Cron-Job aus Schritt 7. Er erzeugt eine Mail, keinen Zustand. Dabei betreibst Du längst ein System, dessen einziger Zweck es ist, wiederkehrende Prüfungen auszuführen und bei Abweichung zu alarmieren.
 
 **Teil 2** beschreibt deshalb ein Checkmk-Agent-Plugin, das auf dem Scheduler-Host läuft, aus der `robotmk.json` liest, welche Environments überhaupt in Gebrauch sind, den Scanner mitbringt und je Environment einen Service liefert - mit einer Baseline beim Erstlauf, damit der Check bei Inbetriebnahme nicht als rote Wand startet, sondern genau das meldet, was Dich interessiert: *seit gestern ist etwas Neues bekannt geworden.*
 
