@@ -165,23 +165,23 @@ Um es bildlich zu sagen: die ZIP-Datei, in die sich ein RCC-Environment exportie
 
 Beim Import des ZIP-Files gibt es keine Möglichkeit, dass ein Host beim Rebuild ein neues Paket aus dem Internet zieht.
 
-#### Wer welche Aufgabe hat
+### Big Picture
 
-Bevor wir einsteigen, lohnt eine Landkarte - denn das Rezept erzeugt vier Artefakte, und jedes beantwortet eine andere Frage:
+Bevor wir in die einzelnen Schritte einsteigen, möchte ich die vier Artefakte hervorheben, die darin entstehen.  
+Jedes Artefakt hat eine spezifische Rolle und beantwortet eine andere Frage:
 
-| Schicht | Artefakt | Beantwortet |
-|---|---|---|
-| Absicht | `conda.yaml` | Was will ich? |
-| **Rezept** | **Freeze-File** | **Was habe ich bekommen - festgenagelt?** |
-| Bewertung | `requirements.txt`, `package-lock.json` | Ist das in Ordnung? |
-| Artefakt | `hololib.zip` | Das gebaute Ergebnis, Datei für Datei gehasht |
+| Schicht    | Artefakt                                | Beantwortet                                   |
+| ---------- | --------------------------------------- | --------------------------------------------- |
+| I. Absicht    | `conda.yaml`                            | Was will ich im Environment nutzen?           |
+| II. Rezept | `environment_<os>_<arch>_freeze.yaml`   | Was soll genau installiert werden?        |
+| III. Bewertung  | `requirements.txt`, `package-lock.json` | Sind die Python/Node-Pakete in Ordnung?                        |
+| IV. Endprodukt   | `hololib.zip`                           | Das komplette, eingefrorene Environment |
 
-Wichtig dabei: **Jede Schicht setzt die darunter voraus.** Das Freeze-File ist deshalb keine Alternative zum ZIP, sondern seine Voraussetzung - die beiden greifen an verschiedenen Stellen:
+Wichtig dabei: **Jede Schicht setzt die vorherige voraus.**  
 
-- Das **Freeze-File ist eine Bau-Kontrolle.** Es entscheidet, *was* gebaut wird. Ohne es beschreibt Deine Prüfung aus den Schritten 3 bis 5 genau einen Build; der nächste ist ein anderes Environment, und die Bewertung gilt nicht mehr.
-- Das **ZIP ist eine Verteil-Kontrolle.** Es entscheidet, *wer* baut - nämlich niemand mehr außer dem Referenzsystem.
+- Aus der **conda.yaml** (I.) entsteht der eigentliche Bauplan, das **Freeze-File** (II.). Es bestimmt final, *womit* das ausgelieferte Artefakt (ZIP) gebaut wird.
+- Das **ZIP** entscheidet, *wer* baut - nämlich niemand mehr außer dem Referenzsystem.
 
-Auf den Zielhosts ist das Freeze-File daher tatsächlich ungenutzt: Mit `RCC_NO_BUILD=1` löst dort nie jemand etwas auf. Auf dem Referenzsystem ist es dagegen unverzichtbar, und zwar aus einem unscheinbaren Grund: Die `hololib.zip` ist ein Binärartefakt und wird **nicht** versioniert. Das Freeze-File ist damit das einzige Dokument in Deinem Repo, das das ausgelieferte Artefakt nachbaubar beschreibt. Fehlt es, kannst Du Dein eigenes ZIP nicht reproduzieren - und fängst bei der nächsten Library-Version mit der Bewertung bei null an.
 
 ### Schritt 1 - Leg ein Referenzsystem an
 
@@ -191,9 +191,10 @@ Dieser Host ist der einzige Ort, an dem jemals ein Paket aus dem Internet gezoge
 
 Auf diesem Host brauchst Du: 
 
-- Das **Robot-Verzeichnis** mit `robot.yaml` und `conda.yaml`
-- **RCC** (Download von [Robotmk Releases](https://github.com/elabit/robotmk/releases))
-- **OSV-Scanner** von Google (Download von [OSV Releases](https://github.com/google/osv-scanner/releases))
+- Ein **Robot-Framework-Verzeichnis** mit `robot.yaml` und `conda.yaml`
+- **RCC** (Download)[https://www.robotmk.org/en/blog/rcc-efficient-python-integration/#download-rcc]
+- Das Script `depguard.py` (Download von [Gist](https://gist.github.com/simonmeggle/17abdec8f8039165404a69192d6e93fd))
+- (optional) **OSV-Scanner** von Google (Download von [OSV Releases](https://github.com/google/osv-scanner/releases))
 
 ### Schritt 2 - Environment bauen
 
@@ -206,15 +207,14 @@ rcc task script --space refbuild --robot robot.yaml -- python --version
 Dieser Befehl baut ein komplettes RobotFramework-Environment, inklusive Browser-Binaries:
 
 - `rcc task script`: Startet den Befehl hinter dem doppelten Bindestrich
-- `--space refbuild` (optional): Weist RCC an, nicht das Environment im Default-Namespace zu überschreiben. 
+- `--space refbuild` (optional, empfohlen): Weist RCC an, nicht das Environment im Default-Namespace zu überschreiben. 
 - `--robot robot.yaml`: Gibt den Pfad zur RCC-Configdatei an (die auf `conda.yaml` verweist)
+- `--`: Trennt die RCC-Parameter von dem Befehl, der im Environment ausgeführt werden soll
 - `python --version`: Ein beliebiger Befehl, der im gebauten Environment ausgeführt wird. Ich habe hier `python --version` gewählt, weil er schnell ist und keine weiteren Abhängigkeiten hat.
   
-Gleichzeitig legt RCC eine "Freeze"-Datei an: sie befindet sich im Unterordner `output`. 
+Gleichzeitig legt RCC eine "**Freeze**"-Datei an: sie befindet sich im Unterordner `output`. Darin hat RCC nun alle transitiven Abhängigkeiten (Python & Node) **mit ihrer exakten Version** festgeschrieben.
 
-In dieser Datei hat RCC nun alle transitiven Abhängigkeiten **mit ihrer exakten Version** festgeschrieben - die conda-Pakete und die pip-Pakete.
-
-Sie wird nach dem Schema `environment_<os>_<arch>_freeze.yaml` benannt, wobei die Platzhalter für die Plattform stehen, auf der Du gerade baust:
+Die Freeze-Datei benennt RCC nach dem Schema `environment_<os>_<arch>_freeze.yaml`, wobei die Platzhalter für die Plattform stehen, auf der Du gerade baust:
 
 - `<os>` = Betriebssystem, also `linux`, `windows` oder `darwin` (ja, `darwin` - nicht `macos`)
 - `<arch>` = Architektur, z.B. `amd64`
@@ -229,31 +229,15 @@ Schiebe diese Datei nun 1 Ebene nach oben ins Robot-Verzeichnis (neben `conda.ya
 
 {{< figure src="img/robotfreeze.png" title="Das Freeze-File wird in robot.yaml referenziert" >}} 
 
-> Möchtest Du das Environment auch auf Linux nutzen, wiederhole den kompletten Schritt 2 dort.
+> Möchtest Du das Environment auch auf Linux nutzen, wiederhole dort einfach den kompletten Schritt 2.
 
-Das Freeze-File für Windows/AMD steht nicht ohne Grund an erster Stelle: ab sofort verwendet RCC auf dieser Plattform nicht mehr `conda.yaml` mit den "losen" Dependencies, sondern das spezifische Freeze-File.
-
-> ⚠️ **Prüf die `pip:`-Sektion, bevor Du die Datei hochschiebst.**
->
-> Das Freeze-File **ersetzt** die `conda.yaml` vollständig - es ergänzt sie nicht. Ist es unvollständig, baut RCC genau das Unvollständige, ohne zu murren.
->
-> Mir ist genau das passiert: In meinem Testprojekt lag ein Freeze-File, das nur die conda-Pakete enthielt und bei dem die komplette `pip:`-Sektion fehlte - also kein Robot Framework, keine Browser Library. Das Ergebnis eines Rebuilds damit:
->
-> ```
-> ModuleNotFoundError: No module named 'six'
-> ```
->
-> Und es verfestigt sich: Das aus diesem Build neu erzeugte Freeze-File hat ebenfalls keine `pip:`-Sektion. Ein kaputter Zustand schreibt sich selbst fort.
->
-> Wirf also einen Blick in die Datei und vergewissere Dich, dass unten eine `- pip:`-Sektion mit Deinen Paketen steht. Zwei Sekunden Aufwand, und Du ersparst Dir eine sehr verwirrende Fehlersuche.
-
+Achte darauf, dass `conda.yaml` in der Liste ganz unten steht, und die plattformspezifischen Freeze-Files davor. RCC verwendet als Bauplan die Datei, die zuerst auf die Plattform passt; `conda.yaml` ist der Fallback. 
 
 ### Schritt 3 - Karenzzeit von Python-Paketen prüfen
 
-Die Regel: lade keine Abhängigkeiten, die jünger als **14 Tage** sind.  
-Statistisch deckt das schon den Großteil der realen Angriffsfenster ab.  
+Wir stellen als Regel auf, keine Python-Abhängigkeiten laden zu wollen, die jünger als **14 Tage** sind. Statistisch deckt das schon den Großteil der realen Angriffsfenster ab.  
 
-Dafür habe ich `depguard.py` geschrieben - ein einzelnes Script ohne Abhängigkeiten, das die Prüfungen aus diesem und dem nächsten Schritt übernimmt. Du kannst es [hier](https://gist.github.com/simonmeggle/17abdec8f8039165404a69192d6e93fd) herunterladen.
+Um das zu prüfen, habe ich `depguard.py` geschrieben. Du kannst es [hier](https://gist.github.com/simonmeggle/17abdec8f8039165404a69192d6e93fd) herunterladen.
 
 Leg es ins Robot-Verzeichnis und führe es mit `rcc task script` direkt im Environment aus:
 
@@ -289,26 +273,22 @@ rcc task script --space refbuild -- python3 depguard.py grace-check
   216 d  ok       wrapt 2.1.2
 ```
 
-Die Ausgabe zeigt: alle Pakete sind älter als 14 Tage. Zero-Day-Exploits sind damit schon mal sehr viel unwahrscheinlicher.
+Die Ausgabe zeigt: alles ok, alle Pakete sind mindestens 14 Tage alt.
 
-Drei Dinge nimmt Dir das Script dabei ab:
+Was macht das Script genau?
 
-- **Es legt die Prüfliste selbst an.** Fehlt `requirements.txt`, fragt es, ob es sie mit `pip freeze --all` erzeugen darf - und zwar erzwungen in UTF-8. 
-- **Es erkennt zurückgezogene Releases.** Neben `TOO NEW` gibt es das Flag `YANKED`. Ein von PyPI *zurückgezogenes* Release ist genau das Signal, auf das Du bei einem kompromittierten Paket achten solltest.
-- **Es ist skriptbar.** Es liefert einen Exitcode > 0 bei jedem Fund - also ist es auch für einen CI-Lauf brauchbar.
+- Es legt die **Prüfliste** an, indem es `pip freeze --all` aufruft und in `requirements.txt` speichert. 
+- Es analysiert `requirements.txt`, um zurückgezogene Releases zu erkennen (Flag: `YANKED`). Ein von PyPI *zurückgezogenes* Release ist ein Warnsignal. 
+- Es liefert einen Exitcode > 0 bei jedem Fund - also ist es scriptbar und auch für einen CI-Lauf brauchbar.
 
-Zwei Schalter, die Du kennen solltest: `--min-age DAYS` ändert die Karenzzeit (Default 14), `-f FILE` prüft eine andere Datei (das überspringt `pip freeze`), und `-y` beantwortet alle Rückfragen mit ja - nötig, wenn kein Terminal da ist.
+Zwei Schalter, die Du kennen solltest: `--min-age DAYS` ändert die Karenzzeit (Default 14), `-f FILE` prüft eine andere Datei (das überspringt `pip freeze`), und `-y` beantwortet alle Rückfragen mit ja, falls kein Terminal da ist.
 
-Wenn das Script bei Dir Pakete meldet, die jünger als 14 Tage sind, öffne `conda.yaml` und pinne die Version des Pakets auf die letzte Version, die älter als 14 Tage ist.
+**Was tun bei Funden?**
 
-Du kannst das Alter der Versionen jederzeit auf [PyPI](https://pypi.org/project/<paketname>/#history) nachschauen.
+Wenn das Script bei Dir Pakete meldet, die zurückgezogen worden oder jünger als 14 Tage sind, öffne `conda.yaml` und ändere die Version des Pakets auf die letzte Version, die älter als 14 Tage ist. Du kannst das Alter der Versionen jederzeit auf [PyPI](https://pypi.org/) nachschauen.
 
-> Man könnte nun einwenden, dass man durch die Festlegung auf ältere Versionen bewusst Verbesserungen außen vor lässt. Schließlich werden neue Lücken ja erst in neueren Versionen geschlossen.  
-> Der Einwand löst sich auf, sobald man auf die Zeitskalen schaut. Die Karenzzeit von 14 *Tagen* schützt vor **unbekannter, absichtlicher** Manipulation; Der Scanner findet **bekannte, versehentliche** Fehler; deren Fenster sind **Monate bis Jahre**. Und die Regel verbietet Dir keine alten Versionen, sondern nur die allerneuesten: Du nimmst die neueste Version, die älter als 14 Tage ist - und das ist praktisch immer eine gefixte.
->
-> Beispiel aus genau diesem Environment: `pip 23.2.1` ist 1143 Tage alt und trägt sieben Advisories. Der erste Fix `pip 23.3` ist 1089 Tage alt, und selbst `pip 26.2`, das die jüngste dieser Lücken schließt, ist 70 Tage alt. Alle Fixversionen liegen weit jenseits der Karenzzeit.
->
-> Ein echter Konflikt entsteht nur in einem Fall: ein Sicherheitsfix, der vor drei Tagen erschienen ist. Dann darf die Karenzzeit brechen - ein bekanntes Loch zwei Wochen offen zu lassen, ist die schlechtere Wahl. Die Begründung gehört in den Commit.
+> Man könnte nun einwenden, dass man durch die Festlegung auf ältere Versionen ja bewusst Verbesserungen außen vor lässt. Schließlich werden neue Lücken ja erst in neueren Versionen geschlossen.  
+> Wenn man aber auf den Zeitstrahl schaut, erkennt man: Die Karenzzeit von lediglich 14 *Tagen* schützt vor **unbekannter, absichtlicher** Manipulation; Du nimmst einfach die neueste Version, die älter als 14 Tage ist - und das ist praktisch immer eine gefixte.
 
 ### Schritt 4 - Auf Schwachstellen prüfen
 
@@ -322,10 +302,12 @@ Und auch hier übernimmt `depguard.py` die Arbeit:
 rcc task script --space refbuild -- python3 depguard.py osv-scan
 ```
 
-Ohne Argument prüft es **beide** Bereiche - Python und NodeJS. `depguard.py osv-scan python` oder `... node` beschränkt den Lauf auf eine davon.
+Ohne Argument prüft es **beide** für uns relevanten Bereiche: 
 
-Das Script erwartet das `osv-scanner`-Binary im `PATH` oder im aktuellen Verzeichnis.  
-Fehlt er, fragt es, ob es ihn herunterladen soll und prüft den Download gegen die von Google veröffentlichte Checksumme. Das ist der "Streber-Modus" - für einen Artikel über SupplyChains wäre alles andere auch schlecht zu rechtfertigen. :-) 
+- Python (requirements.txt)
+- NodeJS (package-lock.json). 
+
+> Das Script erwartet das `osv-scanner`-Binary im `PATH` oder im aktuellen Verzeichnis - andernfalls fragt es, ob es den Scanner herunterladen soll und prüft den Download gegen die von Google veröffentlichte Checksumme. (Das ist der "Streber-Modus" - für einen Artikel über SupplyChains wäre alles andere auch schlecht zu rechtfertigen. 😄 )
 
 Erwähnenswert ist, dass das `package-lock.json` der Browser Library **alles** enthält, was die Entwickler brauchen - nicht das, was bei Dir installiert wird.  
 Im untersuchten Stand sind das 807 Einträge, von denen **722 mit `"dev": true` markiert** sind.  
@@ -340,7 +322,7 @@ dev dependencies excluded: 722 skipped, 84 scanned (use --dev to include them)
 
 (Mit `--dev` bekommst Du die vollständige Liste, wenn Du sie sehen willst.)
 
-Übrig bleiben vier Pakete, und die gefundenen Lücken sind echt: `protobufjs` (12 Advisories), `@grpc/grpc-js` (4), `@protobufjs/utf8` (1) und `uuid` (1). 
+Übrig bleiben vier Pakete; die gefundenen Lücken sind real: `protobufjs` (12 Advisories), `@grpc/grpc-js` (4), `@protobufjs/utf8` (1) und `uuid` (1). 
 
 #### Die Ausgabe lesen
 
@@ -362,16 +344,18 @@ Total 2 packages affected by 8 known vulnerabilities (0 Critical, 1 High, 6 Medi
 +-------------------------------------+------+-----------+------------+---------+---------------+
 ```
 
-Dinge, die man wissen muss, um das richtig zu lesen:
+Das sieht jetzt erst einmal gruselig aus. Dinge, die man wissen muss, um das richtig zu lesen:
 
+- OSV URL: Dort kann man die Details der Lücke/Schwachstelle nachlesen.
+  - Jeder Fund steht mit **zwei** IDs da, einer `PYSEC-` und einer `GHSA-` - das sind Aliasse für dasselbe Problem.
 - CVSS-Base-Score: Die Grenzen sind: 
   - 0,1-3,9 = *Low*
   - 4,0-6,9 = *Medium*
   - 7,0-8,9 = *High*
   - 9,0-10,0 = *Critical*
-- Jeder Fund steht mit **zwei** IDs da, einer `PYSEC-` und einer `GHSA-` - das sind Aliasse für dasselbe Problem. Oben sind es 16 URLs, aber korrekt **8** Funde.
-- **`FIXED VERSION`** ist die eigentlich nützliche Spalte, denn sie beantwortet direkt, auf welche Version Du hochziehen müsstest.  
-Und: Bei Funden liefert `osv-scanner` Exitcode 1 - damit lässt sich der Lauf skripten.
+- ECOSYSTEM: PyPI = Python, npm = NodeJS
+- PACKAGE: Name des Pakets, das die Lücke enthält
+- **`FIXED VERSION`** sagt Dir, in welcher Version die Lücke behoben ist.  
 
 Behalte aber auch im Kopf, dass das **CVSS ein Maß für Schwere** ist, nicht für Risiko. (Der Score weiß nicht, ob Dein Robot die betroffene Funktion überhaupt aufruft.)
 
@@ -387,6 +371,54 @@ Der Anspruch heißt deshalb nicht "keine Funde", sondern **"keine unbewerteten F
 2. **Läuft es zur Testlaufzeit oder nur beim Bauen?** Das erledigt `pip` und `setuptools`.
 3. **Nutzt der Robot diesen Codepfad?**
 4. *Erst jetzt* CVSS - als Reihenfolge innerhalb des Rests, nicht als Einstieg.
+
+#### Und wenn Du hochziehen willst: wo denn?
+
+Entscheidest Du Dich für einen Fix, zeigt Dir die Spalte `FIXED VERSION` die Zielversion. Bleibt die Frage, wo Du sie einträgst - denn das betroffene Paket steht mit hoher Wahrscheinlichkeit gar nicht in Deiner `conda.yaml`. Es ist eine der vielen transitiven Abhängigkeiten.
+
+**Die Antwort ist unintuitiv: nicht in die `conda.yaml`.** Sobald das Freeze-File in `environmentConfigs` davor steht, ist eine Änderung dort **wirkungslos** - ohne Fehlermeldung. Ich habe das mit zwei sich widersprechenden Dateien geprüft:
+
+| Datei | Inhalt |
+|---|---|
+| `conda.yaml` | `six==1.17.0` |
+| Freeze-File (steht zuerst) | `six==1.16.0` |
+
+Installiert wurde `six 1.16.0`. Das Freeze-File gewinnt immer.
+
+**Du trägst die Zielversion also ins Freeze-File ein.** Und das ist einfacher als es klingt: Das Freeze-File ist eine vollständige Environment-Spezifikation, kein Protokoll. Ein transitives Paket pinnst Du dort, indem Du es einfach hinschreibst - auch wenn es in der `conda.yaml` nie vorkam:
+
+```yaml
+- pip:
+  - requests==2.31.0      # direkte Abhängigkeit
+  - urllib3==1.26.18      # transitiv, in conda.yaml nicht erwähnt
+```
+
+Welche Sektion die richtige ist, sagt Dir das Freeze-File selbst:
+
+- Steht das Paket **über** dem `- pip:`-Schlüssel, kommt es von conda-forge: ein Gleichheitszeichen, z.B. `openssl=3.6.5`.
+- Steht es **darunter**, ist es ein pip-Paket: zwei Gleichheitszeichen, z.B. `cffi==2.1.0`.
+
+Praktischer Hinweis: `pip` und `setuptools` liegen auf der conda-Seite - und das sind genau die beiden Pakete, die oben alle acht Funde verursachen.
+
+Zwei Wege, und sie sind nicht gleichwertig:
+
+- **Chirurgisch**, für einen einzelnen Fund: Version im Freeze-File ändern, neu bauen. Es bewegt sich genau ein Paket, Deine Bewertung aller anderen bleibt gültig. Für den Normalfall der richtige Weg.
+- **Neu aufrollen**, beim geplanten Refresh: Freeze-File wegnehmen, Pin in die `conda.yaml`, aus der `conda.yaml` neu bauen - RCC erzeugt ein frisches Freeze-File. Dabei würfelst Du aber **alle** losen Abhängigkeiten neu, und Schritt 3 bis 5 musst Du danach komplett wiederholen.
+
+Und in beiden Fällen: **Schreib den Pin zusätzlich in die `conda.yaml`.** Nicht weil er dort wirkt, sondern weil er sonst verloren geht, sobald jemand das Freeze-File löscht und neu baut. Die `conda.yaml` ist Dein Absichtsdokument - ein Kommentar wie `# CVE-Fix, siehe GHSA-...` gehört dorthin.
+
+Zwei Dinge danach:
+
+- **Die Fixversion muss die Karenzzeit bestehen.** Ein gerade erschienener Fix ist jünger als 14 Tage - dann greift die Ausnahme von oben. Lass `depguard.py grace-check` nach dem Rebuild erneut laufen.
+- **Ein Konflikt ist die richtige Antwort.** Kann pip die Fixversion nicht auflösen, weil eine direkte Abhängigkeit sie ausschließt, hast Du genau die Information, die Du brauchst: Dann musst Du die direkte Abhängigkeit hochziehen, nicht die transitive.
+
+#### Auf der NodeJS-Seite hast Du diesen Hebel nicht
+
+Das muss man klar sagen, weil `FIXED VERSION` dort eine Handlung suggeriert, die es nicht gibt. Das `package-lock.json` liegt **im Wheel** der Browser Library - Du besitzt es nicht, und ein Freeze-File dafür gibt es nicht. Für Funde in `protobufjs` oder `@grpc/grpc-js` bleiben Dir drei Möglichkeiten:
+
+1. `robotframework-browser` auf eine Version hochziehen, deren mitgeliefertes Lockfile den Fix enthält
+2. bewerten und akzeptieren - es ist die gRPC-Brücke zwischen Python und NodeJS, kein von außen erreichbarer Angriffspfad
+3. es der Browser Library melden
 
 ### Schritt 6 - Exportieren
 
