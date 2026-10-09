@@ -155,7 +155,7 @@ Die wirksamste Strategie gegen diese Art von Angriffen ist ein kontrollierter Ba
 
 Im Standardbetrieb baut jeder Robotmk-Host sein Environment selbst.  
 Das heißt: Jeder dieser Hosts baut seine eigenen Environments, und lädt sich die Quellen von PyPI, der npm-Registry und CDNs.  
-Bei fünf Robotmk-Hosts ergibt das also fünfzig unbeaufsichtigte Einkaufstouren.
+Bei fünfzig Robotmk-Hosts ergibt das also fünfzig unbeaufsichtigte Einkaufstouren - bei jedem Rebuild erneut.
 
 Wie man fertig gebaute Environments aus einem ZIP-File laden kann, habe ich in [RCC-Environments in isolierten Umgebungen]({{< ref "/rcc-envoffline/" >}}) schon einmal beschrieben - dort mit dem Fokus auf einer Lösung für air-gapped Hosts ohne jegliche Internetverbindung.  
 
@@ -165,9 +165,27 @@ Um es bildlich zu sagen: die ZIP-Datei, in die sich ein RCC-Environment exportie
 
 Beim Import des ZIP-Files gibt es keine Möglichkeit, dass ein Host beim Rebuild ein neues Paket aus dem Internet zieht.
 
+#### Wer welche Aufgabe hat
+
+Bevor wir einsteigen, lohnt eine Landkarte - denn das Rezept erzeugt vier Artefakte, und jedes beantwortet eine andere Frage:
+
+| Schicht | Artefakt | Beantwortet |
+|---|---|---|
+| Absicht | `conda.yaml` | Was will ich? |
+| **Rezept** | **Freeze-File** | **Was habe ich bekommen - festgenagelt?** |
+| Bewertung | `requirements.txt`, `package-lock.json` | Ist das in Ordnung? |
+| Artefakt | `hololib.zip` | Das gebaute Ergebnis, Datei für Datei gehasht |
+
+Wichtig dabei: **Jede Schicht setzt die darunter voraus.** Das Freeze-File ist deshalb keine Alternative zum ZIP, sondern seine Voraussetzung - die beiden greifen an verschiedenen Stellen:
+
+- Das **Freeze-File ist eine Bau-Kontrolle.** Es entscheidet, *was* gebaut wird. Ohne es beschreibt Deine Prüfung aus den Schritten 3 bis 5 genau einen Build; der nächste ist ein anderes Environment, und die Bewertung gilt nicht mehr.
+- Das **ZIP ist eine Verteil-Kontrolle.** Es entscheidet, *wer* baut - nämlich niemand mehr außer dem Referenzsystem.
+
+Auf den Zielhosts ist das Freeze-File daher tatsächlich ungenutzt: Mit `RCC_NO_BUILD=1` löst dort nie jemand etwas auf. Auf dem Referenzsystem ist es dagegen unverzichtbar, und zwar aus einem unscheinbaren Grund: Die `hololib.zip` ist ein Binärartefakt und wird **nicht** versioniert. Das Freeze-File ist damit das einzige Dokument in Deinem Repo, das das ausgelieferte Artefakt nachbaubar beschreibt. Fehlt es, kannst Du Dein eigenes ZIP nicht reproduzieren - und fängst bei der nächsten Library-Version mit der Bewertung bei null an.
+
 ### Schritt 1 - Leg ein Referenzsystem an
 
-👉 Referenztsystem = Ein Host je Plattform, mit Internetzugang, so nah wie möglich an der Zielumgebung: gleiche OS-Version, gleiche Architektur. 
+👉 Referenzsystem = Ein Host je Plattform, mit Internetzugang, so nah wie möglich an der Zielumgebung: gleiche OS-Version, gleiche Architektur. 
 
 Dieser Host ist der einzige Ort, an dem jemals ein Paket aus dem Internet gezogen wird.
 
@@ -194,13 +212,12 @@ Dieser Befehl baut ein komplettes RobotFramework-Environment, inklusive Browser-
   
 Gleichzeitig legt RCC eine "Freeze"-Datei an: sie befindet sich im Unterordner `output`. 
 
-In dieser Datei hat RCC nun alle (!) transitiven Abhängigkeiten **mit ihrer exakten Version** festgeschrieben.  
-Die Platzhalter `<o>s>` und `<arch>` stehen für die Plattform, auf der Du gerade baust.
+In dieser Datei hat RCC nun alle transitiven Abhängigkeiten **mit ihrer exakten Version** festgeschrieben - die conda-Pakete und die pip-Pakete.
 
-Sie wird nach dem Schema `environment_<os>_<arch>_freeze.yaml` benannt:
+Sie wird nach dem Schema `environment_<os>_<arch>_freeze.yaml` benannt, wobei die Platzhalter für die Plattform stehen, auf der Du gerade baust:
 
-- `<os>` = Betriebssystem, z.B. `linux`, `windows`, `macos`
-- `<arch>` = Architektur, z.B. `x86_64`, `arm64
+- `<os>` = Betriebssystem, also `linux`, `windows` oder `darwin` (ja, `darwin` - nicht `macos`)
+- `<arch>` = Architektur, z.B. `amd64`
 
 {{< figure src="img/freeze.png" title="Plattformspezifisches Freeze-File unter Windows mit AMD-Architektur" >}} 
 
@@ -215,6 +232,20 @@ Schiebe diese Datei nun 1 Ebene nach oben ins Robot-Verzeichnis (neben `conda.ya
 > Möchtest Du das Environment auch auf Linux nutzen, wiederhole den kompletten Schritt 2 dort.
 
 Das Freeze-File für Windows/AMD steht nicht ohne Grund an erster Stelle: ab sofort verwendet RCC auf dieser Plattform nicht mehr `conda.yaml` mit den "losen" Dependencies, sondern das spezifische Freeze-File.
+
+> ⚠️ **Prüf die `pip:`-Sektion, bevor Du die Datei hochschiebst.**
+>
+> Das Freeze-File **ersetzt** die `conda.yaml` vollständig - es ergänzt sie nicht. Ist es unvollständig, baut RCC genau das Unvollständige, ohne zu murren.
+>
+> Mir ist genau das passiert: In meinem Testprojekt lag ein Freeze-File, das nur die conda-Pakete enthielt und bei dem die komplette `pip:`-Sektion fehlte - also kein Robot Framework, keine Browser Library. Das Ergebnis eines Rebuilds damit:
+>
+> ```
+> ModuleNotFoundError: No module named 'six'
+> ```
+>
+> Und es verfestigt sich: Das aus diesem Build neu erzeugte Freeze-File hat ebenfalls keine `pip:`-Sektion. Ein kaputter Zustand schreibt sich selbst fort.
+>
+> Wirf also einen Blick in die Datei und vergewissere Dich, dass unten eine `- pip:`-Sektion mit Deinen Paketen steht. Zwei Sekunden Aufwand, und Du ersparst Dir eine sehr verwirrende Fehlersuche.
 
 
 ### Schritt 3 - Karenzzeit von Python-Paketen prüfen
@@ -262,14 +293,15 @@ Die Ausgabe zeigt: alle Pakete sind älter als 14 Tage. Zero-Day-Exploits sind d
 
 Drei Dinge nimmt Dir das Script dabei ab:
 
-- **Es legt die Prüfliste selbst an.** Fehlt `requirements.txt`, fragt es, ob es sie mit `pip freeze --all` erzeugen darf - und zwar erzwungen in UTF-8. Das `--all` ist nicht kosmetisch, siehe [Falle 1](#falle-1---pip-freeze-unterschlägt-drei-pakete).
-- **Es erkennt zurückgezogene Releases.** Neben `TOO NEW` gibt es das Urteil `YANKED`. Ein von PyPI zurückgezogenes Release ist genau das Signal, auf das Du bei einem kompromittierten Paket hoffst.
-- **Es ist skriptbar.** Exitcode 0, wenn alles passt, 1 bei jedem Fund - also auch für einen CI-Lauf brauchbar.
+- **Es legt die Prüfliste selbst an.** Fehlt `requirements.txt`, fragt es, ob es sie mit `pip freeze --all` erzeugen darf - und zwar erzwungen in UTF-8. 
+- **Es erkennt zurückgezogene Releases.** Neben `TOO NEW` gibt es das Flag `YANKED`. Ein von PyPI *zurückgezogenes* Release ist genau das Signal, auf das Du bei einem kompromittierten Paket achten solltest.
+- **Es ist skriptbar.** Es liefert einen Exitcode > 0 bei jedem Fund - also ist es auch für einen CI-Lauf brauchbar.
 
-Zwei Schalter, die Du kennen solltest: `--min-age DAYS` ändert die Karenzzeit (Default 14), `-f FILE` prüft eine andere Datei, und `-y` beantwortet alle Rückfragen mit ja - nötig, wenn kein Terminal da ist.
+Zwei Schalter, die Du kennen solltest: `--min-age DAYS` ändert die Karenzzeit (Default 14), `-f FILE` prüft eine andere Datei (das überspringt `pip freeze`), und `-y` beantwortet alle Rückfragen mit ja - nötig, wenn kein Terminal da ist.
 
 Wenn das Script bei Dir Pakete meldet, die jünger als 14 Tage sind, öffne `conda.yaml` und pinne die Version des Pakets auf die letzte Version, die älter als 14 Tage ist.
- Du kannst das Alter der Versionen auf [PyPI](https://pypi.org/project/<paketname>/#history) nachschauen.
+
+Du kannst das Alter der Versionen jederzeit auf [PyPI](https://pypi.org/project/<paketname>/#history) nachschauen.
 
 > Man könnte nun einwenden, dass man durch die Festlegung auf ältere Versionen bewusst Verbesserungen außen vor lässt. Schließlich werden neue Lücken ja erst in neueren Versionen geschlossen.  
 > Der Einwand löst sich auf, sobald man auf die Zeitskalen schaut. Die Karenzzeit von 14 *Tagen* schützt vor **unbekannter, absichtlicher** Manipulation; Der Scanner findet **bekannte, versehentliche** Fehler; deren Fenster sind **Monate bis Jahre**. Und die Regel verbietet Dir keine alten Versionen, sondern nur die allerneuesten: Du nimmst die neueste Version, die älter als 14 Tage ist - und das ist praktisch immer eine gefixte.
@@ -280,37 +312,35 @@ Wenn das Script bei Dir Pakete meldet, die jünger als 14 Tage sind, öffne `con
 
 ### Schritt 4 - Auf Schwachstellen prüfen
 
-Jetzt die zweite Frage: Sind in den Paketen **bekannte** Lücken? Das beantwortet der [OSV-Scanner](https://github.com/google/osv-scanner) von Google, der die Datenbank [osv.dev](https://osv.dev) abfragt. Und auch hier übernimmt `depguard.py` die Arbeit:
+Jetzt die zweite Frage: Sind in den Paketen **bekannte** Lücken?  
+
+Das beantwortet der [OSV-Scanner](https://github.com/google/osv-scanner) von Google, der die Datenbank [osv.dev](https://osv.dev) abfragt.  
+
+Und auch hier übernimmt `depguard.py` die Arbeit:
 
 ```bash
 rcc task script --space refbuild -- python3 depguard.py osv-scan
 ```
 
-Ohne Argument prüft es **beide** Seiten - Python und NodeJS. `depguard.py osv-scan python` oder `... node` beschränkt den Lauf auf eine davon.
+Ohne Argument prüft es **beide** Bereiche - Python und NodeJS. `depguard.py osv-scan python` oder `... node` beschränkt den Lauf auf eine davon.
 
-Das Script findet den `osv-scanner` auf dem `PATH` oder im aktuellen Verzeichnis. Fehlt er, fragt es, ob es ihn herunterladen soll - und prüft den Download gegen die von Google veröffentlichte `osv-scanner_SHA256SUMS`. Für einen Artikel über Lieferketten wäre alles andere auch schlecht zu rechtfertigen.
+Das Script erwartet das `osv-scanner`-Binary im `PATH` oder im aktuellen Verzeichnis.  
+Fehlt er, fragt es, ob es ihn herunterladen soll und prüft den Download gegen die von Google veröffentlichte Checksumme. Das ist der "Streber-Modus" - für einen Artikel über SupplyChains wäre alles andere auch schlecht zu rechtfertigen. :-) 
 
-#### Die Dev-Abhängigkeiten fallen automatisch raus
+Erwähnenswert ist, dass das `package-lock.json` der Browser Library **alles** enthält, was die Entwickler brauchen - nicht das, was bei Dir installiert wird.  
+Im untersuchten Stand sind das 807 Einträge, von denen **722 mit `"dev": true` markiert** sind.  
+Ein naiver Scan prüft also zu 90 % Zeug, das nie auf einem Robotmk-Host landet.
 
-Beim Lockfile hat der Scan nämlich einen Haken: `package-lock.json` enthält **alles**, was die Entwickler der Browser Library brauchen - nicht das, was bei Dir installiert wird. Im untersuchten Stand sind das 807 Einträge, von denen **722 mit `"dev": true` markiert** sind. Ein naiver Scan prüft also zu 90 % Zeug, das nie auf einem Robotmk-Host landet.
-
-`osv-scanner` hat dafür keinen Schalter. `depguard.py` filtert die Dev-Einträge deshalb aus einer Kopie des Lockfiles heraus, bevor es scannt, und sagt Dir, was es getan hat:
+`depguard.py` filtert die Dev-Einträge deshalb automatisch aus einer Kopie des Lockfiles heraus, bevor es scannt, und sagt Dir, was es getan hat:
 
 ```
 === osv-scan node: package-lock.json ===
 dev dependencies excluded: 722 skipped, 84 scanned (use --dev to include them)
 ```
 
-Mit `--dev` bekommst Du die vollständige Liste, wenn Du sie sehen willst. Der Unterschied ist drastisch - und zwar genau der, den Du im Monitoring **nicht** als Alarm haben willst:
+(Mit `--dev` bekommst Du die vollständige Liste, wenn Du sie sehen willst.)
 
-| Lockfile | Gescannte Pakete | Advisories | davon High+Critical |
-|---|---:|---:|---:|
-| ungefiltert | 761 | 82 | 49 |
-| nur Laufzeit | 79 | **18** | **10** |
-
-Die 64 verschwundenen Advisories stecken in `react-router`, `@babel/core`, `esbuild`, `handlebars`, `browserslist` und `@humanfs/node` - dem Build- und Test-Werkzeug von Playwright. In einem Robot-Framework-Environment liegt davon nichts.
-
-Übrig bleiben vier Pakete, und die sind echt: `protobufjs` (12 Advisories), `@grpc/grpc-js` (4), `@protobufjs/utf8` (1) und `uuid` (1). Das ist die gRPC-Brücke, über die die Browser Library zwischen Python und NodeJS spricht - die läuft bei jedem Testlauf mit.
+Übrig bleiben vier Pakete, und die gefundenen Lücken sind echt: `protobufjs` (12 Advisories), `@grpc/grpc-js` (4), `@protobufjs/utf8` (1) und `uuid` (1). 
 
 #### Die Ausgabe lesen
 
@@ -332,34 +362,38 @@ Total 2 packages affected by 8 known vulnerabilities (0 Critical, 1 High, 6 Medi
 +-------------------------------------+------+-----------+------------+---------+---------------+
 ```
 
-Vier Dinge, die man wissen muss, um das richtig zu lesen:
+Dinge, die man wissen muss, um das richtig zu lesen:
 
-- **Die Eimer in der Summenzeile** kommen aus dem CVSS-Base-Score. Die Grenzen sind: 0,1-3,9 *Low*, 4,0-6,9 *Medium*, 7,0-8,9 *High*, 9,0-10,0 *Critical*.
-- **Zähle keine Tabellenzeilen.** Jeder Fund steht mit zwei IDs da, einer `PYSEC-` und einer `GHSA-` - das sind Aliasse für dasselbe Problem. Oben sind es 16 URLs, aber korrekt **8** Funde.
-- **Leere CVSS-Zellen sind normal.** Nicht jedes Advisory bringt einen Vektor mit.
-- **`FIXED VERSION` ist die eigentlich nützliche Spalte**, denn sie beantwortet direkt, worauf Du hochziehen müsstest. Und: Bei Funden liefert `osv-scanner` Exitcode 1 - damit lässt sich der Lauf skripten.
+- CVSS-Base-Score: Die Grenzen sind: 
+  - 0,1-3,9 = *Low*
+  - 4,0-6,9 = *Medium*
+  - 7,0-8,9 = *High*
+  - 9,0-10,0 = *Critical*
+- Jeder Fund steht mit **zwei** IDs da, einer `PYSEC-` und einer `GHSA-` - das sind Aliasse für dasselbe Problem. Oben sind es 16 URLs, aber korrekt **8** Funde.
+- **`FIXED VERSION`** ist die eigentlich nützliche Spalte, denn sie beantwortet direkt, auf welche Version Du hochziehen müsstest.  
+Und: Bei Funden liefert `osv-scanner` Exitcode 1 - damit lässt sich der Lauf skripten.
 
-Das Wichtigste aber: **CVSS ist ein Maß für Schwere, nicht für Risiko.** Der Score weiß nicht, ob Dein Robot die betroffene Funktion überhaupt aufruft.
+Behalte aber auch im Kopf, dass das **CVSS ein Maß für Schwere** ist, nicht für Risiko. (Der Score weiß nicht, ob Dein Robot die betroffene Funktion überhaupt aufruft.)
 
 ### Schritt 5 - Bewerten und entscheiden
 
-Kein automatischer Rebuild, keine CVSS-Schwelle.
+**Null Funde sind nicht das Ziel** - sie sind bei einem Environment aus Python, NodeJS und einem Browser auch nicht erreichbar.  
+Die acht Funde oben stecken ausschließlich in `pip` und `setuptools`: Build-Werkzeug, das im Environment liegt, aber zur Testlaufzeit nicht aufgerufen wird.  
+Das wird nie null, solange `pip` mitinstalliert ist.
 
-Und vor allem: **Null Funde sind nicht das Ziel** - sie sind bei einem Environment aus Python, NodeJS und einem Browser auch nicht erreichbar. Die acht Funde oben stecken ausschließlich in `pip` und `setuptools`: Build-Werkzeug, das im Environment liegt, aber zur Testlaufzeit nicht aufgerufen wird. Das wird nie null, solange `pip` mitinstalliert ist.
-
-Der belastbare Anspruch heißt deshalb nicht "keine Funde", sondern **"keine unbewerteten Funde"**. Arbeite die Liste in dieser Reihenfolge durch - CVSS kommt darin zuletzt:
+Der Anspruch heißt deshalb nicht "keine Funde", sondern **"keine unbewerteten Funde"**. Arbeite die Liste in dieser Reihenfolge durch - CVSS kommt darin zuletzt:
 
 1. **Ist das Paket überhaupt installiert?** Auf der npm-Seite fällt damit der größte Teil weg.
 2. **Läuft es zur Testlaufzeit oder nur beim Bauen?** Das erledigt `pip` und `setuptools`.
-3. **Berührt Dein Robot diesen Codepfad?**
+3. **Nutzt der Robot diesen Codepfad?**
 4. *Erst jetzt* CVSS - als Reihenfolge innerhalb des Rests, nicht als Einstieg.
-
-Mehr dazu unten unter [Bewerten, nicht abarbeiten](#bewerten-nicht-abarbeiten).
 
 ### Schritt 6 - Exportieren
 
+Sobald Du also bei einer `conda.yaml` angekommen bist, die mit den Du mit Hilfe des Scripts `depguard.py` geprüft und bewertet hast, exportierst Du das Environment in eine ZIP-Datei:
+
 ```bash
-rcc holotree export --robot robot.yaml --zipfile hololib.zip
+rcc holotree export --space refbuild --robot robot.yaml --zipfile hololib.zip
 ```
 
 Die Datei wird **nicht** versioniert - sie ist ein Binärartefakt und gehört nicht in ein Git-Repo. Ins Repo gehören `conda.yaml`, das Freeze-YAML, `requirements.txt`, `package-lock.json` und `osv-scanner.toml`.
@@ -497,7 +531,13 @@ Bewusst **nicht** Teil des Konzepts: ein Freigabedokument, eine `SECURITY.md`, e
 
 ## Wenn Du im Internet-Modus bleiben willst
 
-Nicht jede Umgebung braucht das Artefakt-Modell, und der Standardbetrieb bleibt vollkommen legitim: Hosts bauen selbst, ziehen ihre Pakete und tun das seit Jahren ohne Zwischenfall. Zwei Dinge sind auch dort ohne Aufwand zu haben:
+Nicht jede Umgebung braucht das Artefakt-Modell, und der Standardbetrieb bleibt vollkommen legitim: Hosts bauen selbst, ziehen ihre Pakete und tun das seit Jahren ohne Zwischenfall.
+
+Wenn Du aus diesem Artikel nur **eine** Sache mitnimmst, dann diese: **Mach die Schritte 2 bis 5 trotzdem.** Das Freeze-File ist der Teil des Konzepts, der auch im Internet-Modus funktioniert - und er ist mit Abstand der billigste. Eine Datei hochschieben, vier Zeilen `robot.yaml`, einmal prüfen. Damit ist das Loch zu, um das es in diesem Artikel hauptsächlich geht: dass Dir eines von hundert unsichtbaren Sub-Dependencies untergeschoben wird.
+
+Was das ZIP darüber hinaus bringt, ist der Rest: das ungeprüfte Browser-Binary und die N-fache Einkaufstour. Wichtig, aber der zweite Schritt.
+
+Zwei weitere Dinge sind auch ohne das Artefakt-Modell ohne Aufwand zu haben:
 
 ```bash
 # Browser-Binaries einmal bereitstellen, Hosts laden nichts nach
@@ -519,6 +559,9 @@ Damit hier niemand mit falschen Erwartungen rausgeht:
 - **Es verifiziert die Browser-Binaries beim ersten Bezug nicht.** Es sorgt nur dafür, dass dieser ungeprüfte Bezug **einmal** stattfindet statt N-mal, und zwar unter Aufsicht.
 - **Es prüft die `hololib.zip` nicht auf dem Transportweg.** Ohne Rollentrennung ist der Bauende auch der Verteilende; eine Signatur wäre Theater. `rcc holotree import` scheitert an beschädigten Dateien, mehr wird bewusst nicht beansprucht.
 - **Ein grüner Scan ist ein Zustand, keine Eigenschaft.** Er gilt für den Prüfzeitpunkt und für nichts danach.
+- **Ein Versions-Pin ist kein Herkunftsnachweis.** Das Freeze-File pinnt Name und Version - keinen Hash und keinen Index. Solange Hosts selbst bauen, lösen sie weiter gegen den Index auf, der bei ihnen konfiguriert ist. Das schützt gegen "jemand schiebt eine neue Version nach", nicht gegen einen kompromittierten Mirror, einen TLS-aufbrechenden Proxy oder einen internen Index, der einen Paketnamen überschattet. Erst das ZIP schließt das, weil die Bytes mitreisen und `rcc holotree check` sie gegen ihre Digests prüft.
+- **Baut jeder Host selbst, attestiert er sich selbst.** Jeder Host berechnet seine eigenen Digests über seinen eigenen Download. Es gibt keinen Quervergleich - ein Host, der ein manipuliertes Binary bekommt, verbucht es als korrekt.
+- **Du tauschst Sicherheit gegen Verfügbarkeit.** Eine gepinnte Version, die zurückgezogen oder aus dem Kanal geräumt wird, bricht **jeden** Rebuild. Das ist der richtige Tausch - ein lauter Fehler ist besser als eine stille Ersetzung -, aber es ist ein neues Betriebsrisiko. Das `YANKED`-Urteil aus Schritt 3 ist Deine Frühwarnung dafür.
 
 Der ehrliche Anspruch lautet deshalb nicht "das Environment ist sicher", sondern:
 
