@@ -1,8 +1,8 @@
 ---
 draft: true
-title: "RCC-Environments - sicher bauen"
+title: "RCC-Environments - aber sicher!"
 # --- Italic subheading
-lead: "Ein kleiner Trick, der den Bau von Robot Framework Environments mit RCC sicherer macht."
+lead: "Ein Workflow, mit dem Du die Gefahr von Supply-Chain-Attacken deutlich reduzieren kannst."
 # -- giscus id to match comments
 commentid: rcc-env-supplychain
 # -- predefined URL
@@ -10,7 +10,7 @@ commentid: rcc-env-supplychain
 # -- for posts in menubar, use this (shorter) title
 # menutitle:
 #description:
-date: "2026-08-31T09:00:00+02:00"
+date: "2026-10-09T09:00:00+02:00"
 categories:
   - how-to
 tags:
@@ -33,10 +33,12 @@ translationKey: "rcc-env-supplychain"
 ---
 
 **Robotmk** nimmt Dir eine Menge Arbeit ab:  
-Du hinterlegst in einer Konfigurationsdatei (`conda.yaml`), welche Pakete Dein Test braucht, und der überwachte Host baut sich die passenden Laufzeitumgebungen für Robot Framework selbst zusammen.
+Du hinterlegst in einer Konfigurationsdatei (`conda.yaml`), welche Pakete Dein Test braucht, und der überwachte Host baut sich die passende Laufzeitumgebung für Robot Framework selbst zusammen.
 
-Ich habe mir im Rahmen eines Kundenprojektes einmal genauer angesehen, was da eigentlich passiert, und bin dabei auf ein paar Punkte gestoßen, die mir nicht gefallen haben.  
-Die gute Nachricht: Sie lassen sich mit einem einfachen Konzept umgehen.
+Bequem. Es heißt aber auch: Dieser Host lädt Code aus dem offenen Internet und führt ihn aus - unbeaufsichtigt, und mit Zugangsdaten für die Anwendungen, die er testet.
+
+Im Rahmen eines Kundenprojektes habe ich mir einmal genauer angesehen, was beim Bau eines solchen Environments tatsächlich passiert: welche Pakete woher kommen, wo die Lieferkette hält und wo nicht.  
+Herausgekommen ist keine Sicherheitslücke - sondern eine Erkenntnis, die mich selbst überrascht hat: **Der wirksamste Hebel liegt bei jedem Bau ungefragt in Deinem `output`-Verzeichnis.** Du musst ihn nur benutzen.
 
 <!--more-->
 
@@ -133,7 +135,7 @@ Wie sie dort definiert sind (z.B. `mypackage>=2.1` oder `mypackage`), siehst Du 
 
 Das bedeutet, dass es keine Garantie dafür gibt, dass sich Environments, die auf derselben `conda.yaml` basieren, immer mit dem gleichen Endergebnis bauen lassen.
 
-Eines der hundert Pakete, die automatisch nachinstalliert werden, um die Sub-Dependencies zu erfüllen, kann also der Hebel für einen Angreifer sein. 
+Eines der vielen Pakete, die automatisch nachinstalliert werden, um die Sub-Dependencies zu erfüllen, kann also der Hebel für einen Angreifer sein. 
 
 Wenn Du Dich an dieser Stelle vielleicht schon fragst: *Ist Robotmk deshalb unbenutzbar?*  
 **Nein**, denn es gibt wirkungsvolle Strategien, die ich Dir unten vorstelle.  
@@ -485,7 +487,7 @@ Damit hier keiner mit falschen Erwartungen rausgeht:
 
 ---
 
-## Fazit - und ein Ausblick 🔭
+## Fazit
 
 Uff, der Artikel ist länger geworden als geplant. 😄
 
