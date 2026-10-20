@@ -1,6 +1,6 @@
 ---
-draft: true
-title: "RCC-Environments - aber sicher!"
+draft: false
+title: "RCC-Environments und die Supply Chain"
 # --- Italic subheading
 lead: "Ein Workflow, mit dem Du die Gefahr von Supply-Chain-Attacken deutlich reduzieren kannst."
 # -- giscus id to match comments
@@ -26,7 +26,7 @@ pager: false
 #menu: main
 #weight: 10
 # --- must be in the leaf bundle folder or static
-thumbnail: "img/title.png"
+thumbnail: "img/title2.png"
 # TODO: eigene VG-Wort-Zählmarke eintragen
 vgwort:
 translationKey: "rcc-env-supplychain"
@@ -35,10 +35,11 @@ translationKey: "rcc-env-supplychain"
 **Robotmk** nimmt Dir eine Menge Arbeit ab:  
 Du hinterlegst in einer Konfigurationsdatei (`conda.yaml`), welche Pakete Dein Test braucht, und der überwachte Host baut sich die passende Laufzeitumgebung für Robot Framework selbst zusammen.
 
-Bequem. Es heißt aber auch: Dieser Host lädt Code aus dem offenen Internet und führt ihn aus - unbeaufsichtigt, und mit Zugangsdaten für die Anwendungen, die er testet.
+Das ist bequem. Es heißt aber auch: Dieser Host lädt Code aus dem Internet und führt ihn aus - unbeaufsichtigt, und mit Zugangsdaten für die Anwendungen, die er testet.
 
 Im Rahmen eines Kundenprojektes habe ich mir einmal genauer angesehen, was beim Bau eines solchen Environments tatsächlich passiert: welche Pakete woher kommen, wo die Lieferkette hält und wo nicht.  
-Herausgekommen ist keine Sicherheitslücke - sondern eine Erkenntnis, die mich selbst überrascht hat: **Der wirksamste Hebel liegt bei jedem Bau ungefragt in Deinem `output`-Verzeichnis.** Du musst ihn nur benutzen.
+
+Herausgekommen ist keine Sicherheitslücke - sondern eine Erkenntnis, die mich am Ende selbst überrascht hat: Der wirksamste Hebel ist eine einzige Datei. Du musst sie nur clever nutzen.
 
 <!--more-->
 
@@ -70,7 +71,7 @@ Und genau da liegt das Problem: Wenn ein Maintainer eines Pakets plötzlich eine
 
 ## Konkretes Beispiel
 
-Hier eine `conda.yaml`, mit der RCC ein Environment für Robot Framework baut: 
+Hier eine `conda.yaml`, mit der RCC ein typisches Environment mit Robot Frameowrk, BrowserLibrary und CryptoLibrary baut: 
 
 ```yaml
 channels:
@@ -97,17 +98,14 @@ Ich erkläre zunächst die Inhalte von oben:
 
 ## Dependencies unter der Lupe
 
-Ich habe mir einmal genauer angesehen, was beim Bau dieses Environments tatsächlich passiert.
-Fangen wir unten an: 
-
 ### NodeJS
 
-Der PostInstall-Befehl `rfbrowser init` installiert u.a. **Playwright**, und das kommt mit einer Datei namens [package-lock.json](https://github.com/microsoft/playwright/blob/main/package-lock.json), in der **jedes Paket** mit **exakter Version** und **Prüfsumme** steht.  
+Der ganz unten stehende *PostInstall*-Befehl `rfbrowser init` installiert u.a. **Playwright**, und das kommt mit einer Datei namens [package-lock.json](https://github.com/microsoft/playwright/blob/main/package-lock.json), in der **jedes Paket** mit **exakter Version** und **Prüfsumme** steht.  
 
 
 Da sämtliche Pakete mit exakter Version und Prüfsumme installiert werden, kann nichts unbemerkt hineinrutschen.
 
-### Browser
+### Browser-Binaries
 
 In `rfbrowser init` werden auch die Browser-Binaries (hier nur "Chromium") von einem CDN heruntergeladen.
 
@@ -124,79 +122,70 @@ Die `conda.yaml` gibt zwar nur drei Python-Pakete mit fester Version an...
       - robotframework-crypto==0.3
 ```
 
-...aber im fertigen Environment liegen **weit über hundert**.  
+...aber im fertigen Environment liegen **deutlich mehr**.  
 
 **Wie kann das sein?** 
 
-Ganz einfach: **faule Entwickler sind gute Entwickler**, denn sie nutzen bestehenden Python-Code in ihrem Projekt, statt ihn selbst zu schreiben.
+Ganz einfach: zwei der drei Python-Pakete nutzen im Hintergrund andere Python-Pakete. Wie diese Abhängigkeiten heißen und welche Versionen installiert werden, ist in den Paketen selbst definiert - wie genau (z.B. `mypackage>=2.1` oder `mypackage`), siehst Du aber nicht.
 
-Solche "Sub-Dependencies" sind für Dich in `conda.yaml` erst einmal unsichtbar, denn sie stecken in den Paketen selbst.  
-Wie sie dort definiert sind (z.B. `mypackage>=2.1` oder `mypackage`), siehst Du nicht.
+Das bedeutet, dass es keine Garantie dafür gibt, dass sich ein Environment immer wieder mit dem gleichen Endergebnis bauen lässt.  
+Morgen schon könnte ein Maintainer eine neue Version seines Pakets veröffentlichen, die wiederum andere Pakete nachzieht -  und eines dieser Pakete könnte kompromittiert sein.
 
-Das bedeutet, dass es keine Garantie dafür gibt, dass sich Environments, die auf derselben `conda.yaml` basieren, immer mit dem gleichen Endergebnis bauen lassen.
-
-Eines der vielen Pakete, die automatisch nachinstalliert werden, um die Sub-Dependencies zu erfüllen, kann also der Hebel für einen Angreifer sein. 
-
-Wenn Du Dich an dieser Stelle vielleicht schon fragst: *Ist Robotmk deshalb unbenutzbar?*  
-**Nein**, denn es gibt wirkungsvolle Strategien, die ich Dir unten vorstelle.  
+Das ist kein Fehler von Robotmk oder RCC, sondern ein **generelles Problem der Lieferkette**:  
+man vertraut den Paketen, die man installiert, und somit auch den Paketen, die diese Pakete nachziehen.
 
 ---
 
 ## Das Problem: frisch kompromittierte Pakete
 
-Ein frisch kompromittiertes und veröffentlichtes Paket steht **für ein bestimmtes Zeitfenster X** in keiner Malware-Datenbank, die von Scannern genutzt wird. In diesem Zeitfenster kann es also unbemerkt in Dein Environment gelangen.
+Ein frisch kompromittiertes und veröffentlichtes Paket steht für ein bestimmtes Zeitfenster X erst mal in keiner Malware-Datenbank.  
+In diesem Zeitfenster kann also theoretisch Schadcode unbemerkt in Dein Environment gelangen.
 
-Die wirksamste Strategie gegen diese Art von Angriffen ist ein kontrollierter Bauprozess, der die folgenden Punkte erfüllt:
+Gegen diese Art von Angriffen braucht man einen **kontrollierten Bauprozess**, der Dir die Kontrolle über die folgenden Aspekte gibt:
 
 - **Zeit.** Environments nicht auf brandneuen Versionen bauen. Kompromittierte Pakete werden meist binnen weniger Tage entdeckt und von den Repos entfernt.
-- **Einfrieren:** Ein einmal gebautes Environment kann sich kein neues bösartiges Paket einfangen.
+- das **Artefakt**: Ein einmal gebautes, gescanntes und "eingefrorenes"Environment kann sich kein neues bösartiges Paket einfangen.
 
 ---
 
-## Das Rezept zu mehr Sicherheit in sieben Schritten
+## Das Rezept zu mehr Sicherheit in sechs Schritten
 
 Im Standardbetrieb baut jeder Robotmk-Host sein Environment selbst.  
-Das heißt: Jeder dieser Hosts baut seine eigenen Environments, und lädt sich die Quellen von PyPI, der npm-Registry und CDNs.  
-Bei fünfzig Robotmk-Hosts ergibt das also fünfzig unbeaufsichtigte Einkaufstouren - bei jedem Rebuild erneut.
 
-Wie man fertig gebaute Environments aus einem ZIP-File laden kann, habe ich in [RCC-Environments in isolierten Umgebungen]({{< ref "/rcc-envoffline/" >}}) schon einmal beschrieben - dort mit dem Fokus auf einer Lösung für air-gapped Hosts ohne jegliche Internetverbindung.  
+Das heißt: Jeder dieser Hosts lädt sich selbst die Quellen von PyPI, der npm-Registry und CDNs.  
+Bei **fünf** Robotmk-Hosts ergibt das also **fünf** unbeaufsichtigte Einkaufstouren.
 
-Diesen Mechanismus machen wir uns hier in einem Workflow zunutze, mit dem Du das Risiko von Supply-Chain-Attacken deutlich reduzieren kannst. 
+Wie man fertig gebaute Environments aus einem ZIP-File laden kann, habe ich in [RCC-Environments in isolierten Umgebungen]({{< ref "/rcc-envoffline/" >}}) schon einmal beschrieben - dort mit dem Fokus auf einer reinen Lösung für *air-gapped Hosts* ohne jegliche Internetverbindung.  
+
+Diesen Mechanismus machen wir uns hier in einem kompletten Workflow zunutze, mit dem Du das Risiko von Supply-Chain-Attacken deutlich reduzieren kannst. 
 
 Um es bildlich zu sagen: die ZIP-Datei, in die sich ein RCC-Environment exportieren lässt, enthält nicht einfach nur den "Einkaufszettel", sondern packt den komplett beladenen Einkaufswagen (die Browser-Binaries eingeschlossen) zusammen. 
 
-Beim Import des ZIP-Files gibt es keine Möglichkeit, dass ein Host beim Rebuild ein neues Paket aus dem Internet zieht.
+Wenn der Robotmk-Scheduler später das Environment aus dem ZIP-File rekreiert, gibt es keine Möglichkeit, dass sich noch Schadcode einschleust.
 
 ### Big Picture
 
 Bevor wir in die einzelnen Schritte einsteigen, möchte ich die vier Artefakte hervorheben, die darin entstehen.  
 Jedes Artefakt hat eine spezifische Rolle und beantwortet eine andere Frage:
 
-| Schicht    | Artefakt                                | Beantwortet                                   |
+| Schicht    | Artefakt                                | Beantwortete Frage                                   |
 | ---------- | --------------------------------------- | --------------------------------------------- |
-| I. Absicht    | `conda.yaml`                            | Was will ich im Environment nutzen?           |
-| II. Rezept | `environment_<os>_<arch>_freeze.yaml`   | Was soll genau installiert werden?        |
-| III. Bewertung  | `requirements.txt`, `package-lock.json` | Sind die Python/Node-Pakete in Ordnung?                        |
-| IV. Endprodukt   | `hololib.zip`                           | Das komplette, eingefrorene Environment |
-
-Wichtig dabei: **Jede Schicht setzt die vorherige voraus.**  
-
-- Aus der **conda.yaml** (I.) entsteht der eigentliche Bauplan, das **Freeze-File** (II.). Es bestimmt final, *womit* das ausgelieferte Artefakt (ZIP) gebaut wird.
-- Das **ZIP** entscheidet, *wer* baut - nämlich niemand mehr außer dem Referenzsystem.
-
+| I. die Absicht    | `conda.yaml`                            | Was will ich im Environment nutzen?           |
+| II. der Bauplan | `environment_<os>_<arch>_freeze.yaml`   | Was soll genau installiert werden?        |
+| III. die Bewertung  | `requirements.txt`, `package-lock.json` | Sind die Python/Node-Pakete in Ordnung?                        |
+| IV. das Endprodukt   | `hololib.zip`                           | Das komplette, eingefrorene Environment |
 
 ### Schritt 1 - Leg ein Referenzsystem an
 
-👉 Referenzsystem = Ein Host je Plattform, mit Internetzugang, so nah wie möglich an der Zielumgebung: gleiche OS-Version, gleiche Architektur. 
+> Referenzsystem = Ein Host je Plattform, mit Internetzugang, so nah wie möglich an der Zielumgebung: gleiche OS-Version, gleiche Architektur. 
+> Der einzige Ort, an dem jemals ein Paket aus dem Internet gezogen wird.
 
-Dieser Host ist der einzige Ort, an dem jemals ein Paket aus dem Internet gezogen wird.
-
-Auf diesem Host brauchst Du: 
+Auf dem Referenzhost brauchst Du: 
 
 - Ein **Robot-Framework-Verzeichnis** mit `robot.yaml` und `conda.yaml`
 - **RCC** ([Download](https://www.robotmk.org/en/blog/rcc-efficient-python-integration/#download-rcc))
 - Das Script `depguard.py` (Download von [Gist](https://gist.github.com/simonmeggle/17abdec8f8039165404a69192d6e93fd))
-- (optional) **OSV-Scanner** von Google (Download von [OSV Releases](https://github.com/google/osv-scanner/releases))
+- (optional) **OSV-Scanner** von Google (Download von [OSV Releases](https://github.com/google/osv-scanner/releases), wird von `depguard.py` automatisch heruntergeladen, falls nicht vorhanden)
 
 ### Schritt 2 - Environment bauen
 
@@ -216,7 +205,7 @@ Dieser Befehl baut ein komplettes Robot-Framework-Environment, inklusive Browser
   
 Gleichzeitig legt RCC eine "**Freeze**"-Datei an: sie befindet sich im Unterordner `output`. Darin hat RCC nun alle transitiven Abhängigkeiten (Python & Node) **mit ihrer exakten Version** festgeschrieben.
 
-Die Freeze-Datei benennt RCC nach dem Schema `environment_<os>_<arch>_freeze.yaml`, wobei die Platzhalter für die Plattform stehen, auf der Du gerade baust:
+RCC benennt die Freeze-Datei nach dem Schema `environment_<os>_<arch>_freeze.yaml`, wobei die Platzhalter für die Plattform stehen, auf der Du gerade baust:
 
 - `<os>` = Betriebssystem, also `linux`, `windows` oder `darwin` (ja, `darwin` - nicht `macos`)
 - `<arch>` = Architektur, z.B. `amd64`
@@ -227,13 +216,14 @@ Schiebe diese Datei nun eine Ebene nach oben ins Robot-Verzeichnis (neben `conda
 
 {{< figure src="img/freeze_conda.png" title="Das Freeze-File wird neben conda.yaml abgelegt" >}} 
 
-Öffne dann `robot.yaml` und trage die Freeze-Datei unter dem Key `environmentConfigs` **vor** der `conda.yaml` ein. 
+Öffne dann `robot.yaml` und trage die Freeze-Datei *unter* dem Key `environmentConfigs` *vor* der `conda.yaml` ein. 
 
 {{< figure src="img/robotfreeze.png" title="Das Freeze-File wird in robot.yaml referenziert" >}} 
 
-> Möchtest Du das Environment auch auf Linux nutzen, wiederhole dort einfach den kompletten Schritt 2.
+> Achte darauf, dass `conda.yaml` in der Liste ganz unten steht und die plattformspezifischen Freeze-Files davor. RCC verwendet als Bauplan die Datei, die zuerst auf die Plattform passt; `conda.yaml` ist der Fallback. 
 
-Achte darauf, dass `conda.yaml` in der Liste ganz unten steht und die plattformspezifischen Freeze-Files davor. RCC verwendet als Bauplan die Datei, die zuerst auf die Plattform passt; `conda.yaml` ist der Fallback. 
+Möchtest Du das Environment auch auf Linux nutzen, wiederhole dort einfach den kompletten Schritt 2.
+
 
 ### Schritt 3 - Karenzzeit von Python-Paketen prüfen
 
@@ -283,7 +273,11 @@ Was macht das Script genau?
 - Es analysiert `requirements.txt`, um zurückgezogene Releases zu erkennen (Flag: `YANKED`). Ein von PyPI *zurückgezogenes* Release ist ein Warnsignal. 
 - Es liefert einen Exitcode > 0 bei jedem Fund - also ist es skriptbar und auch für einen CI-Lauf brauchbar.
 
-Drei Schalter, die Du kennen solltest: `--min-age DAYS` ändert die Karenzzeit (Default 14), `-f FILE` prüft eine andere Datei (das überspringt `pip freeze`), und `-y` beantwortet alle Rückfragen mit ja, falls kein Terminal da ist.
+Drei Schalter erlauben das Feintuning: 
+
+- `--min-age DAYS` ändert die Karenzzeit (Default 14)
+- `-f FILE` prüft eine andere Datei (das überspringt `pip freeze`)
+- `-y` beantwortet alle Rückfragen mit ja, falls kein Terminal da ist.
 
 **Was tun bei Funden?**
 
@@ -348,16 +342,16 @@ Total 2 packages affected by 8 known vulnerabilities (0 Critical, 1 High, 6 Medi
 
 Das sieht jetzt erst einmal gruselig aus. Dinge, die man wissen muss, um das richtig zu lesen:
 
-- OSV URL: Dort kann man die Details der Lücke/Schwachstelle nachlesen.
+- `OSV URL`: Dort kann man die Details der Lücke/Schwachstelle nachlesen.
   - Jeder Fund steht mit **zwei** IDs da, einer `PYSEC-` und einer `GHSA-` - das sind Aliasse für dasselbe Problem.
-- CVSS-Base-Score: Die Grenzen sind: 
+- `CVSS-Base-Score`: Die Grenzen sind: 
   - 0,1-3,9 = *Low*
   - 4,0-6,9 = *Medium*
   - 7,0-8,9 = *High*
   - 9,0-10,0 = *Critical*
-- ECOSYSTEM: PyPI = Python, npm = NodeJS
-- PACKAGE: Name des Pakets, das die Lücke enthält
-- **`FIXED VERSION`** sagt Dir, in welcher Version die Lücke behoben ist.  
+- `ECOSYSTEM`: PyPI = Python, npm = NodeJS
+- `PACKAGE`: Name des Pakets, das die Lücke enthält
+- **`FIXED VERSION`**: Sagt Dir, in welcher Version die Lücke behoben ist.  
 
 Behalte aber auch im Kopf, dass das **CVSS ein Maß für Schwere** ist, nicht für Risiko. (Der Score weiß nicht, ob Dein Robot die betroffene Funktion überhaupt aufruft.)
 
@@ -394,7 +388,7 @@ Welche Sektion die richtige ist, sagt Dir das Freeze-File selbst:
 - Steht es **darunter**, ist es ein pip-Paket: *zwei* Gleichheitszeichen, z.B. `cffi==2.1.0`.
 
 > **Tipp**: Schreib die geänderte Version zusätzlich in die `conda.yaml`, zusammen mit einem Kommentar. Nicht weil sie dort effektiv wirkt, sondern weil diese Info sonst verloren geht, sobald jemand das Freeze-File löscht und neu baut.  
-> Merke: Die `conda.yaml` ist Dein *Absichtsdokument* - ein Kommentar wie `# CVE-Fix, siehe GHSA-...` manifestiert die Entscheidung, die Du getroffen hast.
+> Nochmal: Die `conda.yaml` ist Dein *Absichtsdokument* - ein Kommentar wie `# CVE-Fix, siehe GHSA-...` manifestiert die Entscheidung, die Du getroffen hast.
 
 Zwei Dinge danach:
 
@@ -403,18 +397,22 @@ Zwei Dinge danach:
 
 #### Versionen hochziehen (NodeJS)
 
-Ein Wermutstropfen: Welche Versionen von NodeJS-Packages installiert werden, kannst Du nicht bestimmen. Das steht in der `package-lock.json`, die mit der Browser Library mitgeliefert wird. 
+Ein Wermutstropfen: Bei den NodeJS-Packages kannst Du nicht bestimmen, welche Version installiert wird.  
+Das steht in der `package-lock.json`, die die Entwickler mit der Browser Library mitgeliefert haben. 
 
-Wenn der OSV-Scanner also Pakete darin bemängelt, bleiben Dir drei Möglichkeiten:
+Wenn der OSV-Scanner also Pakete darin bemängelt, bleiben Dir **drei Möglichkeiten**:
 
 1. `robotframework-browser` auf eine Version hochziehen, deren mitgeliefertes Lockfile den Fix enthält
 2. bewerten und akzeptieren - es ist die gRPC-Brücke zwischen Python und NodeJS, kein von außen erreichbarer Angriffspfad
-3. die Lücke den Maintainern der Browser Library melden
+3. die Lücke den Maintainern der Browser Library melden (=Pull Request auf GitHub)
 
 ### Schritt 6 - Exportieren
 
 Schritt 5 musst Du gegebenenfalls in mehreren Iterationen durchlaufen.  
-Nun exportierst Du das Environment in eine ZIP-Datei. Diesen Vorgang habe ich hier bereits ausführlich beschrieben: [Robotmk and RCC-Environments in air-gapped environments](https://www.robotmk.org/en/blog/rcc-envoffline/#robocorp_home).  
+
+Nun exportierst Du das Environment in eine ZIP-Datei.  
+Diesen Vorgang habe ich hier bereits ausführlich beschrieben: [Robotmk and RCC-Environments in air-gapped environments](https://www.robotmk.org/en/blog/rcc-envoffline/#robocorp_home).  
+
 Deshalb hier nur die Kurzform:
 
 ```bash
@@ -424,7 +422,9 @@ rcc holotree vars --space refbuild --robot robot.yaml
 rcc holotree export --robot robot.yaml --zipfile win_rf-web.zip
 ```
 
-Selbstverständlich wird die dabei entstandene ZIP-Datei nicht in ein Git-Repo eingecheckt. Sie ist ein Binärartefakt, das sich nicht sinnvoll versionieren lässt.  
+Selbstverständlich wird die dabei entstandene ZIP-Datei nicht in ein Git-Repo eingecheckt.  
+Sie ist ein Binärartefakt, das sich nicht sinnvoll versionieren lässt.  
+
 Du kannst sie entweder manuell auf die Zielsysteme kopieren, Ansible dafür nutzen, oder auf einem NFS-Share ablegen, auf das die Zielsysteme Zugriff haben.
 
 
@@ -443,7 +443,7 @@ Zur Inspiration hier ein einfacher Cronjob, der einmal pro Woche die Python- und
 
 Du könntest daraus z.B. ein Script bauen, das dann per Local Check das Ergebnis in Checkmk meldet.
 
-In der `osv-scanner.toml` kannst Du z.B. hinterlegen, welche Pakete Du bewusst akzeptierst, und wann die Bewertung verfällt: 
+In einer `osv-scanner.toml` kannst Du z.B. auch hinterlegen, welche Pakete Du bewusst akzeptierst, und wann die Bewertung verfällt: 
 
 ```toml
 [[IgnoredVulns]]
@@ -454,17 +454,17 @@ reason = "protobufjs: betroffener Codepfad wird vom Robot nicht erreicht. Bewert
 
 ---
 
-## Zu guter Letzt: wenn Du weiter aus dem Internet bauen willst
+## Wenn Du weiter aus dem Internet bauen willst
 
-Nicht jede Umgebung braucht das ZIP-Artefakt-Modell, und der Standardbetrieb bleibt vollkommen legitim: die Hosts bauen selbst, ziehen ihre Pakete aus dem Internet. 
+Nicht jede Umgebung braucht gleich das ZIP-Artefakt-Modell, und der Standardbetrieb bleibt vollkommen legitim: die Hosts bauen selbst, ziehen ihre Pakete aus dem Internet.  
 Wenn Du aus diesem Artikel nur **eine** Sache mitnimmst, dann diese: **Mach die Schritte 2 bis 5 trotzdem.**  
 
-Das Freeze-File ist der Teil des Konzepts, der auch im Internet-Modus funktioniert - und er ist mit Abstand der billigste.  
-Damit ist die Gefahr viel geringer, dass Dir unter hunderten von unsichtbaren Sub-Dependencies ein schädliches untergeschoben wird.
+Das **Freeze-File** ist der Teil des Konzepts, der auch beim Bezug übers Internet funktioniert - und der ist wirklich geschenkt.  
+Allein damit ist die Gefahr schon viel geringer, dass Dir in den Sub-Dependencies ein anders, schädliches Paket untergeschoben wird.
 
-Das ZIP bringt darüber hinaus den Komfort, stets genau das Environment zu haben, das Du schon einmal selbst gebaut und geprüft hast. 
+Das **ZIP-File** bringt darüber hinaus den Komfort, stets genau das Environment zu bekommen, das Du schon einmal selbst gebaut und geprüft hast. 
 
-Abseits davon kannst Du mit zwei speziellen Umgebungsvariablen dafür sorgen, dass die Browser-Binaries an einem gemeinsamen Ort (außerhalb der Environments) bereitliegen, bzw. von einem internen statt von einem CDN-Server geladen werden:
+Abseits davon kannst Du mit zwei speziellen **Umgebungsvariablen** dafür sorgen, dass die Browser-Binaries an einem gemeinsamen Ort (außerhalb der Environments) bereitliegen, bzw. von einem internen statt von einem CDN-Server geladen werden:
 
 ```bash
 # Browser-Binaries einmal bereitstellen, Hosts laden nichts nach
@@ -478,12 +478,13 @@ PLAYWRIGHT_DOWNLOAD_HOST=https://<eigener-host>
 
 ## Was das Konzept nicht leistet
 
-Damit hier keiner mit falschen Erwartungen rausgeht:
+👆 Damit hier keiner mit falschen Erwartungen rausgeht:
 
 - Die Karenzzeit verkleinert das Fenster, sie schließt es nicht. 
 - Ungeprüft bleibt, ob das ZIP auf dem Host auch wirklich das ist, das Du erzeugt hast. 
 - Ein grüner Scan ist ein Zustand, keine Eigenschaft; er gilt ausschließlich für den Prüfzeitpunkt.
-- Das Freeze-File pinnt Name und Version - keinen Hash und keinen Index. Ein kompromittierter Spiegelserver, ein unsicher konfigurierter Proxy etc. können Dir immer noch ein manipuliertes Paket unterjubeln, das die Versionen erfüllt.
+- Das Freeze-File pinnt **Name und Version** - keinen Hash und keinen Index.  
+Ein kompromittierter Spiegelserver, ein unsicher konfigurierter Proxy etc. können Dir immer noch ein manipuliertes Paket unterjubeln.
 
 ---
 
@@ -492,6 +493,7 @@ Damit hier keiner mit falschen Erwartungen rausgeht:
 Uff, der Artikel ist länger geworden als geplant. 😄
 
 Angefangen hat das alles mit der Frage eines Kunden zur korrekten Anwendung von RCC.  
-Herausgekommen ist (hoffentlich) kein Artikel, der Angst macht, sondern Awareness dafür, wo die Lieferkette eines RCC-Environments belastbar ist und wo nicht. 
+
+Herausgekommen ist (hoffentlich) kein Artikel, der Angst macht, sondern Awareness dafür schafft, wo die Lieferkette eines RCC-Environments belastbar ist und wo nicht. 
 
 Jetzt interessiert mich Deine Sicht: **Baut Ihr Eure Environments auf jedem Host - oder habt Ihr das längst zentralisiert?** Und falls ja: Woran ist es bei Euch gescheitert, bevor es funktioniert hat? Schreib es in die Kommentare oder schick mir eine Mail.
