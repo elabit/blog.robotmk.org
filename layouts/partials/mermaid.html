@@ -19,26 +19,49 @@ document.addEventListener('DOMContentLoaded', function () {
       n.removeAttribute('data-processed');
       n.textContent = n.dataset.src;
     });
+    var vars = {
+      darkMode: !light.matches,
+      fontSize: '15px',
+      background: token('--color-surface'),
+      primaryColor: token('--color-surface-high'),
+      primaryTextColor: token('--color-on-surface'),
+      primaryBorderColor: token('--color-primary'),
+      secondaryColor: token('--color-surface-low'),
+      tertiaryColor: token('--color-surface-low'),
+      lineColor: token('--color-on-surface-variant'),
+      edgeLabelBackground: token('--color-surface'),
+      clusterBkg: token('--color-surface-low'),
+      clusterBorder: token('--color-surface-border'),
+      textColor: token('--color-on-surface'),
+      // Charts: series 1 = brand, 2 = warning (amber), 3 = critical
+      xyChart: {
+        backgroundColor: token('--color-surface'),
+        titleColor: token('--color-on-surface'),
+        xAxisLabelColor: token('--color-on-surface-variant'),
+        xAxisTitleColor: token('--color-on-surface-variant'),
+        xAxisLineColor: token('--color-surface-border'),
+        xAxisTickColor: token('--color-surface-border'),
+        yAxisLabelColor: token('--color-on-surface-variant'),
+        yAxisTitleColor: token('--color-on-surface-variant'),
+        yAxisLineColor: token('--color-surface-border'),
+        yAxisTickColor: token('--color-surface-border'),
+        plotColorPalette: [token('--color-primary'), '#f0b429', token('--color-error')].join(', ')
+      }
+    };
+    // Section scale (mindmap, timeline, journey): token surfaces instead
+    // of Mermaid's auto-derived, near-black dark-mode colors
+    for (var i = 0; i < 12; i++) {
+      vars['cScale' + i] = token('--color-surface-high');
+      vars['cScaleLabel' + i] = token('--color-on-surface');
+      vars['cScalePeer' + i] = token('--color-primary');
+    }
     mermaid.initialize({
       startOnLoad: false,
       securityLevel: 'strict',
       theme: 'base',
       fontFamily: token('--font-body'),
-      themeVariables: {
-        darkMode: !light.matches,
-        fontSize: '15px',
-        background: token('--color-surface'),
-        primaryColor: token('--color-surface-high'),
-        primaryTextColor: token('--color-on-surface'),
-        primaryBorderColor: token('--color-primary'),
-        secondaryColor: token('--color-surface-low'),
-        tertiaryColor: token('--color-surface-low'),
-        lineColor: token('--color-on-surface-variant'),
-        edgeLabelBackground: token('--color-surface'),
-        clusterBkg: token('--color-surface-low'),
-        clusterBorder: token('--color-surface-border'),
-        textColor: token('--color-on-surface')
-      }
+      architecture: { iconSize: 56, fontSize: 15 },
+      themeVariables: vars
     });
     mermaid.run({ nodes: nodes });
   }
