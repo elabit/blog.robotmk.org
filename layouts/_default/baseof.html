@@ -61,6 +61,9 @@
 	{{- /* Footer — implemented in Story 1.6 */ -}}
 	{{ block "footer" . }}{{ partial "footer.html" . }}{{ end }}
 
+	{{- /* Mermaid — only on pages containing a ```mermaid block */ -}}
+	{{- if .Store.Get "hasMermaid" }}{{ partial "mermaid.html" . }}{{ end -}}
+
 	{{- $mainJS := resources.Get "js/main.js" | js.Build | fingerprint -}}
 	<script src="{{ $mainJS.RelPermalink }}" integrity="{{ $mainJS.Data.Integrity }}" defer></script>
 </body>

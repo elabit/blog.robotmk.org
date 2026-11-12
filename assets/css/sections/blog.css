@@ -264,6 +264,26 @@ a.post__cat:focus-visible {
   line-height: 1.5;
 }
 
+/* Mermaid diagrams (```mermaid code fences) */
+.post__content pre.mermaid {
+  font-family: var(--font-body);
+  font-size: 1rem;
+  line-height: 1.4;
+  text-align: center;
+  padding: var(--space-md);
+}
+
+/* Hide the raw diagram source until Mermaid has rendered it */
+.post__content pre.mermaid:not([data-processed="true"]) {
+  visibility: hidden;
+  min-height: 8rem;
+}
+
+.post__content pre.mermaid svg {
+  max-width: 100%;
+  height: auto;
+}
+
 .post__content :not(pre) > code {
   background: var(--color-surface);
   border: 1px solid var(--color-border);

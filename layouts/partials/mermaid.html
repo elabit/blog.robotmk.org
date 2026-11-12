@@ -1,0 +1,49 @@
+{{- /* Mermaid loader — included by baseof.html only on pages with a
+     ```mermaid block (see _markup/render-codeblock-mermaid.html).
+     Self-hosted (no third-party request). Colors come from the design
+     tokens in tokens.css, so diagrams follow dark/light mode. */ -}}
+<script src="{{ "js/vendor/mermaid-11.4.1.min.js" | relURL }}" defer></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  var nodes = document.querySelectorAll('pre.mermaid');
+  if (!nodes.length || !window.mermaid) return;
+  nodes.forEach(function (n) { n.dataset.src = n.textContent; });
+
+  var token = function (name) {
+    return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  };
+  var light = window.matchMedia('(prefers-color-scheme: light)');
+
+  function render() {
+    nodes.forEach(function (n) {
+      n.removeAttribute('data-processed');
+      n.textContent = n.dataset.src;
+    });
+    mermaid.initialize({
+      startOnLoad: false,
+      securityLevel: 'strict',
+      theme: 'base',
+      fontFamily: token('--font-body'),
+      themeVariables: {
+        darkMode: !light.matches,
+        fontSize: '15px',
+        background: token('--color-surface'),
+        primaryColor: token('--color-surface-high'),
+        primaryTextColor: token('--color-on-surface'),
+        primaryBorderColor: token('--color-primary'),
+        secondaryColor: token('--color-surface-low'),
+        tertiaryColor: token('--color-surface-low'),
+        lineColor: token('--color-on-surface-variant'),
+        edgeLabelBackground: token('--color-surface'),
+        clusterBkg: token('--color-surface-low'),
+        clusterBorder: token('--color-surface-border'),
+        textColor: token('--color-on-surface')
+      }
+    });
+    mermaid.run({ nodes: nodes });
+  }
+
+  render();
+  light.addEventListener('change', render);
+});
+</script>
